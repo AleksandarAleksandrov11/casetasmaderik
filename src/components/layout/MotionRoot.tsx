@@ -136,6 +136,9 @@ export function MotionRoot() {
         });
       };
       window.addEventListener('scroll', sweep, { passive: true });
+      // También al montar: al recargar a mitad de página, o si se hidrata tarde
+      // después de que el usuario ya haya bajado
+      sweep();
       cleanups.push(() => {
         cancelAnimationFrame(frame);
         window.removeEventListener('scroll', sweep);

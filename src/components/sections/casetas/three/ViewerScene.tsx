@@ -34,11 +34,12 @@ export interface ViewerSceneProps {
   onFirstFrame?: () => void;
   onError?: () => void;
   onSlow?: () => void;
+  onTooSlow?: () => void;
 }
 
 /** Visor 3D de /casetas (chunk diferido). */
 export default function ViewerScene(props: ViewerSceneProps) {
-  const { quality, dpr, active, capture, onInvalidate, onFirstFrame, onError, onSlow, stateRef } = props;
+  const { quality, dpr, active, capture, onInvalidate, onFirstFrame, onError, onSlow, onTooSlow, stateRef } = props;
   return (
     <CasetaCanvas
       quality={quality}
@@ -53,7 +54,7 @@ export default function ViewerScene(props: ViewerSceneProps) {
       <ViewerRig {...props} />
       <CasetaModel stateRef={stateRef} quality={quality} />
       <Studio stateRef={stateRef} quality={quality} />
-      {onSlow && !capture ? <PerfProbe onSlow={onSlow} /> : null}
+      {!capture && (onSlow || onTooSlow) ? <PerfProbe key={quality} onSlow={onSlow} onTooSlow={onTooSlow} /> : null}
     </CasetaCanvas>
   );
 }

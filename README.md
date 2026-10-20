@@ -31,7 +31,9 @@ pnpm dev                     # http://localhost:3000
 | `NEXT_PUBLIC_GA_ID` | No | ID de Google Analytics 4 (`G-XXXXXXX`). Solo se carga si el usuario acepta las cookies analíticas. |
 | `NEXT_PUBLIC_META_PIXEL_ID` | No | ID del píxel de Meta. Además hay que activar `features.metaPixel` en `src/content/site.ts`. Solo se carga con consentimiento de marketing. |
 
-Sin `APPS_SCRIPT_URL`, en desarrollo el formulario responde correctamente con el número 0 y no guarda nada (útil para pruebas). En producción devuelve un error y lo registra en los logs.
+Sin `APPS_SCRIPT_URL`, en desarrollo el formulario responde correctamente con el número 0 y no guarda nada (útil para pruebas). En producción devuelve un error y lo registra en los logs. `LEADS_MOCK=1` fuerza esa respuesta simulada también con el servidor de producción (lo usan los tests e2e): nunca se reenvía nada al Apps Script ni se envía ningún email.
+
+Ningún test ni script de este proyecto envía emails. En el Apps Script, la solicitud de prueba (`testSolicitud`) solo escribe a la dirección de pruebas `CONFIG.testEmail`, nunca a info@ ni a clientes, y la confirmación al cliente viene desactivada (`CONFIG.sendClientConfirmation = false`).
 
 ## Scripts
 
@@ -48,6 +50,7 @@ Sin `APPS_SCRIPT_URL`, en desarrollo el formulario responde correctamente con el
 | `pnpm qa:links` | Enlaces rotos (linkinator) contra el servidor de QA |
 | `pnpm qa:lighthouse` | Lighthouse CI en móvil y escritorio |
 | `pnpm qa` | Todo lo anterior en orden |
+| `pnpm size` | JavaScript inicial (gzip) de cada página contra el servidor de QA |
 
 Los tests e2e y de QA levantan solos `next start` en el puerto 3300 con el último build. Antes de `pnpm e2e` o `pnpm qa:*` ejecuta `pnpm build:qa`.
 
@@ -98,7 +101,9 @@ Para cambiar un dato del negocio (teléfono, horario, zona, redes, tiempo de res
 - **Versiones**: se usa la última versión estable de cada paquete, con dos excepciones justificadas: **TypeScript 5.9** (TypeScript 7 aún no tiene la API de JavaScript que usa `next build`; Next 16.4 genera los proyectos con TS 5) y **ESLint 9** (los plugins de `eslint-config-next` aún no admiten ESLint 10).
 - **Renderizado**: todas las páginas son estáticas (SSG) con regeneración diaria (`revalidate = 86400`) para que el CTA de temporada y el año del pie cambien solos. No se activa `cacheComponents` de Next 16 porque es incompatible con `revalidate` y mantiene páginas ocultas montadas, algo que complica las secciones fijadas con GSAP y los lienzos 3D.
 - **Redirecciones y cabeceras**: viven solo en `vercel.json`. `next.config.ts` las lee de ahí en el build de QA (`VERCEL_JSON_LOCAL=1`) para probarlas en local. No se usa `trailingSlash` en `vercel.json` para que una URL antigua con barra final redirija en un solo salto.
-- **3D**: modelo procedural en React Three Fiber (sin GLB), cargado después del primer pintado y solo con WebGL, sin movimiento reducido y sin ahorro de datos. Debajo siempre hay un poster con el mismo encuadre.
+- **3D**: modelo procedural en React Three Fiber (sin GLB), cargado después del primer pintado y solo con WebGL, sin movimiento reducido y sin ahorro de datos. Debajo siempre hay un poster con el mismo encuadre. Sin bloom real (el lienzo es transparente para fundir el fondo del hero de crema a tinta): el brillo nocturno son sprites aditivos. Controles de órbita propios (arrastrar, pellizcar o Ctrl + rueda, flechas del teclado) que no bloquean el scroll en táctil.
+- **Posters del 3D**: se regeneran cuando cambian el modelo, las luces o los planos: `pnpm exec next dev -p 3400` y después `node scripts/posters/capture-posters.mjs --base http://localhost:3400` (o `--only hero`). `public/images/posters/og-base.png` es la base de las imágenes Open Graph. Parámetros de depuración: `?debug3d` (llamadas de dibujo y triángulos en `window.__caseta3d`) y, solo en desarrollo, `?hq`, `?poster=` y en el visor `?az=&el=&zoom=&open=0&night=1`.
+- **JavaScript inicial**: menos de 170 KB gzip en todas las páginas sin contar el 3D (`pnpm size`). GSAP, Lenis, el aviso de cookies, la analítica, el menú móvil y three se cargan bajo demanda. El paso 1 del formulario se renderiza en el servidor (`QuoteFormStatic`) y el formulario interactivo se descarga al quedar libre el navegador, al primer toque o enseguida si hay un borrador; las dos versiones comparten las piezas de `form/frame.tsx`, así que miden lo mismo.
 - **Privacidad**: fuentes autoalojadas con `next/font`, ningún script de terceros antes del consentimiento, analítica y píxeles solo tras aceptar su categoría.
 - **Accesibilidad y robustez**: toda la web se lee sin JavaScript (las animaciones solo se activan con la clase `js-motion`) y respeta `prefers-reduced-motion`.
 

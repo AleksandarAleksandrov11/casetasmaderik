@@ -6,6 +6,7 @@ import { Hand, X } from 'lucide-react';
 import { useCan3D, useDevFlag, useIdleReady, useInView, useMedia, usePosterKey } from '@/components/three/hooks';
 import { createCasetaState, DPR_DESKTOP, DPR_MOBILE, type Quality, type SceneHandle } from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
+import { markTooSlowFor3D } from '@/lib/device';
 import { ANCHORS } from './anchors';
 import { clampOrbit, createOrbit, nearestAngle, VIEWER_START } from './orbit';
 import type { ViewerTargets } from './ViewerScene';
@@ -286,6 +287,7 @@ export function ViewerStage({
                 onFirstFrame={onFirstFrame}
                 onError={onError}
                 onSlow={quality === 'high' && !forceHigh ? onSlow : undefined}
+                onTooSlow={forceHigh ? undefined : markTooSlowFor3D}
               />
             ) : null}
           </div>

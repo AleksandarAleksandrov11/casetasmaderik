@@ -53,6 +53,10 @@ export async function dismissCookies(page: Page): Promise<void> {
 
 /** Recorre la página entera para disparar animaciones y revelados. */
 export async function scrollThrough(page: Page): Promise<void> {
+  // Espera a que MotionRoot haya montado los revelados (hidratación)
+  await page
+    .waitForFunction(() => document.documentElement.classList.contains('reveal-ready'), null, { timeout: 20_000 })
+    .catch(() => undefined);
   const vh = page.viewportSize()?.height ?? 800;
   let y = 0;
   for (let i = 0; i < 300; i++) {

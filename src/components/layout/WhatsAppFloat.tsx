@@ -17,7 +17,7 @@ export function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 /**
- * Botón flotante de WhatsApp. Aparece tras el hero, se oculta en /contacto y
+ * Botón flotante de WhatsApp. Aparece tras el hero (o el primer pantallazo), se oculta en /contacto y
  * cuando el footer está a la vista, y sube por encima del aviso de cookies.
  */
 export function WhatsAppFloat() {
@@ -26,17 +26,22 @@ export function WhatsAppFloat() {
   const [footerVisible, setFooterVisible] = useState(false);
   const [offset, setOffset] = useState(0);
 
-  // Visible cuando el hero (o la primera sección) ha salido por arriba
+  // Con hero ([data-hero], Inicio): visible cuando el hero ha salido por
+  // arriba. En el resto de páginas, tras el primer pantallazo.
   useEffect(() => {
-    const hero =
-      document.querySelector<HTMLElement>('[data-hero]') ?? document.querySelector<HTMLElement>('#contenido section');
-    if (!hero) return;
-    const io = new IntersectionObserver((entries) => {
-      const e = entries[0];
-      if (e) setPastHero(!e.isIntersecting && e.boundingClientRect.top < 0);
-    });
-    io.observe(hero);
-    return () => io.disconnect();
+    const hero = document.querySelector<HTMLElement>('[data-hero]');
+    if (hero) {
+      const io = new IntersectionObserver((entries) => {
+        const e = entries[0];
+        if (e) setPastHero(!e.isIntersecting && e.boundingClientRect.top < 0);
+      });
+      io.observe(hero);
+      return () => io.disconnect();
+    }
+    const onScroll = () => setPastHero(window.scrollY > window.innerHeight * 0.85);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, [pathname]);
 
   useEffect(() => {

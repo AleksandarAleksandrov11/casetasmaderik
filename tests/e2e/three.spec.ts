@@ -55,6 +55,8 @@ async function skipIntro(page: Page) {
   await page.addInitScript(() => {
     try {
       sessionStorage.setItem('cm:intro', '1');
+      // WebGL por software va a pocos fps: sin esto el 3D se retiraría
+      sessionStorage.setItem('cm:3d-forzar', '1');
     } catch {
       // sin sessionStorage
     }

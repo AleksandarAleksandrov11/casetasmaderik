@@ -109,6 +109,14 @@ export const cookieCategories: CategoryInfo[] = [
         type: 'Propia',
       },
       {
+        name: 'cm:3d-lento',
+        provider: 'Casetas Maderik',
+        purpose:
+          'Almacenamiento de sesión (sessionStorage): si tu dispositivo no mueve la caseta 3D con fluidez, recuerda mostrar la imagen fija en su lugar.',
+        duration: SESSION,
+        type: 'Propia',
+      },
+      {
         name: 'cm:intro',
         provider: 'Casetas Maderik',
         purpose:

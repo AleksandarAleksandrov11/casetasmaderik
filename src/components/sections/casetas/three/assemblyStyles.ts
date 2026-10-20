@@ -79,7 +79,6 @@ export const assemblyCss = /* css */ `
 .assembly__step {
   position: relative;
   padding-top: 16px;
-  transition: opacity 0.5s var(--ease-brand);
 }
 
 .assembly__bar {
@@ -124,15 +123,17 @@ export const assemblyCss = /* css */ `
   color: var(--color-mist);
 }
 
-/* Paso activo en modo 3D */
-.assembly[data-mode='3d'] .assembly__step {
-  opacity: 0.42;
+/* Paso activo en modo 3D: los demás se atenúan con color (no con opacidad,
+   para mantener el contraste AA) */
+.assembly[data-mode='3d'] .assembly__step-title {
+  color: var(--color-mist);
+  transition: color 0.6s var(--ease-brand);
 }
 
-.assembly[data-step='0'] .assembly__step[data-index='0'],
-.assembly[data-step='1'] .assembly__step[data-index='1'],
-.assembly[data-step='2'] .assembly__step[data-index='2'] {
-  opacity: 1;
+.assembly[data-step='0'] .assembly__step[data-index='0'] .assembly__step-title,
+.assembly[data-step='1'] .assembly__step[data-index='1'] .assembly__step-title,
+.assembly[data-step='2'] .assembly__step[data-index='2'] .assembly__step-title {
+  color: var(--color-cream);
 }
 
 .assembly[data-mode='3d'] .assembly__step[data-index='0'] .assembly__bar span {

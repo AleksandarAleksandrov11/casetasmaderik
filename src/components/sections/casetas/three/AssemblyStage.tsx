@@ -13,6 +13,7 @@ import {
   type SceneHandle,
 } from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
+import { markTooSlowFor3D } from '@/lib/device';
 import { loadGsap } from '@/lib/gsap-loader';
 import { ASSEMBLY_DESKTOP, ASSEMBLY_MOBILE, ASSEMBLY_POSTER, ASSEMBLY_WIDE, STEP_AT } from './assemblyShots';
 import type { AssemblyAnim } from './AssemblyScene';
@@ -176,6 +177,7 @@ export function AssemblyStage({
                 onInvalidate={onInvalidate}
                 onFirstFrame={onFirstFrame}
                 onError={onError}
+                onTooSlow={forceHigh ? undefined : markTooSlowFor3D}
               />
             ) : null}
           </div>

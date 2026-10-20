@@ -22,6 +22,7 @@ export interface HeroSceneProps {
   onFirstFrame?: () => void;
   onError?: () => void;
   onSlow?: () => void;
+  onTooSlow?: () => void;
 }
 
 /** Escena del hero de Inicio (chunk diferido). */
@@ -37,6 +38,7 @@ export default function HeroScene({
   onFirstFrame,
   onError,
   onSlow,
+  onTooSlow,
 }: HeroSceneProps) {
   return (
     <CasetaCanvas
@@ -52,7 +54,7 @@ export default function HeroScene({
       <Rig shotRef={shotRef} fit={fit} />
       <CasetaModel stateRef={stateRef} quality={quality} showDimensions />
       <Studio stateRef={stateRef} quality={quality} />
-      {onSlow && !capture ? <PerfProbe onSlow={onSlow} /> : null}
+      {!capture && (onSlow || onTooSlow) ? <PerfProbe key={quality} onSlow={onSlow} onTooSlow={onTooSlow} /> : null}
     </CasetaCanvas>
   );
 }

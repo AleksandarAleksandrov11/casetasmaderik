@@ -122,6 +122,8 @@ test('hero de inicio a lo largo del scroll', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: vp, isMobile: vp.mobile, hasTouch: vp.mobile });
     const page = await ctx.newPage();
     await prepare(page);
+    // WebGL por software va a pocos fps: se fuerza el 3D para ver la coreografía
+    await page.addInitScript(() => sessionStorage.setItem('cm:3d-forzar', '1'));
     await page.goto('/');
     await dismissCookies(page);
     await page.waitForTimeout(3500);

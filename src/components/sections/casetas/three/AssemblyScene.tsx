@@ -6,6 +6,7 @@ import { useFrame } from '@react-three/fiber';
 import CasetaCanvas from '@/components/three/scene/CasetaCanvas';
 import { CasetaModel } from '@/components/three/caseta/CasetaModel';
 import { Studio } from '@/components/three/scene/Studio';
+import { PerfProbe } from '@/components/three/scene/PerfProbe';
 import { applyShot } from '@/components/three/scene/camera';
 import type { CameraShot, CasetaState, FitMode, Quality } from '@/components/three/state';
 
@@ -26,6 +27,7 @@ export interface AssemblySceneProps {
   onInvalidate: (fn: (() => void) | null) => void;
   onFirstFrame?: () => void;
   onError?: () => void;
+  onTooSlow?: () => void;
 }
 
 /** Montaje despiezado (chunk diferido). La sombra va pegada a la caseta. */
@@ -41,6 +43,7 @@ export default function AssemblyScene({
   onInvalidate,
   onFirstFrame,
   onError,
+  onTooSlow,
 }: AssemblySceneProps) {
   return (
     <CasetaCanvas
@@ -58,6 +61,7 @@ export default function AssemblyScene({
         <CasetaModel stateRef={stateRef} quality={quality} blobShadow />
       </Slide>
       <Studio stateRef={stateRef} quality={quality} contact={false} />
+      {!capture && onTooSlow ? <PerfProbe key={quality} onTooSlow={onTooSlow} /> : null}
     </CasetaCanvas>
   );
 }

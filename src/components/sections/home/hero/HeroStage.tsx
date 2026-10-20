@@ -13,6 +13,7 @@ import {
   type SceneHandle,
 } from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
+import { markTooSlowFor3D } from '@/lib/device';
 import { loadGsap } from '@/lib/gsap-loader';
 import { DESKTOP, HERO_WIDE, MOBILE, OG_SHOT, type HeroShots } from './shots';
 
@@ -211,6 +212,7 @@ export function HeroStage({
               onFirstFrame={onFirstFrame}
               onError={onError}
               onSlow={quality === 'high' && !forceHigh ? onSlow : undefined}
+              onTooSlow={forceHigh ? undefined : markTooSlowFor3D}
             />
           ) : null}
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useSyncExternalStore, type RefObject } from 'react';
-import { canUse3D } from '@/lib/device';
+import { EVT_3D_SLOW, canUse3D } from '@/lib/device';
 
 /**
  * Hooks de carga del 3D: decidir si se usa (WebGL, sin movimiento reducido ni
@@ -14,7 +14,11 @@ const REDUCED = '(prefers-reduced-motion: reduce)';
 function subscribe(cb: () => void) {
   const mq = window.matchMedia(REDUCED);
   mq.addEventListener('change', cb);
-  return () => mq.removeEventListener('change', cb);
+  window.addEventListener(EVT_3D_SLOW, cb);
+  return () => {
+    mq.removeEventListener('change', cb);
+    window.removeEventListener(EVT_3D_SLOW, cb);
+  };
 }
 
 /** true si el 3D se puede usar. En el servidor y en la hidratación es false. */

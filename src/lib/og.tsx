@@ -28,13 +28,34 @@ async function sideImage(): Promise<{ src: string; poster: boolean }> {
 export async function renderOg({ title, eyebrow = 'Casetas Maderik' }: { title: string; eyebrow?: string }) {
   const [regular, medium, img] = await Promise.all([fontRegular, fontMedium, sideImage()]);
   return new ImageResponse(
-    <div style={{ width: '100%', height: '100%', display: 'flex', background: '#FBF8F3', fontFamily: 'Outfit' }}>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        position: 'relative',
+        background: '#FBF8F3',
+        fontFamily: 'Outfit',
+      }}
+    >
+      {img.poster ? (
+        // El render del 3D ocupa todo el lienzo con la caseta a la derecha;
+        // se desplaza un poco para dejar más aire al texto
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={img.src}
+          alt=""
+          width={OG_SIZE.width}
+          height={OG_SIZE.height}
+          style={{ position: 'absolute', top: 0, left: 56 }}
+        />
+      ) : null}
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          width: img.poster ? 640 : 700,
+          width: img.poster ? 600 : 700,
           padding: '64px 0 56px 72px',
         }}
       >
@@ -59,7 +80,7 @@ export async function renderOg({ title, eyebrow = 'Casetas Maderik' }: { title: 
             style={{
               display: 'flex',
               marginTop: 24,
-              fontSize: 62,
+              fontSize: img.poster ? 56 : 62,
               lineHeight: 1.04,
               color: '#0E1615',
               letterSpacing: -1.5,
@@ -70,10 +91,12 @@ export async function renderOg({ title, eyebrow = 'Casetas Maderik' }: { title: 
         </div>
         <div style={{ display: 'flex', fontSize: 22, color: '#5E6461' }}>casetasmaderik.es</div>
       </div>
-      <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={img.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      </div>
+      {img.poster ? null : (
+        <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={img.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      )}
     </div>,
     {
       ...OG_SIZE,
