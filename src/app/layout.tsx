@@ -3,6 +3,7 @@ import { Manrope, Outfit } from 'next/font/google';
 import { site } from '@/content/site';
 import { homeMeta } from '@/content/home';
 import { Header } from '@/components/layout/Header';
+import { Logo } from '@/components/brand/Logo';
 import { Footer } from '@/components/layout/Footer';
 import { Intro } from '@/components/layout/Intro';
 import { MotionRoot } from '@/components/layout/MotionRoot';
@@ -71,7 +72,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <Intro />
         <ConsentProvider>
-          <Header />
+          <Header
+            logo={
+              <Logo
+                className="h-[26px] w-auto sm:h-[30px] lg:h-[32px]"
+                markClassName="text-wood transition-colors duration-500 group-data-[logo-tone=dark]/logo:text-wood-light"
+              />
+            }
+          />
           <main id="contenido" tabIndex={-1} className="outline-none">
             {children}
           </main>

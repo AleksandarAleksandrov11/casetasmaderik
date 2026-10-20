@@ -4,7 +4,6 @@ import { Section } from '@/components/ui/Section';
 import { TextLink } from '@/components/ui/TextLink';
 import { nosotrosArea } from '@/content/nosotros';
 import { site } from '@/content/site';
-import { CANARIAS_FRAME, SPAIN_PROVINCES, SPAIN_VIEWBOX } from './spain-provinces';
 
 /**
  * S5. Dónde trabajamos: mapa minimalista de España. Resalta las provincias de
@@ -33,42 +32,17 @@ export function NosotrosArea() {
           </div>
         </div>
         <figure className="col-span-4 md:col-span-6 lg:col-span-7 lg:col-start-6" data-reveal>
-          <svg
-            viewBox={SPAIN_VIEWBOX}
+          {/* SVG estático generado en el build (src/app/mapa-espana.svg): no infla el HTML */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/mapa-espana.svg"
+            width={1000}
+            height={740}
+            loading="lazy"
+            decoding="async"
+            alt={`Mapa de España. Zona de servicio: ${zone}.`}
             className="h-auto w-full"
-            role="img"
-            aria-label={`Mapa de España. Zona de servicio: ${zone}.`}
-          >
-            <g strokeWidth={1.2} strokeLinejoin="round">
-              {SPAIN_PROVINCES.map((p) => {
-                const on = all || regions.includes(p.name);
-                return (
-                  <path
-                    key={p.name}
-                    d={p.d}
-                    className={
-                      all
-                        ? 'fill-[#ebe2d5] stroke-cream transition-colors duration-500 hover:fill-wood-light'
-                        : on
-                          ? 'fill-wood stroke-cream'
-                          : 'fill-[#ebe2d5] stroke-cream'
-                    }
-                  >
-                    <title>{p.name}</title>
-                  </path>
-                );
-              })}
-            </g>
-            <rect
-              x={CANARIAS_FRAME.x}
-              y={CANARIAS_FRAME.y}
-              width={CANARIAS_FRAME.w}
-              height={CANARIAS_FRAME.h}
-              fill="none"
-              className="stroke-sand"
-              strokeWidth={1}
-            />
-          </svg>
+          />
           {!all ? (
             <figcaption className="mt-4 text-[0.9375rem] text-stone">Provincias en las que trabajamos: {zone}.</figcaption>
           ) : null}

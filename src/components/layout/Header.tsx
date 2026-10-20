@@ -3,8 +3,7 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Logo } from '@/components/brand/Logo';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ButtonLink } from '@/components/ui/Button';
 import { nav } from '@/content/site';
 
@@ -22,7 +21,7 @@ const HIDE_AFTER = 160;
  * 40 px, se oculta al bajar y reaparece al subir, y cambia a su versión clara
  * sobre las secciones con data-header="dark".
  */
-export function Header() {
+export function Header({ logo }: { logo: ReactNode }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -139,12 +138,10 @@ export function Header() {
           <Link
             href="/"
             aria-label="Casetas Maderik, ir al inicio"
-            className="relative z-10 -my-2 flex min-h-[44px] items-center py-2"
+            data-logo-tone={dark || menuOpen ? 'dark' : 'light'}
+            className="group/logo relative z-10 -my-2 flex min-h-[44px] items-center py-2"
           >
-            <Logo
-              className="h-[26px] w-auto sm:h-[30px] lg:h-[32px]"
-              markClassName={dark || menuOpen ? 'text-wood-light' : 'text-wood'}
-            />
+            {logo}
           </Link>
 
           <nav aria-label="Principal" className="hidden lg:block">

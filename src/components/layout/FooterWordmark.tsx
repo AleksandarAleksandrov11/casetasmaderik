@@ -1,7 +1,5 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
 import { brand } from '@/components/brand/brand-data';
+import { InView } from '@/components/ui/InView';
 
 const PAD_TOP = 14;
 const PAD_BOTTOM = 8;
@@ -12,34 +10,13 @@ const PAD_BOTTOM = 8;
  * eleva al pasar por encima.
  */
 export function FooterWordmark() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (!document.documentElement.classList.contains('js-motion')) {
-      el.classList.add('is-in');
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          el.classList.add('is-in');
-          io.disconnect();
-        }
-      },
-      { threshold: 0.35 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
   const [vx, , vw] = brand.wordmark.viewBox;
   const letters = brand.wordmark.letters;
   const [ix, iy, iw, ih] = brand.iso.viewBox;
 
   return (
-    <div ref={ref} className="wordmark container-site mt-[clamp(64px,8vw,120px)] pb-[clamp(16px,2vw,32px)]">
+    <div id="footer-wordmark" className="wordmark container-site mt-[clamp(64px,8vw,120px)] pb-[clamp(16px,2vw,32px)]">
+      <InView targetId="footer-wordmark" threshold={0.35} />
       <svg
         viewBox={`${ix} ${iy} ${iw} ${ih}`}
         className="wordmark__iso mb-[clamp(16px,2.5vw,36px)] h-[clamp(36px,4.5vw,64px)] w-auto text-wood-light"
