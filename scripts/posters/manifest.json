@@ -24,7 +24,7 @@
     "webp": "/images/posters/hero-poster-mobile.webp",
     "webpSm": "/images/posters/hero-poster-mobile-sm.webp",
     "width": 1200,
-    "height": 814,
+    "height": 813,
     "smWidth": 600,
     "fit": {
       "hk": 0.56,
@@ -32,10 +32,10 @@
     },
     "ax": 0.5,
     "ay": 0.735,
-    "x": -0.51711,
-    "y": -0.34074,
-    "w": 1.06843,
-    "h": 0.72455
+    "x": -0.51709,
+    "y": -0.34108,
+    "w": 1.06838,
+    "h": 0.72393
   },
   "viewer": {
     "src": "/images/posters/caseta-poster.avif",
@@ -48,7 +48,7 @@
     "fit": "h",
     "ax": 0.5,
     "ay": 0.53,
-    "x": -0.5125,
+    "x": -0.51216,
     "y": -0.30905,
     "w": 1.10878,
     "h": 0.66351

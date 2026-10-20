@@ -86,7 +86,8 @@ export default function CasetaCanvas({
         frameloop={frameloop}
         dpr={dpr}
         shadows={high ? 'percentage' : false}
-        resize={{ scroll: false, debounce: { scroll: 0, resize: 60 } }}
+        // offsetSize: mide sin transformaciones (la entrada del hero escala el contenedor)
+        resize={{ scroll: false, offsetSize: true, debounce: { scroll: 0, resize: 60 } }}
         eventSource={eventSource as RefObject<HTMLElement> | undefined}
         gl={{
           antialias: true,

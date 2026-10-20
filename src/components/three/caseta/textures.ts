@@ -90,8 +90,8 @@ const PINO_U = 1.1;
 const PINO_V = 0.42;
 
 /** Tono del pino teñido de las fotos (sRGB): veta oscura y fondo miel. */
-const STAIN_DARK = [104, 56, 26];
-const STAIN_LIGHT = [200, 130, 72];
+const STAIN_DARK = [110, 60, 28];
+const STAIN_LIGHT = [210, 140, 78];
 
 interface BoardPlan {
   ox: number;

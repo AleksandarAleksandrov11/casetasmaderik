@@ -246,7 +246,7 @@ export function CasetaModel({
       const sw = win.shutterWidth / 2;
       for (const side of [-1, 1]) {
         // Tirante: de la jamba a la punta de la visera
-        tmp.a.set(side * (hw + FRAME_W + 0.012), WIN_Y0 - BASE_H + 0.3, 0.03).applyMatrix4(tmp.m);
+        tmp.a.set(side * (hw + FRAME_W + 0.012), WIN_Y0 - BASE_H + 0.14, 0.03).applyMatrix4(tmp.m);
         tmp.b
           .set(side * (sw - 0.07), -win.shutterHeight + 0.035, -0.006)
           .applyMatrix4(sg.matrix)
