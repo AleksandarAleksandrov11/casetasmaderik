@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { Hand, X } from 'lucide-react';
 import { useCan3D, useDevFlag, useIdleReady, useInView, useMedia, usePosterKey } from '@/components/three/hooks';
-import { createCasetaState, type Quality, type SceneHandle } from '@/components/three/state';
+import { createCasetaState, DPR_DESKTOP, DPR_MOBILE, type Quality, type SceneHandle } from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
 import { ANCHORS } from './anchors';
 import { clampOrbit, createOrbit, nearestAngle, VIEWER_START } from './orbit';
@@ -73,7 +73,7 @@ export function ViewerStage({
 
   const mode = can3D && !failed && !(posterKey && !capture) ? '3d' : 'static';
   const quality: Quality = forceHigh ? 'high' : big && fine && !slow ? 'high' : 'low';
-  const dpr: number | [number, number] = capture ? window.devicePixelRatio : slow ? 1 : big ? [1, 1.75] : [1, 1.5];
+  const dpr: number | [number, number] = capture ? window.devicePixelRatio : slow ? 1 : big ? DPR_DESKTOP : DPR_MOBILE;
   const ids = hotspots.map((h) => h.id);
 
   const invalidate = useCallback(() => handleRef.current.invalidate?.(), []);

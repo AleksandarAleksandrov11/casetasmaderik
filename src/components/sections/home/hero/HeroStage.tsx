@@ -6,7 +6,15 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { useCan3D, useDevFlag, useIdleReady, useInView, useMedia, usePosterKey } from '@/components/three/hooks';
-import { copyShot, createCasetaState, type CameraShot, type Quality, type SceneHandle } from '@/components/three/state';
+import {
+  copyShot,
+  createCasetaState,
+  DPR_DESKTOP,
+  DPR_MOBILE,
+  type CameraShot,
+  type Quality,
+  type SceneHandle,
+} from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
 import { DESKTOP, HERO_WIDE, MOBILE, OG_SHOT, type HeroShots } from './shots';
 
@@ -59,8 +67,8 @@ export function HeroStage({
     : slow
       ? 1
       : bigScreen
-        ? [1, 1.75]
-        : [1, 1.5];
+        ? DPR_DESKTOP
+        : DPR_MOBILE;
   const mode = can3D && !(posterKey && !capture) ? '3d' : 'static';
 
   const onFirstFrame = useCallback(() => setLive(true), []);

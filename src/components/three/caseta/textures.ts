@@ -60,7 +60,8 @@ function loadImage(name: string): Promise<HTMLImageElement> {
  * mapas de color. Si falla, resuelve a null y se usan las procedurales.
  */
 export function loadTextureSources(quality: Quality): Promise<TextureSources | null> {
-  let p = sourceCache.get(quality);
+  // La calidad alta trae todo lo de la baja: si ya está, se reutiliza (sin volver a suspender)
+  let p = sourceCache.get(quality) ?? (quality === 'low' ? sourceCache.get('high') : undefined);
   if (!p) {
     const high = quality === 'high';
     p = Promise.all([
@@ -72,6 +73,13 @@ export function loadTextureSources(quality: Quality): Promise<TextureSources | n
     ])
       .then(([pino, pinoNormal, roof, roofNormal, roofRough]) => ({ pino, pinoNormal, roof, roofNormal, roofRough }))
       .catch(() => null);
+    // Marca la promesa como resuelta (convención de React para use()): las
+    // siguientes lecturas devuelven el valor sin suspender
+    const tracked = p as Promise<TextureSources | null> & { status?: string; value?: TextureSources | null };
+    void tracked.then((v) => {
+      tracked.status = 'fulfilled';
+      tracked.value = v;
+    });
     sourceCache.set(quality, p);
   }
   return p;

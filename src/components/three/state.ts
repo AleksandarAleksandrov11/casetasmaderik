@@ -75,6 +75,10 @@ export function frameMetrics(fit: FitMode, ax: number, w: number, h: number): { 
   return { u: Math.min(h * fit.hk, content * fit.wk), x: offset + ax * content };
 }
 
+/** Rangos de DPR (constantes para no recrear la configuración del lienzo en cada render). */
+export const DPR_DESKTOP: [number, number] = [1, 1.75];
+export const DPR_MOBILE: [number, number] = [1, 1.5];
+
 /** Campo de visión vertical de referencia (grados). */
 export const BASE_FOV = 30;
 

@@ -6,7 +6,15 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { useCan3D, useDevFlag, useIdleReady, useInView, useMedia, usePosterKey } from '@/components/three/hooks';
-import { copyShot, createCasetaState, type CameraShot, type Quality, type SceneHandle } from '@/components/three/state';
+import {
+  copyShot,
+  createCasetaState,
+  DPR_DESKTOP,
+  DPR_MOBILE,
+  type CameraShot,
+  type Quality,
+  type SceneHandle,
+} from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
 import { ASSEMBLY_DESKTOP, ASSEMBLY_MOBILE, ASSEMBLY_POSTER, ASSEMBLY_WIDE, STEP_AT } from './assemblyShots';
 import type { AssemblyAnim } from './AssemblyScene';
@@ -60,7 +68,7 @@ export function AssemblyStage({
   const [failed, setFailed] = useState(false);
 
   const quality: Quality = forceHigh ? 'high' : big && fine ? 'high' : 'low';
-  const dpr: number | [number, number] = capture ? window.devicePixelRatio : big ? [1, 1.75] : [1, 1.5];
+  const dpr: number | [number, number] = capture ? window.devicePixelRatio : big ? DPR_DESKTOP : DPR_MOBILE;
 
   const onInvalidate = useCallback((fn: (() => void) | null) => {
     handleRef.current.invalidate = fn;
