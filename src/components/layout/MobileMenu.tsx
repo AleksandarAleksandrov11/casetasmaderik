@@ -27,9 +27,13 @@ export function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
     const prevOverflow = root.style.overflow;
     root.style.overflow = 'hidden';
     lockScroll(true);
-    const outside = [document.getElementById('contenido'), document.querySelector('footer')].filter(
-      Boolean,
-    ) as HTMLElement[];
+    // Todo lo que queda fuera del menú, incluido el aviso de cookies, queda inerte
+    const outside = [
+      document.getElementById('contenido'),
+      document.querySelector('footer'),
+      document.getElementById('cc-main'),
+      document.querySelector('.skip-link'),
+    ].filter(Boolean) as HTMLElement[];
     outside.forEach((el) => el.setAttribute('inert', ''));
 
     const toggle = document.querySelector<HTMLButtonElement>('[aria-controls="menu-movil"]');
@@ -81,7 +85,7 @@ export function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
             role="dialog"
             aria-modal="true"
             aria-label="Menú"
-            className="surface-dark fixed inset-0 z-40 flex flex-col overflow-y-auto bg-ink text-cream lg:hidden"
+            className="surface-dark fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-ink text-cream lg:hidden"
             style={{
               paddingTop: 'calc(var(--header-h) + var(--safe-top))',
               paddingBottom: 'max(28px, var(--safe-bottom))',

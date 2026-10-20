@@ -2,7 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "regions": ["cdg1"],
-  "trailingSlash": false,
   "redirects": [
     { "source": "/:path*", "has": [{ "type": "host", "value": "www.casetasmaderik.es" }], "destination": "https://casetasmaderik.es/:path*", "statusCode": 301 },
     { "source": "/product-category/:path*", "destination": "/casetas", "statusCode": 301 },

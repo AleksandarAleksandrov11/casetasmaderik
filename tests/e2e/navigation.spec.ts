@@ -44,11 +44,15 @@ test('menú móvil: abre, atrapa el foco, Esc cierra y devuelve el foco @mobile'
   await expect(dialog).toBeVisible();
   await expect(page.getByRole('button', { name: 'Cerrar menú' })).toBeVisible();
   await expect(dialog.getByRole('link', { name: 'Inicio' })).toBeFocused();
-  for (let i = 0; i < 12; i++) await page.keyboard.press('Tab');
-  const inside = await page.evaluate(
-    () => !!document.activeElement?.closest('#menu-movil') || document.activeElement?.getAttribute('aria-controls') === 'menu-movil',
-  );
-  expect(inside).toBe(true);
+  for (let i = 0; i < 12; i++) {
+    await page.keyboard.press('Tab');
+    const where = await page.evaluate(() => {
+      const el = document.activeElement;
+      const inside = !!el?.closest('#menu-movil') || el?.getAttribute('aria-controls') === 'menu-movil';
+      return inside ? 'ok' : `${el?.tagName} ${(el?.textContent ?? '').trim().slice(0, 30)}`;
+    });
+    expect(where, `Tab ${i + 1}`).toBe('ok');
+  }
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   await expect(page.getByRole('button', { name: 'Abrir menú' })).toBeFocused();
@@ -58,7 +62,7 @@ test('menú móvil se cierra al navegar @mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Abrir menú' }).click();
-  await page.getByRole('dialog', { name: 'Menú' }).getByRole('link', { name: 'Casetas' }).click();
+  await page.getByRole('dialog', { name: 'Menú' }).getByRole('link', { name: 'Casetas', exact: true }).click();
   await expect(page).toHaveURL(/\/casetas$/);
   await expect(page.getByRole('dialog', { name: 'Menú' })).toBeHidden();
 });

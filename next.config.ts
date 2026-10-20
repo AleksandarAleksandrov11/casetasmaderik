@@ -41,13 +41,19 @@ const nextConfig: NextConfig = {
   },
   ...(vercel
     ? {
+        // Vercel aplica las redirecciones de vercel.json antes que la
+        // normalización de la barra final de Next: se reproduce ese orden
+        skipTrailingSlashRedirect: true,
         async redirects() {
-          return vercel.redirects.map((r) => ({
-            source: r.source,
-            destination: r.destination,
-            statusCode: (r.statusCode ?? 308) as 301 | 308,
-            ...(r.has ? { has: r.has } : {}),
-          }));
+          return [
+            ...vercel.redirects.map((r) => ({
+              source: r.source,
+              destination: r.destination,
+              statusCode: (r.statusCode ?? 308) as 301 | 308,
+              ...(r.has ? { has: r.has } : {}),
+            })),
+            { source: '/:path+/', destination: '/:path+', statusCode: 308 as const },
+          ];
         },
         async headers() {
           // En local no hay HTTPS: se omiten HSTS y upgrade-insecure-requests

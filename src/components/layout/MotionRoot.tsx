@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
@@ -55,11 +55,14 @@ export function MotionRoot() {
     };
   }, []);
 
-  // Al cambiar de página: arriba del todo y recalcular
+  // Al cambiar de página (no en la carga inicial): arriba del todo
+  const firstPath = useRef(true);
   useEffect(() => {
-    if (!window.location.hash) {
-      lenis?.scrollTo(0, { immediate: true });
+    if (firstPath.current) {
+      firstPath.current = false;
+      return;
     }
+    if (!window.location.hash) lenis?.scrollTo(0, { immediate: true, force: true });
   }, [pathname]);
 
   // Controladores por página

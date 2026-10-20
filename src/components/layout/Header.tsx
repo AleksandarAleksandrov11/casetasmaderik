@@ -107,7 +107,7 @@ export function Header() {
         data-theme={dark ? 'dark' : 'light'}
         data-scrolled={scrolled ? '' : undefined}
         className={[
-          'fixed inset-x-0 top-0 z-50 pt-[var(--safe-top)] transition-[transform,background-color,border-color,color] duration-500 ease-brand',
+          `fixed inset-x-0 top-0 ${menuOpen ? 'z-[80]' : 'z-50'} pt-[var(--safe-top)] transition-[transform,background-color,border-color,color] duration-500 ease-brand`,
           hidden && !menuOpen ? '-translate-y-full' : 'translate-y-0',
           menuOpen ? 'text-cream' : dark ? 'text-cream' : 'text-ink',
           showBar
