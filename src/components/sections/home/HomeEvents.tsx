@@ -31,17 +31,23 @@ export function HomeEvents() {
         {e.cards.map((card, i) => (
           // Subrejilla: todas las fotos comparten fila (mismo alto) y los pies arrancan a la misma
           // altura aunque un título ocupe dos líneas. En escritorio encajado (ver HorizontalRail)
-          // la fila de la foto cede alto para que todo quepa en pantalla.
+          // la fila de la foto cede alto para que todo quepa en pantalla, y el ancho de la tarjeta
+          // sale del alto disponible (100cqh menos el pie, unos 7,5rem) para que la foto se quede en
+          // torno a 5:4 apaisada como mucho. En móvil en horizontal, el mismo tope con el alto de la
+          // ventana (la foto mide como mucho 100svh menos 9rem).
           <li
             key={card.slug}
             data-rail-item
-            className="row-span-2 grid w-[78vw] max-w-[420px] snap-start grid-rows-subgrid sm:w-[44vw] lg:w-[28vw]"
+            className="row-span-2 grid w-[78vw] max-w-[min(420px,calc((100svh-9rem)*1.25))] snap-start grid-rows-subgrid sm:w-[44vw] lg:w-[28vw] lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:w-[min(28vw,420px,calc((100cqh-7.5rem)*1.25))]"
           >
             <Link
               href={`/contacto?evento=${card.slug}`}
               className="group/card row-span-2 grid grid-rows-subgrid rounded-sm"
             >
-              <div className="relative aspect-[4/5] max-h-[calc(100svh-9rem)] min-h-0 self-stretch justify-self-stretch overflow-hidden rounded-sm bg-paper">
+              <div
+                data-rail-media
+                className="relative aspect-[4/5] max-h-[calc(100svh-9rem)] min-h-0 self-stretch justify-self-stretch overflow-hidden rounded-sm bg-paper"
+              >
                 {/* Fotos recortadas a 4:5: la caja nunca es más vertical, así que el ancho servido es el de la caja */}
                 <Image
                   src={card.image}
@@ -59,9 +65,13 @@ export function HomeEvents() {
                   {String(i + 1).padStart(2, '0')}
                 </span>
               </div>
-              <div className="mt-5">
+              {/* En escritorio el título se ajusta al ancho de la tarjeta (cqw) para caber en una línea:
+                  el pie más alto marca la fila de todos y así las fotos no pierden alto */}
+              <div className="@container mt-5">
                 <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-h3">{card.title}</h3>
+                  <h3 className="text-h3 lg:text-[length:clamp(1.25rem,calc(8.4cqw-3.5px),var(--fs-h3))]">
+                    {card.title}
+                  </h3>
                   <ArrowUpRight
                     aria-hidden="true"
                     strokeWidth={1.5}
