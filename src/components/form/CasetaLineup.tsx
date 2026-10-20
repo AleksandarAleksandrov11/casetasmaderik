@@ -1,12 +1,83 @@
-// STUB: lo sustituye la ilustración isométrica de la fila de casetas.
-type CasetaLineupProps = { count: number; max?: number; className?: string; tone?: 'light' | 'dark' };
+import { STALL, computeLayout } from './lineup-geometry';
+import './caseta-lineup.css';
 
-export function CasetaLineup({ count, max = 12, className = '' }: CasetaLineupProps) {
-  const shown = Math.min(count, max);
+type CasetaLineupProps = {
+  count: number;
+  /** Casetas dibujadas como máximo; el resto se indica con "+N". */
+  max?: number;
+  className?: string;
+  /** light: sobre crema o papel. dark: sobre tinta. */
+  tone?: 'light' | 'dark';
+  /** Si se indica, la ilustración se anuncia como imagen con este texto. */
+  label?: string;
+};
+
+function Stall() {
   return (
-    <div className={className} aria-hidden="true">
-      {shown}
-      {count > max ? ` +${count - max}` : ''}
-    </div>
+    <>
+      <polygon className="cl-shadow" points={STALL.shadow} />
+      <polygon className="cl-roof-back" points={STALL.roofBack} />
+      <polygon className="cl-side" points={STALL.side} />
+      <path className="cl-plank" d={STALL.sidePlanks.join('')} />
+      <polygon className="cl-door" points={STALL.door} />
+      <polygon className="cl-front" points={STALL.front} />
+      <path className="cl-plank" d={STALL.frontPlanks.join('')} />
+      {STALL.windows.map((points) => (
+        <polygon key={points} className="cl-window" points={points} />
+      ))}
+      <polygon className="cl-counter" points={STALL.counterTop} />
+      <polygon className="cl-counter-edge" points={STALL.counterEdge} />
+      {STALL.visors.map((points) => (
+        <polygon key={points} className="cl-visor" points={points} />
+      ))}
+      <polygon className="cl-roof" points={STALL.roofFront} />
+      <polygon className="cl-roof-end" points={STALL.roofEnd} />
+      <path className="cl-ridge" d={STALL.ridge} />
+    </>
+  );
+}
+
+/**
+ * Fila isométrica de casetas de madera (hasta `max` dibujadas y "+N").
+ * Componente de servidor: las casetas nuevas entran con una animación CSS
+ * (solo transform y opacidad, solo con html.js-motion) y los huecos se
+ * recolocan con una transición de transform.
+ */
+export function CasetaLineup({ count, max = 12, className = '', tone = 'light', label }: CasetaLineupProps) {
+  const layout = computeLayout(Number.isFinite(count) ? count : 0, max);
+  // Orden de pintado: fila trasera primero y, en cada fila, de derecha a izquierda
+  const ordered = [...layout.slots].sort((a, b) => a.row - b.row || b.x - a.x);
+  const a11y = label ? { role: 'img' as const, 'aria-label': label } : { 'aria-hidden': true as const };
+
+  return (
+    <svg
+      viewBox={`0 0 ${layout.width} ${layout.height}`}
+      className={`cm-lineup cm-lineup--${tone} ${className}`}
+      focusable="false"
+      {...a11y}
+    >
+      {ordered.map((slot) => (
+        <g
+          key={slot.index}
+          className="cm-lineup__slot"
+          style={{ transform: `translate(${slot.x}px, ${slot.y}px)` }}
+        >
+          <g className="cm-lineup__stall" style={{ animationDelay: `${(slot.index % 6) * 45}ms` }}>
+            <Stall />
+          </g>
+        </g>
+      ))}
+      {layout.plus ? (
+        <text
+          key="plus"
+          className="cm-lineup__plus"
+          x={layout.plus.x}
+          y={layout.plus.y}
+          dominantBaseline="middle"
+        >
+          +{layout.extra.toLocaleString('es-ES')}
+        </text>
+      ) : null}
+    </svg>
   );
 }
