@@ -4,6 +4,14 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Label } from '@/components/ui/Label';
 import { nosotrosHero } from '@/content/nosotros';
 
+/**
+ * Ancho al que se dibuja la foto, no el de la caja: la capa del parallax mide
+ * 1,2 veces la sección (88svh) y object-cover escala la foto 3:2 hasta cubrirla.
+ * En vertical eso son unas 1,6 veces el alto del viewport. En móviles en
+ * horizontal manda la altura del texto y la foto llega a 1,35 veces el ancho.
+ */
+const HERO_SIZES = '(max-aspect-ratio: 8/5) 160vh, (max-height: 500px) 135vw, 100vw';
+
 /** S1. Foto a pantalla completa con parallax y overlay. */
 export function NosotrosHero() {
   const h = nosotrosHero;
@@ -21,7 +29,7 @@ export function NosotrosHero() {
             alt=""
             fill
             preload
-            sizes="100vw"
+            sizes={HERO_SIZES}
             quality={70}
             className="object-cover object-[35%_50%]"
           />

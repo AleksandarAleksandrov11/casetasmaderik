@@ -5,6 +5,15 @@ import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
 import { nosotrosSeason } from '@/content/nosotros';
 
+/**
+ * Ancho al que se dibuja la foto, no el de la caja: la banda mide lo que su
+ * contenido (de 600 a 950 px) y la capa del parallax un 24 % más, así que
+ * object-cover lleva la foto 3:2 a unas 1,86 veces esa altura. En móvil son
+ * unos 1.500 px sea cual sea el ancho; desde sm crece despacio con el viewport
+ * y solo en pantallas muy anchas vuelve a mandar el ancho.
+ */
+const SEASON_SIZES = '(max-width: 639px) 1600px, (max-width: 1759px) calc(68vw + 700px), 100vw';
+
 /** S4. Temporada alta: oscuro con foto nocturna y línea temporal mínima. */
 export function NosotrosSeason() {
   const s = nosotrosSeason;
@@ -17,7 +26,7 @@ export function NosotrosSeason() {
             {...blurFor(s.image.src)}
             alt=""
             fill
-            sizes="100vw"
+            sizes={SEASON_SIZES}
             quality={70}
             className="object-cover object-[50%_70%]"
           />
