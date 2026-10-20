@@ -1,14 +1,23 @@
 // Lighthouse CI (móvil por defecto; LHCI_PRESET=desktop para escritorio).
-// Requiere el servidor en marcha: pnpm build:qa && pnpm exec next start -p 3300
+// Requiere el servidor en marcha: pnpm build:qa && pnpm start:qa
 const base = process.env.E2E_BASE_URL || 'http://localhost:3300';
 const desktop = process.env.LHCI_PRESET === 'desktop';
 const chromePath = process.env.CHROME_PATH || '/opt/pw-browsers/chromium';
 
+const perf = ['error', { minScore: desktop ? 0.95 : 0.9 }];
+const common = {
+  'categories:performance': perf,
+  'categories:accessibility': ['error', { minScore: 1 }],
+  'categories:best-practices': ['error', { minScore: 1 }],
+};
+
 module.exports = {
   ci: {
     collect: {
-      url: ['/', '/casetas', '/nosotros', '/contacto', '/politica-de-privacidad'].map((p) => base + p),
-      numberOfRuns: Number(process.env.LHCI_RUNS || 1),
+      url: ['/', '/casetas', '/nosotros', '/contacto', '/aviso-legal', '/politica-de-privacidad', '/politica-de-cookies'].map(
+        (p) => base + p,
+      ),
+      numberOfRuns: Number(process.env.LHCI_RUNS || 3),
       chromePath,
       settings: {
         ...(desktop ? { preset: 'desktop' } : {}),
@@ -17,12 +26,29 @@ module.exports = {
       },
     },
     assert: {
-      assertions: {
-        'categories:performance': ['error', { minScore: desktop ? 0.95 : 0.9 }],
-        'categories:accessibility': ['error', { minScore: 1 }],
-        'categories:best-practices': ['error', { minScore: 1 }],
-        'categories:seo': ['error', { minScore: 1 }],
-      },
+      // Las legales llevan noindex a propósito: se evalúan todas las auditorías SEO salvo la de indexación
+      assertMatrix: [
+        {
+          matchingUrlPattern: '^(?!.*(aviso-legal|politica-de)).*$',
+          assertions: { ...common, 'categories:seo': ['error', { minScore: 1 }] },
+        },
+        {
+          matchingUrlPattern: '(aviso-legal|politica-de)',
+          assertions: {
+            ...common,
+            'is-crawlable': 'off',
+            'document-title': 'error',
+            'meta-description': 'error',
+            'http-status-code': 'error',
+            'link-text': 'error',
+            'crawlable-anchors': 'error',
+            'robots-txt': 'error',
+            'image-alt': 'error',
+            hreflang: 'error',
+            canonical: 'error',
+          },
+        },
+      ],
     },
     upload: {
       target: 'filesystem',
