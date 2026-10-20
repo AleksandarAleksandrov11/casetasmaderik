@@ -1,13 +1,16 @@
 'use client';
 
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { GA_ID, META_PIXEL_ID } from '@/content/cookies';
 import { site } from '@/content/site';
 import { useConsent } from './ConsentProvider';
 
 type Gtag = (...args: unknown[]) => void;
+
+// Se cargan solo tras el consentimiento: fuera del JavaScript inicial
+const Analytics = dynamic(() => import('@vercel/analytics/next').then((m) => m.Analytics), { ssr: false });
+const SpeedInsights = dynamic(() => import('@vercel/speed-insights/next').then((m) => m.SpeedInsights), { ssr: false });
 
 // Los scripts de Vercel solo existen en despliegues de Vercel. En local se
 // pueden forzar con NEXT_PUBLIC_ANALYTICS_LOCAL=1.

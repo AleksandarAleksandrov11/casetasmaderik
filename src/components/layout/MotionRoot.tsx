@@ -2,15 +2,11 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
-import Lenis from 'lenis';
+import type Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { EVT } from '@/lib/events';
+import { loadGsap } from '@/lib/gsap-loader';
 import { MEDIA } from '@/lib/motion';
-
-gsap.registerPlugin(ScrollTrigger, SplitText);
 
 let lenis: Lenis | null = null;
 
@@ -25,33 +21,49 @@ function motionEnabled(): boolean {
 const fmt = (value: number, decimals: number) =>
   value.toLocaleString('es-ES', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
+/** Muestra los titulares divididos si GSAP no llega a cargar. */
+function revealSplitFallback() {
+  document.querySelectorAll('[data-split]').forEach((el) => el.classList.add('is-split'));
+}
+
 /**
  * Animaciones globales: Lenis en escritorio con puntero fino, revelados,
  * titulares con SplitText, cifras que cuentan, parallax y botones magnéticos.
- * Todo se desactiva sin la clase js-motion (movimiento reducido).
+ * GSAP y Lenis se cargan bajo demanda, fuera del JavaScript inicial. Todo se
+ * desactiva sin la clase js-motion (movimiento reducido).
  */
 export function MotionRoot() {
   const pathname = usePathname();
 
   // Lenis + ScrollTrigger, una sola vez
   useEffect(() => {
-    ScrollTrigger.config({ ignoreMobileResize: true });
     if (!motionEnabled() || !window.matchMedia(MEDIA.finePointer).matches) return;
-    lenis = new Lenis({ autoRaf: false, lerp: 0.11, smoothWheel: true, anchors: { offset: -80 } });
-    lenis.on('scroll', ScrollTrigger.update);
-    const tick = (time: number) => lenis?.raf(time * 1000);
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
-    const onLock = (e: Event) => {
-      if ((e as CustomEvent<boolean>).detail) lenis?.stop();
-      else lenis?.start();
-    };
-    window.addEventListener(EVT.scrollLock, onLock);
+    let cancelled = false;
+    let cleanup = () => {};
+    Promise.all([loadGsap(), import('lenis')])
+      .then(([{ gsap, ScrollTrigger }, { default: LenisCtor }]) => {
+        if (cancelled) return;
+        lenis = new LenisCtor({ autoRaf: false, lerp: 0.11, smoothWheel: true, anchors: { offset: -80 } });
+        lenis.on('scroll', ScrollTrigger.update);
+        const tick = (time: number) => lenis?.raf(time * 1000);
+        gsap.ticker.add(tick);
+        gsap.ticker.lagSmoothing(0);
+        const onLock = (e: Event) => {
+          if ((e as CustomEvent<boolean>).detail) lenis?.stop();
+          else lenis?.start();
+        };
+        window.addEventListener(EVT.scrollLock, onLock);
+        cleanup = () => {
+          window.removeEventListener(EVT.scrollLock, onLock);
+          gsap.ticker.remove(tick);
+          lenis?.destroy();
+          lenis = null;
+        };
+      })
+      .catch(() => undefined);
     return () => {
-      window.removeEventListener(EVT.scrollLock, onLock);
-      gsap.ticker.remove(tick);
-      lenis?.destroy();
-      lenis = null;
+      cancelled = true;
+      cleanup();
     };
   }, []);
 
@@ -70,8 +82,9 @@ export function MotionRoot() {
     const root = document.documentElement;
     const motion = motionEnabled();
     const cleanups: (() => void)[] = [];
+    let cancelled = false;
 
-    // Revelados con IntersectionObserver
+    // Revelados con IntersectionObserver (sin GSAP)
     const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-image]');
     if (motion) {
       const io = new IntersectionObserver(
@@ -111,121 +124,134 @@ export function MotionRoot() {
     } else {
       revealEls.forEach((el) => el.classList.add('is-in'));
     }
-
-    const ctx = gsap.context(() => {
-      if (!motion) return;
-      const mm = gsap.matchMedia();
-      mm.add(MEDIA.motionOk, () => {
-        // Titulares por líneas con máscara
-        document.querySelectorAll<HTMLElement>('[data-split]').forEach((el) => {
-          SplitText.create(el, {
-            type: 'lines',
-            mask: 'lines',
-            linesClass: 'split-line',
-            autoSplit: true,
-            onSplit(self) {
-              el.classList.add('is-split');
-              return gsap.from(self.lines, {
-                yPercent: 100,
-                duration: 1.1,
-                stagger: 0.08,
-                ease: 'expo.out',
-                scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-              });
-            },
-          });
-        });
-
-        // Cifras que cuentan hacia arriba
-        document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
-          const target = Number(el.dataset.count);
-          const decimals = Number(el.dataset.decimals ?? 0);
-          const state = { v: 0 };
-          el.textContent = fmt(0, decimals);
-          gsap.to(state, {
-            v: target,
-            duration: 1.6,
-            ease: 'power3.out',
-            scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-            onUpdate: () => {
-              el.textContent = fmt(state.v, decimals);
-            },
-          });
-        });
-
-        // Parallax suave en fondos fotográficos
-        document.querySelectorAll<HTMLElement>('[data-parallax]').forEach((el) => {
-          gsap.fromTo(
-            el,
-            { yPercent: -10 },
-            {
-              yPercent: 10,
-              ease: 'none',
-              scrollTrigger: { trigger: el.parentElement ?? el, start: 'top bottom', end: 'bottom top', scrub: true },
-            },
-          );
-        });
-
-        // Líneas que se dibujan con el scroll
-        document.querySelectorAll<HTMLElement>('[data-draw-line]').forEach((el) => {
-          const vertical = el.dataset.drawLine === 'y';
-          gsap.fromTo(
-            el,
-            vertical ? { scaleY: 0 } : { scaleX: 0 },
-            {
-              ...(vertical ? { scaleY: 1 } : { scaleX: 1 }),
-              ease: 'none',
-              transformOrigin: vertical ? 'top center' : 'left center',
-              scrollTrigger: {
-                trigger: el.closest('[data-draw-scope]') ?? el,
-                start: 'top 75%',
-                end: 'bottom 60%',
-                scrub: 0.6,
-              },
-            },
-          );
-        });
-      });
-
-      // Botones magnéticos solo con puntero fino
-      mm.add(`${MEDIA.motionOk} and ${MEDIA.finePointer}`, () => {
-        const handlers: (() => void)[] = [];
-        document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
-          const xTo = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3.out' });
-          const yTo = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3.out' });
-          const move = (e: PointerEvent) => {
-            const r = el.getBoundingClientRect();
-            xTo((e.clientX - (r.left + r.width / 2)) * 0.22);
-            yTo((e.clientY - (r.top + r.height / 2)) * 0.3);
-          };
-          const leave = () => {
-            xTo(0);
-            yTo(0);
-          };
-          el.addEventListener('pointermove', move);
-          el.addEventListener('pointerleave', leave);
-          handlers.push(() => {
-            el.removeEventListener('pointermove', move);
-            el.removeEventListener('pointerleave', leave);
-          });
-        });
-        return () => handlers.forEach((h) => h());
-      });
-    });
-
     root.classList.add('reveal-ready');
 
-    // Recalcular cuando cargan fuentes e imágenes
-    const refresh = () => ScrollTrigger.refresh();
-    document.fonts?.ready.then(refresh).catch(() => undefined);
-    window.addEventListener('load', refresh);
-    const t = window.setTimeout(refresh, 600);
+    if (!motion) {
+      revealSplitFallback();
+      return () => cleanups.forEach((c) => c());
+    }
+
+    // Animaciones con GSAP, cargado bajo demanda
+    loadGsap()
+      .then(({ gsap, ScrollTrigger, SplitText }) => {
+        if (cancelled) return;
+        const ctx = gsap.context(() => {
+          const mm = gsap.matchMedia();
+          mm.add(MEDIA.motionOk, () => {
+            // Titulares por líneas con máscara
+            document.querySelectorAll<HTMLElement>('[data-split]').forEach((el) => {
+              SplitText.create(el, {
+                type: 'lines',
+                mask: 'lines',
+                linesClass: 'split-line',
+                autoSplit: true,
+                onSplit(self) {
+                  el.classList.add('is-split');
+                  return gsap.from(self.lines, {
+                    yPercent: 100,
+                    duration: 1.1,
+                    stagger: 0.08,
+                    ease: 'expo.out',
+                    scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+                  });
+                },
+              });
+            });
+
+            // Cifras que cuentan hacia arriba
+            document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+              const target = Number(el.dataset.count);
+              const decimals = Number(el.dataset.decimals ?? 0);
+              const state = { v: 0 };
+              el.textContent = fmt(0, decimals);
+              gsap.to(state, {
+                v: target,
+                duration: 1.6,
+                ease: 'power3.out',
+                scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+                onUpdate: () => {
+                  el.textContent = fmt(state.v, decimals);
+                },
+              });
+            });
+
+            // Parallax suave en fondos fotográficos
+            document.querySelectorAll<HTMLElement>('[data-parallax]').forEach((el) => {
+              gsap.fromTo(
+                el,
+                { yPercent: -10 },
+                {
+                  yPercent: 10,
+                  ease: 'none',
+                  scrollTrigger: { trigger: el.parentElement ?? el, start: 'top bottom', end: 'bottom top', scrub: true },
+                },
+              );
+            });
+
+            // Líneas que se dibujan con el scroll
+            document.querySelectorAll<HTMLElement>('[data-draw-line]').forEach((el) => {
+              const vertical = el.dataset.drawLine === 'y';
+              gsap.fromTo(
+                el,
+                vertical ? { scaleY: 0 } : { scaleX: 0 },
+                {
+                  ...(vertical ? { scaleY: 1 } : { scaleX: 1 }),
+                  ease: 'none',
+                  transformOrigin: vertical ? 'top center' : 'left center',
+                  scrollTrigger: {
+                    trigger: el.closest('[data-draw-scope]') ?? el,
+                    start: 'top 75%',
+                    end: 'bottom 60%',
+                    scrub: 0.6,
+                  },
+                },
+              );
+            });
+          });
+
+          // Botones magnéticos solo con puntero fino
+          mm.add(`${MEDIA.motionOk} and ${MEDIA.finePointer}`, () => {
+            const handlers: (() => void)[] = [];
+            document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
+              const xTo = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3.out' });
+              const yTo = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3.out' });
+              const move = (e: PointerEvent) => {
+                const r = el.getBoundingClientRect();
+                xTo((e.clientX - (r.left + r.width / 2)) * 0.22);
+                yTo((e.clientY - (r.top + r.height / 2)) * 0.3);
+              };
+              const leave = () => {
+                xTo(0);
+                yTo(0);
+              };
+              el.addEventListener('pointermove', move);
+              el.addEventListener('pointerleave', leave);
+              handlers.push(() => {
+                el.removeEventListener('pointermove', move);
+                el.removeEventListener('pointerleave', leave);
+              });
+            });
+            return () => handlers.forEach((h) => h());
+          });
+        });
+        root.classList.add('split-ready');
+        cleanups.push(() => ctx.revert());
+
+        // Recalcular cuando cargan fuentes e imágenes
+        const refresh = () => ScrollTrigger.refresh();
+        document.fonts?.ready.then(refresh).catch(() => undefined);
+        window.addEventListener('load', refresh);
+        const t = window.setTimeout(refresh, 600);
+        cleanups.push(() => {
+          window.clearTimeout(t);
+          window.removeEventListener('load', refresh);
+        });
+      })
+      .catch(revealSplitFallback);
 
     return () => {
-      window.clearTimeout(t);
-      window.removeEventListener('load', refresh);
+      cancelled = true;
       cleanups.forEach((c) => c());
-      ctx.revert();
     };
   }, [pathname]);
 

@@ -1,12 +1,16 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Logo } from '@/components/brand/Logo';
 import { ButtonLink } from '@/components/ui/Button';
 import { nav } from '@/content/site';
-import { MobileMenu } from './MobileMenu';
+
+// El menú móvil (con motion) se descarga después de la carga inicial
+const loadMenu = () => import('./MobileMenu').then((m) => m.MobileMenu);
+const MobileMenu = dynamic(loadMenu, { ssr: false });
 
 type Theme = 'light' | 'dark';
 
@@ -24,9 +28,18 @@ export function Header() {
   const [hidden, setHidden] = useState(false);
   const [theme, setTheme] = useState<Theme>('light');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuMounted, setMenuMounted] = useState(false);
   const lastY = useRef(0);
   const headerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Precarga del menú móvil cuando el navegador está libre
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 1024px)').matches) return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500));
+    const id = idle(() => void loadMenu());
+    return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
+  }, []);
 
   // Scroll: estado compacto y ocultar al bajar
   useEffect(() => {
@@ -179,7 +192,10 @@ export function Header() {
               aria-expanded={menuOpen}
               aria-controls="menu-movil"
               aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={() => {
+                setMenuMounted(true);
+                setMenuOpen((v) => !v);
+              }}
             >
               <span className="relative block h-[14px] w-[26px]" aria-hidden="true">
                 <span
@@ -199,7 +215,7 @@ export function Header() {
           </div>
         </div>
       </header>
-      <MobileMenu open={menuOpen} onClose={closeMenu} pathname={pathname} />
+      {menuMounted ? <MobileMenu open={menuOpen} onClose={closeMenu} pathname={pathname} /> : null}
     </>
   );
 }

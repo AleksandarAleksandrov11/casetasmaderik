@@ -1,0 +1,12 @@
+.next
+node_modules
+pnpm-lock.yaml
+public
+brief
+apps-script/*.md
+tests/qa/output
+playwright-report
+test-results
+.claude
+src/components/brand/brand-data.ts
+src/components/sections/nosotros/spain-provinces.ts

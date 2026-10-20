@@ -1,12 +1,9 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MEDIA } from '@/lib/motion';
+import { loadGsap } from '@/lib/gsap-loader';
 import { getLenis } from '@/components/layout/MotionRoot';
-
-gsap.registerPlugin(ScrollTrigger);
 
 type HorizontalRailProps = { header: ReactNode; children: ReactNode };
 
@@ -28,56 +25,68 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
     if (!pinEl || !viewport || !track) return;
     if (!document.documentElement.classList.contains('js-motion')) return;
 
-    const mm = gsap.matchMedia();
-    mm.add(`${MEDIA.desktop} and ${MEDIA.motionOk}`, () => {
-      viewport.dataset.pinned = '';
-      const distance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
-      const tween = gsap.to(track, {
-        x: () => -distance(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: pinEl,
-          start: 'top top',
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            if (progressRef.current) progressRef.current.style.transform = `scaleX(${self.progress})`;
+    let cancelled = false;
+    let revert = () => {};
+    loadGsap().then(({ gsap }) => {
+      if (cancelled) return;
+      const mm = gsap.matchMedia();
+      revert = () => mm.revert();
+      mm.add(`${MEDIA.desktop} and ${MEDIA.motionOk}`, () => {
+        viewport.dataset.pinned = '';
+        const distance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
+        const tween = gsap.to(track, {
+          x: () => -distance(),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: pinEl,
+            start: 'top top',
+            end: () => `+=${distance()}`,
+            pin: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              if (progressRef.current) progressRef.current.style.transform = `scaleX(${self.progress})`;
+            },
           },
-        },
+        });
+
+        // Con teclado: al enfocar una tarjeta fuera de vista, se lleva el scroll hasta ella
+        const onFocus = (e: FocusEvent) => {
+          const item = (e.target as HTMLElement).closest<HTMLElement>('[data-rail-item]');
+          const st = tween.scrollTrigger;
+          if (!item || !st) return;
+          const max = distance();
+          if (max <= 0) return;
+          const target = Math.min(1, Math.max(0, (item.offsetLeft - 40) / max));
+          const top = st.start + target * (st.end - st.start);
+          const lenis = getLenis();
+          if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
+          else window.scrollTo({ top, behavior: 'auto' });
+        };
+        track.addEventListener('focusin', onFocus);
+
+        return () => {
+          track.removeEventListener('focusin', onFocus);
+          delete viewport.dataset.pinned;
+        };
       });
-
-      // Con teclado: al enfocar una tarjeta fuera de vista, se lleva el scroll hasta ella
-      const onFocus = (e: FocusEvent) => {
-        const item = (e.target as HTMLElement).closest<HTMLElement>('[data-rail-item]');
-        const st = tween.scrollTrigger;
-        if (!item || !st) return;
-        const max = distance();
-        if (max <= 0) return;
-        const target = Math.min(1, Math.max(0, (item.offsetLeft - 40) / max));
-        const top = st.start + target * (st.end - st.start);
-        const lenis = getLenis();
-        if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
-        else window.scrollTo({ top, behavior: 'auto' });
-      };
-      track.addEventListener('focusin', onFocus);
-
-      return () => {
-        track.removeEventListener('focusin', onFocus);
-        delete viewport.dataset.pinned;
-      };
     });
-    return () => mm.revert();
+    return () => {
+      cancelled = true;
+      revert();
+    };
   }, []);
 
   return (
-    <div ref={pinRef} className="flex flex-col justify-center py-[var(--section-y)] lg:min-h-[100svh] lg:py-[clamp(96px,10vh,140px)]">
+    <div
+      ref={pinRef}
+      className="flex flex-col justify-center py-[var(--section-y)] lg:min-h-[100svh] lg:py-[clamp(96px,10vh,140px)]"
+    >
       {header}
       <div
         ref={viewportRef}
-        className="mt-12 overflow-x-auto overscroll-x-contain [scrollbar-width:none] data-[pinned]:overflow-visible lg:mt-16 [&::-webkit-scrollbar]:hidden snap-x snap-mandatory scroll-px-[var(--gutter)] data-[pinned]:snap-none"
+        className="mt-12 snap-x snap-mandatory scroll-px-[var(--gutter)] [scrollbar-width:none] overflow-x-auto overscroll-x-contain data-[pinned]:snap-none data-[pinned]:overflow-visible lg:mt-16 [&::-webkit-scrollbar]:hidden"
       >
         <ul
           ref={trackRef}

@@ -600,8 +600,9 @@ html.js-motion [data-split]:not(.is-split) {
   opacity: 0;
 }
 
-html.js-motion:not(.reveal-ready) [data-split] {
-  animation: cm-reveal-fallback 0.01s linear 3.5s forwards;
+/* Si GSAP no llega a cargar, los titulares aparecen igualmente */
+html.js-motion:not(.split-ready) [data-split] {
+  animation: cm-reveal-fallback 0.01s linear 4s forwards;
 }
 
 /* ------------------------------------------------------------------ */
