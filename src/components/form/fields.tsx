@@ -13,12 +13,14 @@ export function describedBy(id: string, error?: string, hint?: boolean): string 
 /*
  * Un campo con error se queda rojo también al pasar el ratón y con el foco: los
  * estados neutros (hover tinta, foco madera) solo existen para campos válidos.
+ * Desactivado va en arena maciza: más hundido que el panel papel y sin hover,
+ * para que se lea como campo y no se confunda con el fondo.
  */
 export const inputClass = (invalid: boolean, full = true) =>
   [
     `block ${full ? 'w-full' : ''} min-h-14 rounded-sm border bg-cream px-4 text-base text-ink`,
     'placeholder:text-stone/75 transition-[border-color,background-color] duration-300 ease-brand',
-    'disabled:cursor-not-allowed disabled:bg-paper disabled:text-stone',
+    'disabled:cursor-not-allowed disabled:border-sand disabled:bg-sand disabled:text-stone',
     invalid ? 'border-error' : 'border-sand hover:border-ink/35 focus:border-wood',
   ].join(' ');
 
