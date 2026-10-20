@@ -5,6 +5,9 @@ import { NosotrosCommitments } from '@/components/sections/nosotros/NosotrosComm
 import { NosotrosSeason } from '@/components/sections/nosotros/NosotrosSeason';
 import { NosotrosArea } from '@/components/sections/nosotros/NosotrosArea';
 import { CtaFinal } from '@/components/sections/shared/CtaFinal';
+import { Reviews } from '@/components/sections/shared/Reviews';
+import { reviews } from '@/content/reviews';
+import { site } from '@/content/site';
 import { JsonLd } from '@/components/ui/JsonLd';
 import { nosotrosCta, nosotrosMeta } from '@/content/nosotros';
 import { pageMetadata } from '@/lib/seo';
@@ -36,7 +39,8 @@ export default function NosotrosPage() {
       <NosotrosAbout />
       <NosotrosCommitments />
       <NosotrosSeason />
-      <NosotrosArea />
+      {/* Máximo seis secciones: con reseñas reales, sustituyen al mapa (la zona sigue en el pie) */}
+      {site.features.reviews && reviews.length > 0 ? <Reviews /> : <NosotrosArea />}
       <CtaFinal variant="dudas" title={nosotrosCta.title} text={nosotrosCta.text} actions={['presupuesto', 'llamar']} />
     </>
   );

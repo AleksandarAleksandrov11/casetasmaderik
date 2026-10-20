@@ -33,7 +33,7 @@ Datos y decisiones que necesitamos del cliente. Todos los datos de negocio está
 
 ## Reseñas, analítica y campañas
 
-18. **Reseñas reales y perfil de Google Business.** El componente de opiniones está preparado y oculto (`site.features.reviews`). No se ha inventado ninguna reseña.
+18. **Reseñas reales y perfil de Google Business.** El componente de opiniones está preparado y oculto (`site.features.reviews` y `src/content/reviews.ts`). Al activarlo aparece en Nosotros en lugar del mapa, para mantener el máximo de seis secciones. No se ha inventado ninguna reseña.
 19. **IDs de Google Analytics 4 y Meta Pixel** (opcionales): `NEXT_PUBLIC_GA_ID` y `NEXT_PUBLIC_META_PIXEL_ID` en Vercel. El píxel necesita además `site.features.metaPixel = true`.
 
 ## Accesos y despliegue
