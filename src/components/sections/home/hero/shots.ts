@@ -30,7 +30,11 @@ export interface HeroShots {
 
 /** Escritorio: u = min(alto, 0,65 × ancho útil del contenedor); ancla dentro del contenedor. */
 export const DESKTOP_FIT: FrameFit = { hk: 1, wk: 0.65 };
-/** Vertical: u = min(1,15 × alto de la caja bajo el texto, ancho útil). */
+/**
+ * Vertical: u = min(1,15 × alto de la caja bajo el texto, ancho útil).
+ * La caja tiene un tope de alto en hero/styles.ts (ancho útil o 600 px, entre
+ * 1,15): si cambia hk, ese tope también.
+ */
 export const MOBILE_FIT: FrameFit = { hk: 1.15, wk: 1 };
 
 export const DESKTOP: HeroShots = {

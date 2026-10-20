@@ -12,7 +12,10 @@ export const heroCss = /* css */ `
 /* vertical. Debe coincidir con HERO_WIDE en shots.ts.                 */
 /* Apilada: el escenario es una columna; el texto ocupa lo que mide y  */
 /* la caseta (poster y lienzo) el espacio que queda debajo, así nunca  */
-/* se pisan ni queda un hueco distinto en cada teléfono.               */
+/* se pisan. La caja de la caseta no pasa del alto que la caseta pide  */
+/* a lo ancho: si aún sobra alto (teléfonos altos, tabletas), texto y  */
+/* caseta se centran juntos y el aire queda arriba y abajo, nunca en   */
+/* medio.                                                              */
 /* ------------------------------------------------------------------ */
 
 .hero {
@@ -40,6 +43,9 @@ export const heroCss = /* css */ `
   height: 100svh;
   min-height: 560px;
   flex-direction: column;
+  justify-content: center;
+  /* Si el texto no cabe (zoom, letra grande), se alinea arriba en vez de salirse por los dos lados */
+  justify-content: safe center;
   overflow: clip;
 }
 
@@ -49,13 +55,17 @@ export const heroCss = /* css */ `
 }
 
 /* Apilada: la caseta en el espacio libre bajo el texto (el lienzo y el */
-/* poster se encuadran con unidades de contenedor de esta caja)         */
+/* poster se encuadran con unidades de contenedor de esta caja).        */
+/* Tope de alto: con MOBILE_FIT (shots.ts, u = 1,15 × alto) la escala   */
+/* llega justo al ancho útil, y en tabletas a 600 px (la caseta mide    */
+/* entonces como la línea grande del H1 y el poster no se amplía).      */
 .hero .hero__visual {
   position: relative;
   inset: auto;
   z-index: 0;
   flex: 1 1 0;
   min-height: 0;
+  max-height: calc(min(100vw - 2 * var(--gutter), 600px) / 1.15);
 }
 
 .hero__content {
@@ -155,15 +165,33 @@ export const heroCss = /* css */ `
   color: var(--hero-link);
 }
 
-/* Teléfonos estrechos (desde 360 px) y en horizontal (columna de texto  */
-/* junto a la caseta): los dos CTA caben en una fila                     */
+/* Teléfonos estrechos y en horizontal (columna de texto junto a la      */
+/* caseta): los dos CTA caben en una fila                                */
 @media (max-width: 419.98px), (max-width: 699.98px) and (min-aspect-ratio: 5/4) {
   .hero__ctas {
     column-gap: 1rem;
   }
 
   .hero .hero__primary {
-    padding-inline: 1.125rem;
+    padding-inline: 1rem;
+  }
+}
+
+/* Por debajo de 360 px la flecha no cabe: sin ella los dos CTA siguen   */
+/* en una fila y la caseta no pierde el alto de una segunda fila. Con    */
+/* margen para la fuente de reserva: si la fila se partiera hasta que    */
+/* llega la fuente buena, la caseta saltaría (CLS).                      */
+@media (max-width: 359.98px) {
+  .hero__ctas {
+    column-gap: 0.75rem;
+  }
+
+  .hero .hero__primary {
+    padding-inline: 0.875rem;
+  }
+
+  .hero .hero__primary svg {
+    display: none;
   }
 }
 
@@ -227,6 +255,7 @@ html.js-motion .hero__scroll-line::after {
   .hero .hero__visual {
     position: absolute;
     inset: 0;
+    max-height: none;
   }
 
   .hero__content {
