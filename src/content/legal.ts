@@ -39,6 +39,10 @@ const domicilio = site.address
 
 const registro = site.registry ?? 'Pendiente de publicar'; // PENDIENTE: datos registrales
 
+// Nombres que nunca se parten entre dos líneas (espacio de no separación)
+const titular = site.legalName.replaceAll(' ', '\u00a0');
+const marca = site.name.replaceAll(' ', '\u00a0');
+
 const p = (...text: LegalInline[]): LegalBlock => ({ type: 'p', text });
 const ul = (...items: (LegalInline | LegalInline[])[]): LegalBlock => ({
   type: 'ul',
@@ -66,13 +70,13 @@ export const avisoLegal: LegalPage = {
       title: 'Datos del titular',
       blocks: [
         ul(
-          `Titular: ${site.legalName}`,
+          `Titular: ${titular}`,
           `NIF: ${site.taxId}`,
           `Domicilio social: ${domicilio}`,
           `Datos registrales: ${registro}`,
           ['Email: ', email],
           ['Teléfono: ', telefono],
-          `Nombre comercial: ${site.name}`,
+          `Nombre comercial: ${marca}`,
           ['Sitio web: ', a(site.url, '/')],
         ),
       ],
@@ -82,7 +86,7 @@ export const avisoLegal: LegalPage = {
       title: 'Objeto de la web',
       blocks: [
         p(
-          `Esta web informa sobre el servicio de alquiler de casetas de madera para ferias, mercados navideños, festivales y eventos que presta ${site.legalName} bajo el nombre comercial ${site.name}, y permite solicitar presupuesto sin compromiso.`,
+          `Esta web informa sobre el servicio de alquiler de casetas de madera para ferias, mercados navideños, festivales y eventos que presta ${titular} bajo el nombre comercial ${marca}, y permite solicitar presupuesto sin compromiso.`,
         ),
         p(
           'La información publicada tiene carácter orientativo. Las condiciones de cada alquiler se detallan en el presupuesto correspondiente.',
@@ -107,7 +111,7 @@ export const avisoLegal: LegalPage = {
       title: 'Propiedad intelectual e industrial',
       blocks: [
         p(
-          `Los textos, el diseño, el logotipo, el código y el resto de elementos de esta web son propiedad de ${site.legalName} o de terceros que han autorizado su uso, y están protegidos por la normativa de propiedad intelectual e industrial.`,
+          `Los textos, el diseño, el logotipo, el código y el resto de elementos de esta web son propiedad de ${titular} o de terceros que han autorizado su uso, y están protegidos por la normativa de propiedad intelectual e industrial.`,
         ),
         p(
           'Las fotografías de recurso proceden de bancos de imágenes con licencia de uso comercial (Unsplash y Pexels). Las texturas del modelo 3D tienen licencia CC0.',
@@ -184,7 +188,7 @@ export const politicaPrivacidad: LegalPage = {
       title: 'Responsable del tratamiento',
       blocks: [
         ul(
-          `Responsable: ${site.legalName}`,
+          `Responsable: ${titular}`,
           `NIF: ${site.taxId}`,
           `Domicilio: ${domicilio}`,
           ['Email de contacto: ', email],

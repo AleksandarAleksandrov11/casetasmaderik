@@ -6,27 +6,47 @@ import { CookieSettingsButton } from '@/components/consent/CookieSettingsButton'
 import { buttonClasses } from '@/components/ui/Button';
 import { JsonLd } from '@/components/ui/JsonLd';
 import { Label } from '@/components/ui/Label';
-import { cookieCategories, type CookieRow } from '@/content/cookies';
+import { cookieCategories } from '@/content/cookies';
 import type { LegalBlock, LegalInline, LegalLink, LegalPage } from '@/content/legal';
 import { CtaFinal } from '@/components/sections/shared/CtaFinal';
 import { site } from '@/content/site';
 import { breadcrumbNode, graph, organizationNode, webPageNode, websiteNode } from '@/lib/schema';
 
-/** Columnas de la tabla de cookies, en el mismo orden que las celdas de cada fila. */
-const COOKIE_COLUMNS = ['Nombre', 'Finalidad', 'Proveedor', 'Duración', 'Tipo'] as const;
+/**
+ * Columnas del listado de cookies en el orden de la sección 15 del brief, que es
+ * el que anuncian los lectores de pantalla. La rejilla (ver .cookie-table en
+ * globals.css) solo cambia dónde se ve cada celda, nunca el orden del marcado.
+ */
+const COOKIE_COLUMNS = [
+  { col: 'nombre', label: 'Nombre' },
+  { col: 'proveedor', label: 'Proveedor' },
+  { col: 'finalidad', label: 'Finalidad' },
+  { col: 'duracion', label: 'Duración' },
+  { col: 'tipo', label: 'Tipo' },
+] as const;
 
-/** Datos cortos de cada cookie, que la ficha muestra con su etiqueta. */
-const cookieMeta = (r: CookieRow) =>
-  [
-    ['Proveedor', r.provider],
-    ['Duración', r.duration],
-    ['Tipo', r.type],
-  ] as const;
+type CookieColumn = (typeof COOKIE_COLUMNS)[number];
+
+/** Dato corto de una cookie. La etiqueta visible solo se ve en las fichas de móvil. */
+function MetaCell({ col, label, value }: CookieColumn & { value: string }) {
+  return (
+    <td role="cell" data-col={col} className="cookie-meta">
+      {/* Los lectores de pantalla ya anuncian la cabecera de columna */}
+      <span aria-hidden="true" className="cookie-label">
+        {label}
+      </span>
+      <span>{value}</span>
+    </td>
+  );
+}
+
+const [nombre, proveedor, finalidad, duracion, tipo] = COOKIE_COLUMNS;
 
 /**
- * Listado de cookies. Es una tabla semántica que se maqueta como fichas (ver
- * .cookie-table en globals.css): en móvil nada queda cortado ni oculto y todas
- * las tablas comparten la misma rejilla. Como el CSS cambia el display de la
+ * Listado de cookies. Es una tabla semántica maquetada con una rejilla por áreas
+ * común a todas las tablas y con la misma medida que el texto. En móvil cada
+ * cookie es una ficha (nada queda cortado ni oculto); desde 32.5rem de ancho es
+ * una tabla con una sola fila de cabecera. Como el CSS cambia el display de la
  * tabla, los roles ARIA explícitos conservan su semántica en todos los lectores.
  */
 function CookieTable() {
@@ -40,11 +60,11 @@ function CookieTable() {
             <div className="cookie-table">
               <table role="table">
                 <caption className="sr-only">Cookies {cat.title.toLowerCase()}</caption>
-                <thead role="rowgroup" className="sr-only">
+                <thead role="rowgroup">
                   <tr role="row">
-                    {COOKIE_COLUMNS.map((c) => (
-                      <th key={c} role="columnheader" scope="col">
-                        {c}
+                    {COOKIE_COLUMNS.map(({ col, label }) => (
+                      <th key={col} role="columnheader" scope="col" data-col={col}>
+                        {label}
                       </th>
                     ))}
                   </tr>
@@ -52,21 +72,15 @@ function CookieTable() {
                 <tbody role="rowgroup">
                   {cat.rows.map((r) => (
                     <tr key={r.name} role="row">
-                      <th role="rowheader" scope="row">
+                      <th role="rowheader" scope="row" data-col={nombre.col}>
                         {r.name}
                       </th>
-                      <td role="cell" className="cookie-purpose">
+                      <MetaCell {...proveedor} value={r.provider} />
+                      <td role="cell" data-col={finalidad.col} className="cookie-purpose">
                         {r.purpose}
                       </td>
-                      {cookieMeta(r).map(([label, value]) => (
-                        <td key={label} role="cell" className="cookie-meta">
-                          {/* Etiqueta visible; los lectores de pantalla ya anuncian la cabecera de columna */}
-                          <span aria-hidden="true" className="cookie-label">
-                            {label}
-                          </span>
-                          <span>{value}</span>
-                        </td>
-                      ))}
+                      <MetaCell {...duracion} value={r.duration} />
+                      <MetaCell {...tipo} value={r.type} />
                     </tr>
                   ))}
                 </tbody>
