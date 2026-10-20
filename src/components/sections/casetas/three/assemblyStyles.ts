@@ -1,3 +1,10 @@
+/**
+ * Estilos del montaje despiezado de /casetas.
+ * Se sirven en línea con <style precedence> (React 19) desde los componentes
+ * de servidor: así no hay hojas CSS por ruta que el prefetch de los enlaces
+ * precargue en otras páginas (aviso de consola "preloaded but not used").
+ */
+export const assemblyCss = /* css */ `
 /* ------------------------------------------------------------------ */
 /* Montaje despiezado de /casetas                                      */
 /* ------------------------------------------------------------------ */
@@ -143,33 +150,31 @@
   transform: none;
 }
 
-/* Móvil en vertical: solo se despliega el texto del paso activo */
-@media not all and (min-width: 600px) and (min-aspect-ratio: 5/4) {
-  .assembly[data-mode='3d'] .assembly__steps {
-    gap: 10px;
-  }
+/* Vertical (por defecto): solo se despliega el texto del paso activo */
+.assembly[data-mode='3d'] .assembly__steps {
+  gap: 10px;
+}
 
-  .assembly[data-mode='3d'] .assembly__step {
-    padding-top: 10px;
-  }
+.assembly[data-mode='3d'] .assembly__step {
+  padding-top: 10px;
+}
 
-  .assembly[data-mode='3d'] .assembly__step-text {
-    display: none;
-  }
+.assembly[data-mode='3d'] .assembly__step-text {
+  display: none;
+}
 
-  .assembly[data-step='0'] .assembly__step[data-index='0'] .assembly__step-text,
-  .assembly[data-step='1'] .assembly__step[data-index='1'] .assembly__step-text,
-  .assembly[data-step='2'] .assembly__step[data-index='2'] .assembly__step-text {
-    display: block;
-  }
+.assembly[data-step='0'] .assembly__step[data-index='0'] .assembly__step-text,
+.assembly[data-step='1'] .assembly__step[data-index='1'] .assembly__step-text,
+.assembly[data-step='2'] .assembly__step[data-index='2'] .assembly__step-text {
+  display: block;
+}
 
-  .assembly[data-mode='3d'] .assembly__text {
-    display: none;
-  }
+.assembly[data-mode='3d'] .assembly__text {
+  display: none;
 }
 
 /* Escritorio y apaisado */
-@media (min-width: 1024px), (min-width: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4) {
   .assembly[data-mode='3d'] {
     height: calc(100svh + 280vh);
   }
@@ -186,9 +191,19 @@
     justify-content: center;
   }
 
-  .assembly__steps {
+  .assembly__steps,
+  .assembly[data-mode='3d'] .assembly__steps {
     gap: 22px;
     margin-top: clamp(28px, 5svh, 56px);
+  }
+
+  .assembly[data-mode='3d'] .assembly__step {
+    padding-top: 16px;
+  }
+
+  .assembly[data-mode='3d'] .assembly__step-text,
+  .assembly[data-mode='3d'] .assembly__text {
+    display: block;
   }
 
   .assembly[data-mode='static'] .assembly__content {
@@ -212,3 +227,4 @@
 .assembly__visual {
   z-index: 0;
 }
+`;

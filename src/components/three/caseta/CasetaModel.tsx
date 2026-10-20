@@ -101,15 +101,15 @@ export function CasetaModel({
 
   const strutGeo = useMemo(() => new THREE.CylinderGeometry(0.0065, 0.0065, 1, 6, 1), []);
   const bracketGeo = useMemo(() => {
-    const s = new THREE.Shape([
-      new THREE.Vector2(0, 0),
-      new THREE.Vector2(0.22, 0),
-      new THREE.Vector2(0.03, -0.2),
-      new THREE.Vector2(0, -0.22),
-    ]);
-    const g = new THREE.ExtrudeGeometry(s, { depth: 0.014, bevelEnabled: false });
+    // Escuadra de pletina con tornapuntas: triángulo calado (marco de 18 mm)
+    const a = 0.17;
+    const t = 0.018;
+    const k = t * (1 + Math.SQRT2);
+    const s = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(a, 0), new THREE.Vector2(0, -a)]);
+    s.holes.push(new THREE.Path([new THREE.Vector2(t, -t), new THREE.Vector2(t, -a + k), new THREE.Vector2(a - k, -t)]));
+    const g = new THREE.ExtrudeGeometry(s, { depth: 0.01, bevelEnabled: false });
     g.rotateY(-Math.PI / 2);
-    g.translate(0.007, 0, 0);
+    g.translate(0.005, 0, 0);
     return g;
   }, []);
   const bulbGeo = useMemo(() => new THREE.SphereGeometry(1, 12, 8), []);
@@ -293,7 +293,7 @@ export function CasetaModel({
     const sideOpen = windowOpen(s.shutters, 1) * upright;
     if (bulbMat.current) {
       bulbMat.current.emissiveIntensity = lit * 2.6;
-      bulbMat.current.color.setRGB(0.8 + lit * 0.2, 0.73 + lit * 0.2, 0.62 + lit * 0.2);
+      bulbMat.current.color.setRGB(0.32 + lit * 0.68, 0.26 + lit * 0.67, 0.19 + lit * 0.63);
     }
     if (glowMat.current) {
       glowMat.current.opacity = lit * 0.9;
@@ -368,8 +368,8 @@ export function CasetaModel({
       </group>
 
       <group name="hardware">
-        <instancedMesh ref={struts} args={[strutGeo, mats.dark, 6]} frustumCulled={false} castShadow={castShadow} />
-        <instancedMesh ref={brackets} args={[bracketGeo, mats.dark, 6]} frustumCulled={false} castShadow={castShadow} />
+        <instancedMesh ref={struts} args={[strutGeo, mats.dark, 6]} frustumCulled={false} />
+        <instancedMesh ref={brackets} args={[bracketGeo, mats.dark, 6]} frustumCulled={false} />
       </group>
 
       <group name="roof">
@@ -386,7 +386,7 @@ export function CasetaModel({
             <instancedMesh ref={bulbs} args={[bulbGeo, undefined, allBulbs.length]} frustumCulled={false}>
               <meshStandardMaterial
                 ref={bulbMat}
-                color="#cbbb9f"
+                color="#9a8b74"
                 emissive="#ffc27a"
                 emissiveIntensity={0}
                 roughness={0.35}

@@ -9,8 +9,6 @@ import { useCan3D, useDevFlag, useIdleReady, useInView, useMedia, usePosterKey }
 import { copyShot, createCasetaState, type CameraShot, type Quality, type SceneHandle } from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
 import { DESKTOP, HERO_WIDE, MOBILE, OG_SHOT, type HeroShots } from './shots';
-import '@/components/three/three.css';
-import './hero.css';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 

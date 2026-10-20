@@ -1,7 +1,7 @@
 import type { CameraShot } from '@/components/three/state';
 
 /** Planos del montaje despiezado (sin three). */
-export const ASSEMBLY_WIDE = '(min-width: 1024px), (min-width: 600px) and (min-aspect-ratio: 5/4)';
+export const ASSEMBLY_WIDE = '(min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4)';
 
 export interface AssemblyShots {
   fit: 'h' | 'w';

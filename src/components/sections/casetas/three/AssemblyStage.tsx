@@ -10,8 +10,6 @@ import { copyShot, createCasetaState, type CameraShot, type Quality, type SceneH
 import { MEDIA } from '@/lib/motion';
 import { ASSEMBLY_DESKTOP, ASSEMBLY_MOBILE, ASSEMBLY_POSTER, ASSEMBLY_WIDE, STEP_AT } from './assemblyShots';
 import type { AssemblyAnim } from './AssemblyScene';
-import '@/components/three/three.css';
-import './assembly.css';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 

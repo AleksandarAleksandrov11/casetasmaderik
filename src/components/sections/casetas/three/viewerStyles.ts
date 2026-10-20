@@ -1,3 +1,10 @@
+/**
+ * Estilos del visor 3D de /casetas.
+ * Se sirven en línea con <style precedence> (React 19) desde los componentes
+ * de servidor: así no hay hojas CSS por ruta que el prefetch de los enlaces
+ * precargue en otras páginas (aviso de consola "preloaded but not used").
+ */
+export const viewerCss = /* css */ `
 /* ------------------------------------------------------------------ */
 /* Visor 3D de /casetas                                                */
 /* ------------------------------------------------------------------ */
@@ -91,10 +98,15 @@
   background-color: var(--color-ink);
 }
 
+.viewer__media {
+  container-type: inline-size;
+}
+
 @media (min-width: 1024px) {
+  /* Siempre apaisada (el encuadre de escritorio ajusta por alto) */
   .viewer__box {
     aspect-ratio: auto;
-    height: clamp(440px, 74svh, 780px);
+    height: min(clamp(440px, 74svh, 780px), 86cqw);
   }
 }
 
@@ -334,3 +346,4 @@ html.js-motion .hotspot__panel:not([hidden]) {
   line-height: 1.5;
   color: var(--color-stone);
 }
+`;

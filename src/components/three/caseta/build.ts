@@ -113,12 +113,8 @@ function buildShutter(width: number, r: () => number): THREE.BufferGeometry {
   parts.push(trim([sw, fw, SHUTTER_FRAME_T], [0, -sh + fw / 2, zf], r));
   parts.push(trim([fw, sh - fw * 2, SHUTTER_FRAME_T], [-sw / 2 + fw / 2, -sh / 2, zf], r));
   parts.push(trim([fw, sh - fw * 2, SHUTTER_FRAME_T], [sw / 2 - fw / 2, -sh / 2, zf], r));
-  // Bisagras de pletina en metal oscuro, discretas
-  for (const s of [-1, 1]) {
-    const x = s * (sw / 2 - Math.min(0.3, sw * 0.18));
-    parts.push(box([0.022, 0.07, 0.004], [x, -0.04, SHUTTER_PANEL_T + SHUTTER_FRAME_T + 0.002], { color: DARK_METAL }));
-    parts.push(box([0.04, 0.016, 0.016], [x, 0.004, 0.012], { color: DARK_METAL }));
-  }
+  // Bisagra de piano: una línea fina de metal oscuro a lo largo del canto superior
+  parts.push(box([sw - 0.12, 0.012, 0.012], [0, -0.004, -0.004], { color: DARK_METAL }));
   return merge(parts);
 }
 

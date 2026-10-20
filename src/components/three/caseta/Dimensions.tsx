@@ -145,11 +145,15 @@ export function Dimensions({ stateRef, color = '#F3EDE4' }: DimensionsProps) {
   );
 }
 
+/**
+ * Dos llamadas de dibujo por cota: las líneas de referencia y las marcas de
+ * los extremos (segmentos sueltos, aparecen primero) y la línea de cota, que
+ * se dibuja de un extremo al otro.
+ */
 function Dimension({ def, stateRef, color }: { def: DimDef; stateRef: RefObject<CasetaState>; color: string }) {
   const group = useRef<THREE.Group>(null);
   const line = useRef<THREE.Group>(null);
-  const extRefs = useRef<(THREE.Object3D | null)[]>([]);
-  const tickRefs = useRef<(THREE.Object3D | null)[]>([]);
+  const marks = useRef<THREE.Object3D | null>(null);
 
   const geo = useMemo(() => {
     const from = new THREE.Vector3(...def.from);
@@ -164,11 +168,12 @@ function Dimension({ def, stateRef, color }: { def: DimDef; stateRef: RefObject<
       [0, 0, 0],
       [dir.x * len, dir.y * len, dir.z * len],
     ];
-    const ticks: V3[][] = [0, len].map((t) => {
-      const c = dir.clone().multiplyScalar(t);
-      return [c.clone().sub(tick).toArray() as V3, c.clone().add(tick).toArray() as V3];
-    });
-    return { main, ticks };
+    const segs: V3[] = [];
+    for (const [a, b] of def.ext) segs.push(a, b);
+    for (const p of [from, to]) {
+      segs.push(p.clone().sub(tick).toArray() as V3, p.clone().add(tick).toArray() as V3);
+    }
+    return { main, segs };
   }, [def]);
 
   useFrame(() => {
@@ -177,35 +182,27 @@ function Dimension({ def, stateRef, color }: { def: DimDef; stateRef: RefObject<
     const g = group.current;
     if (g) g.visible = t > 0.001;
     if (t <= 0.001) return;
-    const draw = easeOut(segment(t, 0.1, 0.75));
+    const draw = easeOut(segment(t, 0.2, 0.8));
     if (line.current) line.current.scale.setScalar(Math.max(draw, 0.0001));
-    const setOpacity = (o: THREE.Object3D | null, a: number) => {
-      const m = (o as THREE.Mesh | null)?.material as THREE.Material | undefined;
-      if (m) m.opacity = a;
-    };
-    extRefs.current.forEach((o) => setOpacity(o, 0.5 * easeOut(segment(t, 0, 0.35))));
-    tickRefs.current.forEach((o, i) =>
-      setOpacity(o, 0.95 * easeOut(segment(t, i === 0 ? 0.1 : 0.7, i === 0 ? 0.25 : 0.85))),
-    );
+    const m = (marks.current as THREE.Mesh | null)?.material as THREE.Material | undefined;
+    if (m) m.opacity = 0.75 * easeOut(segment(t, 0, 0.3));
   });
 
   return (
     <group ref={group} visible={false}>
-      {def.ext.map((pts, i) => (
-        <Line
-          key={i}
-          ref={(o) => {
-            extRefs.current[i] = o;
-          }}
-          points={pts}
-          color={color}
-          lineWidth={1}
-          transparent
-          opacity={0}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      ))}
+      <Line
+        ref={(o) => {
+          marks.current = o;
+        }}
+        points={geo.segs}
+        segments
+        color={color}
+        lineWidth={1.1}
+        transparent
+        opacity={0}
+        depthWrite={false}
+        toneMapped={false}
+      />
       <group position={def.from}>
         <group ref={line}>
           <Line
@@ -218,21 +215,6 @@ function Dimension({ def, stateRef, color }: { def: DimDef; stateRef: RefObject<
             toneMapped={false}
           />
         </group>
-        {geo.ticks.map((pts, i) => (
-          <Line
-            key={i}
-            ref={(o) => {
-              tickRefs.current[i] = o;
-            }}
-            points={pts}
-            color={color}
-            lineWidth={1.6}
-            transparent
-            opacity={0}
-            depthWrite={false}
-            toneMapped={false}
-          />
-        ))}
       </group>
     </group>
   );

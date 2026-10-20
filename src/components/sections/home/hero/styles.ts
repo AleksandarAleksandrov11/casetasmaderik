@@ -1,3 +1,10 @@
+/**
+ * Estilos del hero de Inicio.
+ * Se sirven en línea con <style precedence> (React 19) desde los componentes
+ * de servidor: así no hay hojas CSS por ruta que el prefetch de los enlaces
+ * precargue en otras páginas (aviso de consola "preloaded but not used").
+ */
+export const heroCss = /* css */ `
 /* ------------------------------------------------------------------ */
 /* Hero de Inicio                                                      */
 /* Disposición "ancha" (texto a la izquierda, caseta a la derecha) en  */
@@ -171,7 +178,7 @@ html.js-motion .hero__scroll-line::after {
 }
 
 /* Disposición ancha */
-@media (min-width: 1024px), (min-width: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4) {
   .hero {
     --hero-pin: 250vh;
   }
@@ -266,3 +273,4 @@ html.js-intro .hero__title .hero__line:nth-child(2) {
 html.js-intro .hero__title .hero__line:nth-child(3) {
   animation-delay: 1.52s;
 }
+`;

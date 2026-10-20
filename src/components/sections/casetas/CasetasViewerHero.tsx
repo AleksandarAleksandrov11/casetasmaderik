@@ -3,7 +3,10 @@ import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ButtonLink } from '@/components/ui/Button';
 import { Poster } from '@/components/three/Poster';
 import { posters } from '@/components/three/posters';
+import { InlineStyle } from '@/components/three/InlineStyle';
+import { threeCss } from '@/components/three/styles';
 import { ViewerStage } from './three/ViewerStage';
+import { viewerCss } from './three/viewerStyles';
 
 /**
  * S1 de /casetas: visor 3D con puntos de interés y controles. El texto es
@@ -13,6 +16,8 @@ export function CasetasViewerHero() {
   const h = casetasHero;
   return (
     <section data-header="light" className="viewer relative bg-cream" aria-labelledby="casetas-titulo">
+      <InlineStyle id="caseta-3d" css={threeCss} />
+      <InlineStyle id="caseta-visor" css={viewerCss} />
       <ViewerStage
         hotspots={h.hotspots}
         labels={{ ...h.controls, hint: h.hint, sceneDescription: h.sceneDescription }}

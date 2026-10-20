@@ -9,7 +9,7 @@ import type { CameraShot, FitMode } from '@/components/three/state';
  */
 
 /** Disposición ancha: escritorio y pantallas apaisadas. Igual que en hero.css. */
-export const HERO_WIDE = '(min-width: 1024px), (min-width: 600px) and (min-aspect-ratio: 5/4)';
+export const HERO_WIDE = '(min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4)';
 
 export interface HeroShots {
   fit: FitMode;

@@ -1,3 +1,10 @@
+/**
+ * Estilos del 3D compartidos: poster, lienzo y etiquetas de cotas.
+ * Se sirven en línea con <style precedence> (React 19) desde los componentes
+ * de servidor: así no hay hojas CSS por ruta que el prefetch de los enlaces
+ * precargue en otras páginas (aviso de consola "preloaded but not used").
+ */
+export const threeCss = /* css */ `
 /* ------------------------------------------------------------------ */
 /* 3D de la caseta: poster, lienzo y etiquetas de cotas                 */
 /* ------------------------------------------------------------------ */
@@ -20,7 +27,7 @@
 }
 
 /* Mismas consultas que Poster.tsx (WIDE y LG) */
-@media (min-width: 1024px), (min-width: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4) {
   .caseta-poster--split-wide img {
     left: var(--pl-d);
     top: var(--pt-d);
@@ -79,3 +86,4 @@
   opacity: 0;
   will-change: transform, opacity;
 }
+`;

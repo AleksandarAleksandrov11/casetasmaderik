@@ -9,7 +9,7 @@ import { Studio } from '@/components/three/scene/Studio';
 import { PerfProbe } from '@/components/three/scene/PerfProbe';
 import { applyShot } from '@/components/three/scene/camera';
 import { windowOpen } from '@/components/three/caseta/rig';
-import { easeInOut, type CasetaState, type Quality } from '@/components/three/state';
+import { easeInOut, type CasetaState, type FitMode, type Quality } from '@/components/three/state';
 import { ANCHORS } from './anchors';
 import type { ViewerOrbit } from './orbit';
 
@@ -24,6 +24,8 @@ export interface ViewerSceneProps {
   orbitRef: RefObject<ViewerOrbit>;
   hotspotsRef: RefObject<(HTMLElement | null)[]>;
   hotspotIds: string[];
+  /** 'h' en escritorio (caja apaisada), 'w' en móvil (caja cuadrada). */
+  fit: FitMode;
   quality: Quality;
   dpr: number | [number, number];
   active: boolean;
@@ -64,7 +66,7 @@ const _d = new THREE.Vector3();
 const SPAN_H = 4.75;
 const SPAN_W = 5.35;
 
-function ViewerRig({ stateRef, targetsRef, orbitRef, hotspotsRef, hotspotIds, capture }: ViewerSceneProps) {
+function ViewerRig({ stateRef, targetsRef, orbitRef, hotspotsRef, hotspotIds, capture, fit }: ViewerSceneProps) {
   useFrame((state, rawDelta) => {
     const o = orbitRef.current;
     const s = stateRef.current;
@@ -102,7 +104,6 @@ function ViewerRig({ stateRef, targetsRef, orbitRef, hotspotsRef, hotspotIds, ca
     }
 
     const { width, height } = state.size;
-    const fit = width / Math.max(height, 1) >= 1.05 ? 'h' : 'w';
     applyShot(
       state.camera as THREE.PerspectiveCamera,
       {

@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import type { PosterEntry } from './posters';
 
 /** Deben coincidir con las consultas de three.css. */
-const WIDE = '(min-width: 1024px), (min-width: 600px) and (min-aspect-ratio: 5/4)';
+const WIDE = '(min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4)';
 const LG = '(min-width: 1024px)';
 
 /**

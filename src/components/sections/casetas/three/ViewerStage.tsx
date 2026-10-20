@@ -9,8 +9,6 @@ import { MEDIA } from '@/lib/motion';
 import { ANCHORS } from './anchors';
 import { clampOrbit, createOrbit, nearestAngle, VIEWER_START } from './orbit';
 import type { ViewerTargets } from './ViewerScene';
-import '@/components/three/three.css';
-import './viewer.css';
 
 const ViewerScene = dynamic(() => import('./ViewerScene'), { ssr: false });
 
@@ -83,6 +81,23 @@ export function ViewerStage({
     handleRef.current.invalidate = fn;
   }, []);
   const onFirstFrame = useCallback(() => setLive(true), []);
+
+  // Depuración en desarrollo: ?az=&el=&zoom=&open=0&night=1 fija la vista
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    const q = new URLSearchParams(window.location.search);
+    const o = orbitRef.current;
+    const num = (k: string) => (q.has(k) ? Number(q.get(k)) : null);
+    const az = num('az');
+    const el = num('el');
+    const zoom = num('zoom');
+    if (az !== null || capture) o.auto = false;
+    if (az !== null) o.az = o.azT = az;
+    if (el !== null) o.el = o.elT = el;
+    if (zoom !== null) o.zoom = o.zoomT = zoom;
+    if (q.get('open') === '0') stateRef.current.shutters = targetsRef.current.shutters = 0;
+    if (q.get('night') === '1') stateRef.current.night = targetsRef.current.night = 1;
+  }, [capture]);
   const onError = useCallback(() => setFailed(true), []);
   const onSlow = useCallback(() => setSlow(true), []);
 
@@ -262,6 +277,7 @@ export function ViewerStage({
                 orbitRef={orbitRef}
                 hotspotsRef={hotspotEls}
                 hotspotIds={ids}
+                fit={big ? 'h' : 'w'}
                 quality={quality}
                 dpr={dpr}
                 active={inView || capture}
