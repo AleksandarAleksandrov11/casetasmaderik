@@ -1,132 +1,42 @@
 import { z } from 'zod';
+import {
+  DATE_RE,
+  DISPOSITIVOS,
+  EMPTY_DRAFT,
+  EVENT_VALUES,
+  LIMITS,
+  PROVINCIA_OPTIONS,
+  STEP_COUNT,
+  daysInclusive,
+  isValidDateString,
+  isValidPhone,
+  optionalText,
+  todayLocal,
+  todayMadrid,
+  type DraftErrors,
+  type DraftField,
+  type QuoteDraft,
+} from './quote-data';
 
-/** Tipos de evento con su slug para precargar el formulario por URL. */
-export const EVENT_TYPES = [
-  { value: 'Mercado navideño', slug: 'mercado-navideno' },
-  { value: 'Feria o bazar', slug: 'feria-bazar' },
-  { value: 'Festival gastronómico', slug: 'festival-gastronomico' },
-  { value: 'Evento corporativo', slug: 'evento-corporativo' },
-  { value: 'Evento privado', slug: 'evento-privado' },
-  { value: 'Otro', slug: 'otro' },
-] as const;
+/**
+ * Reglas de validación con zod, compartidas por el formulario (que las carga
+ * de forma diferida) y por /api/presupuesto. Reexporta los datos de
+ * quote-data.ts para que todo siga disponible desde aquí.
+ */
+export * from './quote-data';
 
-export type TipoEvento = (typeof EVENT_TYPES)[number]['value'];
-const EVENT_VALUES = EVENT_TYPES.map((e) => e.value) as [TipoEvento, ...TipoEvento[]];
+/*
+ * Sin compilación JIT: zod comprueba si puede usar new Function() y, con la
+ * CSP de vercel.json (sin 'unsafe-eval'), esa comprobación deja un error de CSP
+ * en la consola. Con esquemas tan pequeños no hay diferencia de rendimiento.
+ */
+z.config({ jitless: true });
 
-export function eventFromSlug(slug: string | null | undefined): TipoEvento | undefined {
-  if (!slug) return undefined;
-  return EVENT_TYPES.find((e) => e.slug === slug.toLowerCase())?.value;
-}
-
-/** 50 provincias, Ceuta y Melilla, ordenadas alfabéticamente. */
-export const PROVINCIAS = [
-  'A Coruña',
-  'Álava',
-  'Albacete',
-  'Alicante',
-  'Almería',
-  'Asturias',
-  'Ávila',
-  'Badajoz',
-  'Barcelona',
-  'Bizkaia',
-  'Burgos',
-  'Cáceres',
-  'Cádiz',
-  'Cantabria',
-  'Castellón',
-  'Ceuta',
-  'Ciudad Real',
-  'Córdoba',
-  'Cuenca',
-  'Gipuzkoa',
-  'Girona',
-  'Granada',
-  'Guadalajara',
-  'Huelva',
-  'Huesca',
-  'Illes Balears',
-  'Jaén',
-  'La Rioja',
-  'Las Palmas',
-  'León',
-  'Lleida',
-  'Lugo',
-  'Madrid',
-  'Málaga',
-  'Melilla',
-  'Murcia',
-  'Navarra',
-  'Ourense',
-  'Palencia',
-  'Pontevedra',
-  'Salamanca',
-  'Santa Cruz de Tenerife',
-  'Segovia',
-  'Sevilla',
-  'Soria',
-  'Tarragona',
-  'Teruel',
-  'Toledo',
-  'Valencia',
-  'Valladolid',
-  'Zamora',
-  'Zaragoza',
-] as const;
-
-export const FUERA_DE_ESPANA = 'Fuera de España';
-export const PROVINCIA_OPTIONS = [...PROVINCIAS, FUERA_DE_ESPANA] as const;
-
-export const LIMITS = {
-  casetasMin: 1,
-  casetasMax: 200,
-  maxRangeDays: 365,
-  nombreMax: 100,
-  localidadMax: 100,
-  empresaMax: 120,
-  comentariosMax: 1000,
-  otroMax: 80,
-  minFillMs: 4000,
-} as const;
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
-/** Fecha de hoy en Madrid con formato YYYY-MM-DD. */
-export function todayMadrid(now: Date = new Date()): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Europe/Madrid',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now);
-}
-
-export function isValidDateString(value: string): boolean {
-  if (!DATE_RE.test(value)) return false;
-  const [y, m, d] = value.split('-').map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
-}
-
-/** Días naturales entre dos fechas YYYY-MM-DD, ambas incluidas. */
-export function daysInclusive(start: string, end: string): number {
-  const a = Date.parse(`${start}T00:00:00Z`);
-  const b = Date.parse(`${end}T00:00:00Z`);
-  return Math.round((b - a) / 86_400_000) + 1;
-}
-
-/** Deja solo dígitos y un + inicial. */
-export function normalizePhone(value: string): string {
-  const trimmed = value.trim();
-  const plus = trimmed.startsWith('+') ? '+' : '';
-  return plus + trimmed.replace(/\D/g, '');
-}
-
-export function isValidPhone(value: string): boolean {
-  if (!/^[+\d][\d\s().-]*$/.test(value.trim())) return false;
-  const digits = value.replace(/\D/g, '');
-  return digits.length >= 9 && digits.length <= 15;
-}
+/**
+ * Las reglas cruzadas (Otro, fechas) se evalúan aunque otros campos fallen,
+ * para devolver todos los errores a la vez.
+ */
+const ALWAYS_REFINE = { when: (payload: { value: unknown }) => typeof payload.value === 'object' && payload.value !== null };
 
 const requiredText = (max: number, empty: string, long: string) => z.string(empty).trim().min(1, empty).max(max, long);
 
@@ -157,11 +67,10 @@ type DateFields = { fechaInicio: string; fechaFin?: string; unDia: boolean };
 
 /** Reglas de fechas compartidas por cliente y servidor. */
 export function checkDates(v: DateFields, ctx: z.RefinementCtx, today: string, toleranceDays = 0): void {
-  if (!isValidDateString(v.fechaInicio)) {
+  const startOk = isValidDateString(v.fechaInicio);
+  if (!startOk) {
     ctx.addIssue({ code: 'custom', path: ['fechaInicio'], message: 'Indica una fecha válida.' });
-    return;
-  }
-  if (daysInclusive(today, v.fechaInicio) < 1 - toleranceDays) {
+  } else if (daysInclusive(today, v.fechaInicio) < 1 - toleranceDays) {
     ctx.addIssue({ code: 'custom', path: ['fechaInicio'], message: 'La fecha de inicio debe ser hoy o posterior.' });
   }
   if (v.unDia) return;
@@ -173,6 +82,7 @@ export function checkDates(v: DateFields, ctx: z.RefinementCtx, today: string, t
     ctx.addIssue({ code: 'custom', path: ['fechaFin'], message: 'Indica una fecha válida.' });
     return;
   }
+  if (!startOk) return;
   const days = daysInclusive(v.fechaInicio, v.fechaFin);
   if (days < 1) {
     ctx.addIssue({
@@ -235,18 +145,10 @@ export const quoteFormSchema = z
       ctx.addIssue({ code: 'custom', path: ['tipoEventoOtro'], message: 'Cuéntanos qué evento es.' });
     }
     checkDates(v, ctx, todayMadrid());
-  });
+  }, ALWAYS_REFINE);
 
 export type QuoteFormInput = z.input<typeof quoteFormSchema>;
 export type QuoteFormValues = z.output<typeof quoteFormSchema>;
-
-/** Campos que valida cada paso. */
-export const STEP_FIELDS = [
-  ['tipoEvento', 'tipoEventoOtro'],
-  ['fechaInicio', 'fechaFin', 'unDia', 'localidad', 'provincia'],
-  ['casetas', 'comentarios'],
-  ['nombre', 'telefono', 'email', 'empresa', 'consentimiento'],
-] as const;
 
 /* ------------------------------------------------------------------ */
 /* Petición a /api/presupuesto (servidor)                              */
@@ -259,8 +161,6 @@ const shortOptional = (max: number) =>
     .max(max)
     .optional()
     .transform((v) => (v ? v : undefined));
-
-export const DISPOSITIVOS = ['móvil', 'tablet', 'escritorio'] as const;
 
 export const leadRequestSchema = z
   .object({
@@ -288,7 +188,10 @@ export const leadRequestSchema = z
     utmTerm: shortOptional(150),
     utmContent: shortOptional(150),
     dispositivo: z.enum(DISPOSITIVOS),
+    /** Momento en que se abrió el formulario (reloj del navegador, ms). */
     startedAt: z.number().int().nonnegative(),
+    /** Momento del envío (reloj del navegador, ms). Evita depender del desfase de reloj. */
+    sentAt: z.number().int().nonnegative().optional(),
     website: z.string().max(200).optional(),
   })
   .superRefine((v, ctx) => {
@@ -297,39 +200,83 @@ export const leadRequestSchema = z
     }
     // Un día de margen por diferencias de zona horaria del navegador
     checkDates(v, ctx, todayMadrid(), 1);
-  });
+  }, ALWAYS_REFINE);
 
 export type LeadRequest = z.output<typeof leadRequestSchema>;
 
-/** Carga que se envía a Google Apps Script. */
-export type LeadPayload = {
-  secret: string;
-  id: string;
-  tipoEvento: TipoEvento;
-  tipoEventoOtro?: string;
-  fechaInicio: string;
-  fechaFin: string;
-  localidad: string;
-  provincia: string;
-  casetas: number;
-  comentarios?: string;
-  nombre: string;
-  telefono: string;
-  email: string;
-  empresa?: string;
-  consentimiento: true;
-  consentimientoFecha: string;
-  politicaVersion: string;
-  pagina: string;
-  landing?: string;
-  referrer?: string;
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
-  utmTerm?: string;
-  utmContent?: string;
-  dispositivo: (typeof DISPOSITIVOS)[number];
-  website?: string;
-};
+/** Cuerpo JSON que el formulario envía a /api/presupuesto. */
+export type LeadRequestBody = z.input<typeof leadRequestSchema>;
 
-export type LeadResponse = { ok: true; numero: number } | { ok: false; error: string };
+/* ------------------------------------------------------------------ */
+/* Borrador del formulario (cliente)                                   */
+/* ------------------------------------------------------------------ */
+
+/** Reglas de fechas sin depender del resto del paso (siempre se evalúan). */
+const datesSchema = (today: string) =>
+  z
+    .object({ fechaInicio: z.string(), fechaFin: z.string().optional(), unDia: z.boolean() })
+    .superRefine((v, ctx) => checkDates(v, ctx, today));
+
+/** Valida un paso del borrador. Devuelve el primer mensaje de cada campo. */
+export function validateStep(step: number, draft: QuoteDraft, today: string = todayLocal()): DraftErrors {
+  const errors: DraftErrors = {};
+  const collect = (result: { success: boolean; error?: z.ZodError }) => {
+    if (result.success || !result.error) return;
+    for (const issue of result.error.issues) {
+      const field = issue.path[0];
+      if (typeof field === 'string' && field in EMPTY_DRAFT && !errors[field as DraftField]) {
+        errors[field as DraftField] = issue.message;
+      }
+    }
+  };
+
+  if (step === 0) {
+    collect(
+      stepEventSchema.safeParse({
+        tipoEvento: draft.tipoEvento || undefined,
+        tipoEventoOtro: draft.tipoEvento === 'Otro' ? draft.tipoEventoOtro : undefined,
+      }),
+    );
+  } else if (step === 1) {
+    const dates = {
+      fechaInicio: draft.fechaInicio,
+      fechaFin: draft.unDia ? undefined : optionalText(draft.fechaFin),
+      unDia: draft.unDia,
+    };
+    collect(
+      z.object(stepWhenWhereShape).safeParse({
+        ...dates,
+        localidad: draft.localidad,
+        provincia: draft.provincia || undefined,
+      }),
+    );
+    collect(datesSchema(today).safeParse(dates));
+  } else if (step === 2) {
+    collect(
+      stepQuantitySchema.safeParse({
+        casetas: optionalText(draft.casetas),
+        comentarios: draft.comentarios,
+      }),
+    );
+  } else {
+    collect(
+      stepContactSchema.safeParse({
+        nombre: draft.nombre,
+        telefono: draft.telefono,
+        email: draft.email,
+        empresa: draft.empresa,
+        consentimiento: draft.consentimiento,
+        website: draft.website,
+      }),
+    );
+  }
+  return errors;
+}
+
+/** Primer paso con errores (o -1 si todo es válido). */
+export function firstInvalidStep(draft: QuoteDraft, upTo: number = STEP_COUNT - 1, today?: string): number {
+  for (let step = 0; step <= upTo; step++) {
+    if (Object.keys(validateStep(step, draft, today)).length > 0) return step;
+  }
+  return -1;
+}
