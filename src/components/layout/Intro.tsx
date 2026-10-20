@@ -31,9 +31,7 @@ export function Intro() {
           viewBox={`${first.x1} -2 ${width} 32`}
           className="intro__word mt-6 h-[clamp(14px,2vw,18px)] w-auto text-ink"
         >
-          <g fill="currentColor">
-            {letters.map((l, i) => (l.d ? <path key={i} d={l.d} /> : null))}
-          </g>
+          <g fill="currentColor">{letters.map((l, i) => (l.d ? <path key={i} d={l.d} /> : null))}</g>
         </svg>
         <span className="intro__rule mt-6 block h-px w-[clamp(120px,18vw,180px)] bg-sand" />
       </div>

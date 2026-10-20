@@ -9,7 +9,19 @@ const Y = (h: number) => GROUND - h;
 
 const BOARD = 12;
 
-function Boards({ x, w, from, to, skip }: { x: number; w: number; from: number; to: number; skip?: [number, number, number, number] }) {
+function Boards({
+  x,
+  w,
+  from,
+  to,
+  skip,
+}: {
+  x: number;
+  w: number;
+  from: number;
+  to: number;
+  skip?: [number, number, number, number];
+}) {
   const lines: React.ReactNode[] = [];
   for (let h = from + BOARD; h < to; h += BOARD) {
     const y = Y(h);
@@ -113,10 +125,7 @@ export function FloorPlan() {
       <rect x={-15} y={-15} width={320} height={230} className="plan-dashed" />
       <line x1={-15} x2={305} y1={100} y2={100} className="plan-dashed" />
       {/* Muros con huecos: frente (abajo), testero derecho, trasera (arriba) y puerta (izquierda) */}
-      <path
-        d="M0 0H75M215 0H290V30M290 170V200H260M30 200H0V137.5M0 62.5V0"
-        className="plan-walls"
-      />
+      <path d="M0 0H75M215 0H290V30M290 170V200H260M30 200H0V137.5M0 62.5V0" className="plan-walls" />
       <line x1={75} x2={215} y1={0} y2={0} className="plan-window" />
       <line x1={290} x2={290} y1={30} y2={170} className="plan-window" />
       <line x1={30} x2={260} y1={200} y2={200} className="plan-window" />

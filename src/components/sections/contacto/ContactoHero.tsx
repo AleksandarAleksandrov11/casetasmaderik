@@ -40,7 +40,10 @@ function ContactList({ className = '' }: { className?: string }) {
 export function ContactoHero() {
   const h = contactoHero;
   return (
-    <section data-header="light" className="relative bg-cream pt-[calc(var(--header-h)+8px)] pb-[clamp(72px,9vw,140px)] lg:pt-[calc(var(--header-h)+32px)]">
+    <section
+      data-header="light"
+      className="relative bg-cream pt-[calc(var(--header-h)+8px)] pb-[clamp(72px,9vw,140px)] lg:pt-[calc(var(--header-h)+32px)]"
+    >
       <div className="container-site">
         <Breadcrumbs
           items={[
@@ -51,8 +54,10 @@ export function ContactoHero() {
         <div className="mt-4 grid gap-x-16 gap-y-8 lg:mt-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <Label className="hidden lg:inline-flex">{h.label}</Label>
-            <h1 className="text-[clamp(2rem,1.4rem+3vw,4.25rem)] leading-[1.02] tracking-[-0.03em] lg:mt-6">{h.title}</h1>
-            <p className="mt-4 max-w-[40ch] text-lead text-stone lg:mt-6">{h.text}</p>
+            <h1 className="text-[clamp(2rem,1.4rem+3vw,4.25rem)] leading-[1.02] tracking-[-0.03em] lg:mt-6">
+              {h.title}
+            </h1>
+            <p className="text-lead mt-4 max-w-[40ch] text-stone lg:mt-6">{h.text}</p>
             <ContactList className="mt-12 hidden lg:block" />
           </div>
           <div id="formulario" className="scroll-mt-24 lg:col-span-7">

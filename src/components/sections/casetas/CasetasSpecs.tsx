@@ -49,7 +49,11 @@ export function CasetasSpecs() {
             </div>
             <figcaption className="mt-4 text-[0.9375rem] text-stone">{s.plans[1].title}</figcaption>
           </figure>
-          <figure className="plan flex flex-col md:col-span-2 lg:col-span-1" data-reveal style={{ ['--reveal-delay' as string]: '0.2s' }}>
+          <figure
+            className="plan flex flex-col md:col-span-2 lg:col-span-1"
+            data-reveal
+            style={{ ['--reveal-delay' as string]: '0.2s' }}
+          >
             <div className="flex flex-1 items-center rounded-sm border border-sand bg-paper/60 p-[clamp(16px,2.5vw,32px)]">
               <FloorPlan />
             </div>

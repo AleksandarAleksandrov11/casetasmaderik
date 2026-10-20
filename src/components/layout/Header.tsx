@@ -28,6 +28,7 @@ export function Header({ logo }: { logo: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuMounted, setMenuMounted] = useState(false);
+  const [ready, setReady] = useState(false);
   const lastY = useRef(0);
   const headerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -40,9 +41,26 @@ export function Header({ logo }: { logo: ReactNode }) {
     return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
   }, []);
 
-  // Scroll: estado compacto y ocultar al bajar
+  // Hasta hidratar, el CSS decide el tono del header (ver globals.css)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  // El menú móvil se cierra si la ventana pasa a escritorio
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => {
+      if (mq.matches) setMenuOpen(false);
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  // Scroll: estado compacto y ocultar al bajar (nunca con el foco dentro)
   useEffect(() => {
     let frame = 0;
+    lastY.current = window.scrollY;
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
@@ -50,16 +68,21 @@ export function Header({ logo }: { logo: ReactNode }) {
         setScrolled(y > SCROLL_THRESHOLD);
         const delta = y - lastY.current;
         if (Math.abs(delta) > 6) {
-          setHidden(delta > 0 && y > HIDE_AFTER);
+          const focusInside = headerRef.current?.contains(document.activeElement) ?? false;
+          setHidden(delta > 0 && y > HIDE_AFTER && !focusInside);
           lastY.current = y;
         }
       });
     };
+    const onFocusIn = () => setHidden(false);
+    const header = headerRef.current;
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
+    header?.addEventListener('focusin', onFocusIn);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', onScroll);
+      header?.removeEventListener('focusin', onFocusIn);
     };
   }, []);
 
@@ -118,9 +141,10 @@ export function Header({ logo }: { logo: ReactNode }) {
         ref={headerRef}
         data-theme={dark ? 'dark' : 'light'}
         data-scrolled={scrolled ? '' : undefined}
+        data-ready={ready ? '' : undefined}
         className={[
           `fixed inset-x-0 top-0 ${menuOpen ? 'z-[80]' : 'z-50'} pt-[var(--safe-top)] transition-[transform,background-color,border-color,color] duration-500 ease-brand`,
-          hidden && !menuOpen ? '-translate-y-full' : 'translate-y-0',
+          hidden && !menuOpen ? '-translate-y-full has-[:focus-visible]:translate-y-0' : 'translate-y-0',
           menuOpen ? 'text-cream' : dark ? 'text-cream' : 'text-ink',
           showBar
             ? dark

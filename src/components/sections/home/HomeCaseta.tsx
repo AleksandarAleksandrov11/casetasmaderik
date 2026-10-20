@@ -33,11 +33,17 @@ export function HomeCaseta() {
                 style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}
               >
                 <dt className="mt-3 text-[0.9375rem] text-mist">{f.label}</dt>
-                <dd className="flex items-baseline gap-2 font-display font-light leading-none tracking-[-0.03em] text-cream">
-                  <span className="tabular text-[clamp(2.75rem,2rem+3.6vw,5.25rem)]" data-count={f.value} data-decimals={f.decimals}>
+                <dd className="flex items-baseline gap-2 font-display leading-none font-light tracking-[-0.03em] text-cream">
+                  <span
+                    className="tabular text-[clamp(2.75rem,2rem+3.6vw,5.25rem)]"
+                    data-count={f.value}
+                    data-decimals={f.decimals}
+                  >
                     {fmt(f.value, f.decimals)}
                   </span>
-                  {f.unit ? <span className="text-[clamp(1.25rem,1rem+1vw,1.75rem)] text-wood-light">{f.unit}</span> : null}
+                  {f.unit ? (
+                    <span className="text-[clamp(1.25rem,1rem+1vw,1.75rem)] text-wood-light">{f.unit}</span>
+                  ) : null}
                 </dd>
               </div>
             ))}

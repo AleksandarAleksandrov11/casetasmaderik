@@ -48,7 +48,11 @@ export function buttonClasses({
 function Inner({ children, arrow, icon }: Pick<BaseProps, 'children' | 'arrow' | 'icon'>) {
   return (
     <>
-      {icon ? <span className="-ml-1 flex size-5 items-center justify-center" aria-hidden="true">{icon}</span> : null}
+      {icon ? (
+        <span className="-ml-1 flex size-5 items-center justify-center" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
       <span>{children}</span>
       {arrow ? (
         <ArrowRight
@@ -64,7 +68,16 @@ function Inner({ children, arrow, icon }: Pick<BaseProps, 'children' | 'arrow' |
 type LinkButtonProps = BaseProps & Omit<ComponentProps<typeof Link>, 'className' | 'children'>;
 
 /** Botón como enlace interno o externo. */
-export function ButtonLink({ variant, size, arrow = true, icon, className, children, magnetic = true, ...rest }: LinkButtonProps) {
+export function ButtonLink({
+  variant,
+  size,
+  arrow = true,
+  icon,
+  className,
+  children,
+  magnetic = true,
+  ...rest
+}: LinkButtonProps) {
   return (
     <Link {...rest} data-magnetic={magnetic ? '' : undefined} className={buttonClasses({ variant, size, className })}>
       <Inner arrow={arrow} icon={icon}>
@@ -77,7 +90,16 @@ export function ButtonLink({ variant, size, arrow = true, icon, className, child
 type AnchorButtonProps = BaseProps & Omit<ComponentProps<'a'>, 'className' | 'children'>;
 
 /** Botón para tel:, mailto: y wa.me. */
-export function ButtonAnchor({ variant, size, arrow = false, icon, className, children, magnetic = true, ...rest }: AnchorButtonProps) {
+export function ButtonAnchor({
+  variant,
+  size,
+  arrow = false,
+  icon,
+  className,
+  children,
+  magnetic = true,
+  ...rest
+}: AnchorButtonProps) {
   return (
     <a {...rest} data-magnetic={magnetic ? '' : undefined} className={buttonClasses({ variant, size, className })}>
       <Inner arrow={arrow} icon={icon}>
@@ -89,13 +111,27 @@ export function ButtonAnchor({ variant, size, arrow = false, icon, className, ch
 
 type NativeButtonProps = BaseProps & Omit<ComponentProps<'button'>, 'className' | 'children'>;
 
-export function Button({ variant, size, arrow = false, icon, className, children, magnetic = false, type = 'button', ...rest }: NativeButtonProps) {
+export function Button({
+  variant,
+  size,
+  arrow = false,
+  icon,
+  className,
+  children,
+  magnetic = false,
+  type = 'button',
+  ...rest
+}: NativeButtonProps) {
   return (
     <button
       {...rest}
       type={type}
       data-magnetic={magnetic ? '' : undefined}
-      className={buttonClasses({ variant, size, className: `${className ?? ''} disabled:cursor-not-allowed disabled:opacity-60` })}
+      className={buttonClasses({
+        variant,
+        size,
+        className: `${className ?? ''} disabled:cursor-not-allowed disabled:opacity-60`,
+      })}
     >
       <Inner arrow={arrow} icon={icon}>
         {children}

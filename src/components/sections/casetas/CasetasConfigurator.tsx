@@ -13,7 +13,8 @@ export function CasetasConfigurator() {
   const option = c.options.find((o) => o.id === selected) ?? c.options[0];
 
   const onKeyDown = (e: React.KeyboardEvent, i: number) => {
-    const dir = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+    const dir =
+      e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
     if (!dir) return;
     e.preventDefault();
     const next = (i + dir + c.options.length) % c.options.length;
@@ -24,7 +25,11 @@ export function CasetasConfigurator() {
   return (
     <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
       <div className="lg:col-span-5">
-        <div role="radiogroup" aria-label="Número de casetas" className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
+        <div
+          role="radiogroup"
+          aria-label="Número de casetas"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2"
+        >
           {c.options.map((o, i) => {
             const active = o.id === selected;
             return (
@@ -53,7 +58,9 @@ export function CasetasConfigurator() {
           {c.cta}
         </ButtonLink>
         <p className="mt-4 text-[0.9375rem] text-mist" aria-live="polite">
-          {option.value === 1 ? 'Una caseta.' : `Te llevamos al formulario con ${option.value} casetas, y lo ajustas allí.`}
+          {option.value === 1
+            ? 'Una caseta.'
+            : `Te llevamos al formulario con ${option.value} casetas, y lo ajustas allí.`}
         </p>
       </div>
       <div className="lg:col-span-6 lg:col-start-7">

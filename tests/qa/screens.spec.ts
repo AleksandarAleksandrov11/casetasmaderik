@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { ROUTES, VIEWPORTS, CROSS_BROWSER_WIDTHS, heightFor } from './routes';
-import { clippedText, dismissCookies, horizontalOverflow, prepare, scrollThrough, smallTargets, watch } from './helpers';
+import {
+  clippedText,
+  dismissCookies,
+  horizontalOverflow,
+  prepare,
+  scrollThrough,
+  smallTargets,
+  watch,
+} from './helpers';
 
 const OUT = 'tests/qa/output/screens';
 

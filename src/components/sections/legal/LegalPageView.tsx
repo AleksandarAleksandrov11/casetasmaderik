@@ -3,7 +3,8 @@ import { CookieSettingsButton } from '@/components/consent/CookieSettingsButton'
 import { buttonClasses } from '@/components/ui/Button';
 import { JsonLd } from '@/components/ui/JsonLd';
 import { cookieCategories } from '@/content/cookies';
-import type { LegalBlock, LegalPage } from '@/content/legal';
+import { legalCta, type LegalBlock, type LegalPage } from '@/content/legal';
+import { CtaFinal } from '@/components/sections/shared/CtaFinal';
 import { site } from '@/content/site';
 import { breadcrumbNode, graph, organizationNode, webPageNode, websiteNode } from '@/lib/schema';
 
@@ -73,7 +74,9 @@ function Block({ block }: { block: LegalBlock }) {
     case 'cookie-button':
       return (
         <div className="my-6">
-          <CookieSettingsButton className={buttonClasses({ variant: 'primary' })}>Configurar cookies</CookieSettingsButton>
+          <CookieSettingsButton className={buttonClasses({ variant: 'primary' })}>
+            Configurar cookies
+          </CookieSettingsButton>
         </div>
       );
   }
@@ -102,8 +105,8 @@ export function LegalPageView({ page }: { page: LegalPage }) {
               { name: page.title, path: page.path },
             ]}
           />
-          <h1 className="mt-6 text-h1">{page.title}</h1>
-          <p className="mt-6 max-w-[62ch] text-lead text-stone">{page.intro}</p>
+          <h1 className="text-h1 mt-6">{page.title}</h1>
+          <p className="text-lead mt-6 max-w-[62ch] text-stone">{page.intro}</p>
           <p className="mt-4 text-[0.9375rem] text-stone">Última actualización: {site.legalUpdated}</p>
 
           <div className="mt-14 grid grid-cols-1 gap-12 border-t border-sand pt-12 lg:grid-cols-12">
@@ -134,6 +137,7 @@ export function LegalPageView({ page }: { page: LegalPage }) {
           </div>
         </div>
       </section>
+      <CtaFinal variant="dudas" title={legalCta.title} text={legalCta.text} actions={['llamar', 'whatsapp']} />
     </>
   );
 }

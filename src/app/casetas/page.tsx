@@ -29,7 +29,12 @@ export default function CasetasPage() {
         data={graph([
           organizationNode(),
           websiteNode(),
-          webPageNode({ path: '/casetas', name: casetasMeta.title, description: casetasMeta.description, breadcrumb: true }),
+          webPageNode({
+            path: '/casetas',
+            name: casetasMeta.title,
+            description: casetasMeta.description,
+            breadcrumb: true,
+          }),
           breadcrumbNode('/casetas', [
             { name: 'Inicio', path: '/' },
             { name: 'Casetas', path: '/casetas' },

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { blurFor } from '@/content/image-blur';
 import { Phone } from 'lucide-react';
-import { ButtonAnchor, ButtonLink } from '@/components/ui/Button';
+import { ButtonLink, buttonClasses } from '@/components/ui/Button';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
@@ -49,16 +49,20 @@ export function CtaFinal({
     }
     if (a === 'llamar') {
       return (
-        <ButtonAnchor
+        <ContactLink
           key={a}
           href={phoneHref}
-          variant={dark ? 'outline-light' : 'outline'}
-          size="lg"
-          icon={<Phone strokeWidth={1.5} className="size-[18px]" />}
-          aria-label={`Llamar al ${site.phone.display}`}
+          event="click_phone"
+          place={`cta-${variant}`}
+          magnetic
+          ariaLabel={`Llamar al ${site.phone.display}`}
+          className={buttonClasses({ variant: dark ? 'outline-light' : 'outline', size: 'lg' })}
         >
-          Llamar
-        </ButtonAnchor>
+          <span className="-ml-1 flex size-5 items-center justify-center" aria-hidden="true">
+            <Phone strokeWidth={1.5} className="size-[18px]" />
+          </span>
+          <span>Llamar</span>
+        </ContactLink>
       );
     }
     return (
@@ -103,10 +107,14 @@ export function CtaFinal({
         <div className="max-w-[56rem]">
           {label ? <Label>{label}</Label> : null}
           <Heading className={label ? 'mt-6' : ''}>{title}</Heading>
-          <p data-reveal className={`mt-6 max-w-[44ch] text-lead ${dark ? 'text-cream/85' : 'text-stone'}`}>
+          <p data-reveal className={`text-lead mt-6 max-w-[44ch] ${dark ? 'text-cream/85' : 'text-stone'}`}>
             {text}
           </p>
-          <div data-reveal style={{ ['--reveal-delay' as string]: '0.1s' }} className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <div
+            data-reveal
+            style={{ ['--reveal-delay' as string]: '0.1s' }}
+            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4"
+          >
             {buttons}
           </div>
           {note ? <p className={`mt-8 text-[0.9375rem] ${dark ? 'text-mist' : 'text-stone'}`}>{note}</p> : null}

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { lockScroll } from '@/lib/events';
 
 export type LightboxImage = { src: string; width: number; height: number; alt: string };
 
@@ -43,6 +44,20 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
     if (!d) return;
     if (index !== null && !d.open) d.showModal();
   }, [index]);
+
+  // Con la galería abierta la página no se desplaza por detrás
+  const isOpen = index !== null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const root = document.documentElement;
+    const prev = root.style.overflow;
+    root.style.overflow = 'hidden';
+    lockScroll(true);
+    return () => {
+      root.style.overflow = prev;
+      lockScroll(false);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const d = dialogRef.current;
@@ -105,7 +120,7 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
         {current ? (
           <div className="flex h-full flex-col">
             <div className="flex items-center justify-between px-[max(16px,var(--safe-left))] pt-[max(12px,var(--safe-top))]">
-              <p className="text-[0.9375rem] text-mist tabular" aria-live="polite">
+              <p className="tabular text-[0.9375rem] text-mist" aria-live="polite">
                 Imagen {index! + 1} de {images.length}
               </p>
               <button
@@ -118,7 +133,14 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
               </button>
             </div>
             <figure className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-4 pb-4">
-              <div className="relative h-full max-h-[78dvh] w-full max-w-[min(92vw,1000px)]">
+              {/* Sin ampliar más de 1,5 veces el tamaño original de la foto */}
+              <div
+                className="relative h-full w-full"
+                style={{
+                  maxWidth: `min(92vw, 1000px, ${Math.round(current.width * 1.5)}px)`,
+                  maxHeight: `min(78dvh, ${Math.round(current.height * 1.5)}px)`,
+                }}
+              >
                 <Image
                   key={current.src}
                   src={current.src}

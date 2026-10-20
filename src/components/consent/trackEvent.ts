@@ -32,9 +32,7 @@ export function trackEvent(name: TrackName, params: Params = {}): void {
 
   if (state.analytics) {
     // Vercel Web Analytics (los eventos personalizados requieren plan Pro)
-    import('@vercel/analytics')
-      .then(({ track }) => track(name, clean))
-      .catch(() => undefined);
+    import('@vercel/analytics').then(({ track }) => track(name, clean)).catch(() => undefined);
 
     const gtag = (window as unknown as { gtag?: Gtag }).gtag;
     if (gtag) {

@@ -29,7 +29,7 @@ export function HomeProcess() {
           {p.steps.map((s, i) => (
             <li
               key={s.n}
-              className="relative pl-12 md:pl-0 md:pt-14"
+              className="relative pl-12 md:pt-14 md:pl-0"
               data-reveal
               style={{ ['--reveal-delay' as string]: `${i * 0.12}s` }}
             >
@@ -39,8 +39,8 @@ export function HomeProcess() {
               >
                 <span className="size-[7px] rounded-full bg-wood" />
               </span>
-              <p className="font-display text-[0.9375rem] tracking-[0.12em] text-wood-dark tabular">{s.n}</p>
-              <h3 className="mt-3 text-h3">{s.title}</h3>
+              <p className="tabular font-display text-[0.9375rem] tracking-[0.12em] text-wood-dark">{s.n}</p>
+              <h3 className="text-h3 mt-3">{s.title}</h3>
               <p className="mt-4 max-w-[34ch] text-stone">{s.text}</p>
             </li>
           ))}

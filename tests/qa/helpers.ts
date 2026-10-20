@@ -92,7 +92,9 @@ export async function horizontalOverflow(
       if (r.right > vw + 1 || r.left < -1) {
         const cs = getComputedStyle(el);
         if (cs.position === 'fixed' || clipped(el)) continue;
-        culprits.push(`${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} [${Math.round(r.left)}..${Math.round(r.right)}]`);
+        culprits.push(
+          `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} [${Math.round(r.left)}..${Math.round(r.right)}]`,
+        );
         if (culprits.length > 12) break;
       }
     }
@@ -111,8 +113,13 @@ export async function clippedText(page: Page): Promise<string[]> {
       if (el.closest('[aria-hidden="true"], [inert], #cc-main')) continue;
       const tooWide = el.scrollWidth > el.clientWidth + 2 && getComputedStyle(el).overflowX !== 'visible';
       const parent = el.parentElement?.getBoundingClientRect();
-      const outOfParent = parent ? r.right > parent.right + 2 && getComputedStyle(el.parentElement!).overflowX === 'visible' && r.right > window.innerWidth : false;
-      if (tooWide || outOfParent) out.push(`${el.tagName.toLowerCase()}: "${(el.textContent ?? '').trim().slice(0, 50)}"`);
+      const outOfParent = parent
+        ? r.right > parent.right + 2 &&
+          getComputedStyle(el.parentElement!).overflowX === 'visible' &&
+          r.right > window.innerWidth
+        : false;
+      if (tooWide || outOfParent)
+        out.push(`${el.tagName.toLowerCase()}: "${(el.textContent ?? '').trim().slice(0, 50)}"`);
     }
     return out;
   });
@@ -122,7 +129,8 @@ export async function clippedText(page: Page): Promise<string[]> {
 export async function smallTargets(page: Page): Promise<string[]> {
   return page.evaluate(() => {
     const out: string[] = [];
-    const sel = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="button"], [role="radio"]';
+    const sel =
+      'a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="button"], [role="radio"]';
     for (const el of Array.from(document.querySelectorAll<HTMLElement>(sel))) {
       if (el.closest('[aria-hidden="true"], [inert], .sr-only, .skip-link, noscript')) continue;
       const cs = getComputedStyle(el);
@@ -147,7 +155,9 @@ export async function smallTargets(page: Page): Promise<string[]> {
         if (lr && lr.height >= 44 - 0.5) continue;
       }
       if (r.width < 44 - 0.5 || r.height < 44 - 0.5) {
-        out.push(`${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 40)}" ${Math.round(r.width)}x${Math.round(r.height)}`);
+        out.push(
+          `${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 40)}" ${Math.round(r.width)}x${Math.round(r.height)}`,
+        );
       }
     }
     return out;

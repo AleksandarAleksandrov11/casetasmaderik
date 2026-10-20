@@ -11,9 +11,27 @@ import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
 export function ContactoChannels() {
   const c = contactoChannels;
   const data = {
-    phone: { href: phoneHref, value: site.phone.display, icon: <Phone aria-hidden="true" strokeWidth={1.5} className="size-7" />, event: 'click_phone' as const, external: false },
-    whatsapp: { href: whatsappHref(), value: 'Abrir chat', icon: <WhatsAppIcon className="size-7" />, event: 'click_whatsapp' as const, external: true },
-    email: { href: emailHref, value: site.email, icon: <Mail aria-hidden="true" strokeWidth={1.5} className="size-7" />, event: 'click_email' as const, external: false },
+    phone: {
+      href: phoneHref,
+      value: site.phone.display,
+      icon: <Phone aria-hidden="true" strokeWidth={1.5} className="size-7" />,
+      event: 'click_phone' as const,
+      external: false,
+    },
+    whatsapp: {
+      href: whatsappHref(),
+      value: 'Abrir chat',
+      icon: <WhatsAppIcon className="size-7" />,
+      event: 'click_whatsapp' as const,
+      external: true,
+    },
+    email: {
+      href: emailHref,
+      value: site.email,
+      icon: <Mail aria-hidden="true" strokeWidth={1.5} className="size-7" />,
+      event: 'click_email' as const,
+      external: false,
+    },
   };
   return (
     <Section surface="paper" aria-labelledby="canales-titulo">
@@ -32,12 +50,12 @@ export function ContactoChannels() {
                   event={d.event}
                   place="contacto-canales"
                   external={d.external}
-                  className="group/ch flex h-full flex-col gap-10 p-8 transition-colors duration-500 hover:bg-cream md:p-10"
+                  className="group/ch flex h-full flex-col gap-10 p-8 transition-colors duration-500 hover:bg-cream focus-visible:outline-offset-[-6px] md:p-10"
                 >
                   <span className="text-wood-dark">{d.icon}</span>
                   <span>
-                    <span className="block font-display text-h3">{ch.title}</span>
-                    <span className="mt-2 block break-words text-lead text-ink underline decoration-sand underline-offset-4 transition-colors group-hover/ch:decoration-wood">
+                    <span className="text-h3 block font-display">{ch.title}</span>
+                    <span className="text-lead mt-2 block break-words text-ink underline decoration-sand underline-offset-4 transition-colors group-hover/ch:decoration-wood">
                       {d.value}
                     </span>
                     <span className="mt-3 block text-[0.9375rem] text-stone">{ch.note}</span>

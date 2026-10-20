@@ -10,7 +10,12 @@ for (const route of ROUTES) {
   ]) {
     test(`axe ${route.name} @ ${vp.width}`, async ({ browser }) => {
       test.setTimeout(90_000);
-      const context = await browser.newContext({ viewport: vp, isMobile: vp.mobile, hasTouch: vp.mobile, locale: 'es-ES' });
+      const context = await browser.newContext({
+        viewport: vp,
+        isMobile: vp.mobile,
+        hasTouch: vp.mobile,
+        locale: 'es-ES',
+      });
       const page = await context.newPage();
       await prepare(page);
       await page.goto(route.path);
@@ -18,11 +23,19 @@ for (const route of ROUTES) {
       await scrollThrough(page);
       // Que terminen las transiciones de revelado antes de medir contrastes
       await page.waitForTimeout(1500);
-      const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
       await context.close();
       expect(
-        serious.map((v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(' ')).slice(0, 4).join(' | ')}`),
+        serious.map(
+          (v) =>
+            `${v.id} (${v.impact}): ${v.nodes
+              .map((n) => n.target.join(' '))
+              .slice(0, 4)
+              .join(' | ')}`,
+        ),
       ).toEqual([]);
     });
   }
@@ -36,5 +49,7 @@ test('axe con el aviso de cookies abierto @ 390', async ({ browser }) => {
   await page.locator('#cc-main .cm').waitFor({ state: 'visible' });
   const results = await new AxeBuilder({ page }).include('#cc-main').analyze();
   await context.close();
-  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([]);
+  expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual(
+    [],
+  );
 });

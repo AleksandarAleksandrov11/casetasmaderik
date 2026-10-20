@@ -458,7 +458,7 @@ html.js-motion [data-reveal-image]:not(.is-in) > * {
 
 html.js-motion [data-reveal-image] img {
   transition:
-    transform 1.4s var(--ease-brand),
+    transform 1.2s var(--ease-brand),
     clip-path 1.2s var(--ease-brand);
 }
 
@@ -499,11 +499,11 @@ html.js-motion:not(.reveal-ready) [data-reveal-image] > * {
   }
 }
 
-/* Máscara para líneas de SplitText */
-.split-mask {
+/* Máscara para líneas de SplitText (mask: 'lines' añade "-mask" a linesClass) */
+.split-line-mask {
   overflow: clip;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
 }
 
 /* ------------------------------------------------------------------ */
@@ -621,7 +621,7 @@ html.js-motion .wordmark:not(.is-in) .wordmark__letter path {
 html.js-motion .wordmark__iso path {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 1.4s var(--ease-brand);
+  transition: stroke-dashoffset 1.2s var(--ease-brand);
 }
 
 html.js-motion .wordmark__iso path:nth-child(2) {
@@ -660,6 +660,24 @@ html.js-motion .page-enter {
     opacity: 1;
     transform: none;
   }
+}
+
+/* Antes de hidratar (o sin JS) el header toma el tono de la primera sección */
+html:not(.js) header:not([data-ready]) {
+  background-color: var(--color-cream);
+  border-bottom-color: var(--color-sand);
+}
+
+html.js body:has(#contenido > div > section:first-child[data-header='dark']) header:not([data-ready]) {
+  color: var(--color-cream);
+}
+
+html.js
+  body:has(#contenido > div > section:first-child[data-header='dark'])
+  header:not([data-ready])
+  svg
+  > g:first-child {
+  color: var(--color-wood-light);
 }
 
 /* Enlace "Saltar al contenido" */

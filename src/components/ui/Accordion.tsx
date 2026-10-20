@@ -9,17 +9,20 @@ type AccordionItemProps = {
   headingLevel?: 'h3' | 'h4';
 };
 
-const DURATION = 420;
+const DURATION = 600;
 const EASING = 'cubic-bezier(.22,1,.36,1)';
 
 /**
- * Acordeón sobre <details>/<summary>: funciona sin JavaScript y, con él, anima
- * la altura con la Web Animations API (respetando el movimiento reducido).
+ * Acordeón sobre <details>/<summary>: funciona sin JavaScript y, con él, el
+ * contenido entra y sale con opacidad y desplazamiento (solo transform y
+ * opacity, como el resto de la web; respeta el movimiento reducido).
  */
 export function AccordionItem({ question, children, defaultOpen = false, headingLevel = 'h3' }: AccordionItemProps) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<Animation | null>(null);
+  // Estado al que va el acordeón, para clics durante la animación
+  const targetRef = useRef<boolean | null>(null);
   const Heading = headingLevel;
 
   const onToggleClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -28,25 +31,24 @@ export function AccordionItem({ question, children, defaultOpen = false, heading
     if (!details || !content) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     e.preventDefault();
+    const current = targetRef.current ?? details.open;
+    const opening = !current;
     animRef.current?.cancel();
-    const opening = !details.open;
+    targetRef.current = opening;
     if (opening) details.open = true;
-    const full = content.scrollHeight;
-    const from = opening ? 0 : full;
-    const to = opening ? full : 0;
-    content.style.overflow = 'hidden';
-    const anim = content.animate(
-      [
-        { height: `${from}px`, opacity: opening ? 0 : 1 },
-        { height: `${to}px`, opacity: opening ? 1 : 0 },
-      ],
-      { duration: DURATION, easing: EASING },
-    );
+    const hidden = { opacity: 0, transform: 'translateY(-10px)' };
+    const shown = { opacity: 1, transform: 'translateY(0)' };
+    const anim = content.animate(opening ? [hidden, shown] : [shown, hidden], {
+      duration: DURATION,
+      easing: EASING,
+      fill: 'forwards',
+    });
     animRef.current = anim;
     anim.onfinish = () => {
       if (!opening) details.open = false;
-      content.style.overflow = '';
+      anim.cancel();
       animRef.current = null;
+      targetRef.current = null;
     };
   };
 

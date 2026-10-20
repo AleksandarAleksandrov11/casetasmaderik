@@ -19,7 +19,7 @@ export function GET() {
 - Email: ${site.email}
 - Teléfono y WhatsApp: ${site.phone.display}
 - Horario: ${site.hours}
-- Zona de servicio: ${site.serviceArea.regions.length > 0 ? site.serviceArea.regions.join(", ") : site.serviceArea.label}
+- Zona de servicio: ${site.serviceArea.regions.length > 0 ? site.serviceArea.regions.join(', ') : site.serviceArea.label}
 - Tiempo de respuesta a solicitudes: ${site.responseTime}
 
 ## Producto

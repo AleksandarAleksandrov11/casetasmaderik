@@ -12,7 +12,7 @@ const linkClass =
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="mb-4 font-sans text-[0.8125rem] font-semibold uppercase tracking-[0.18em] text-mist">{title}</h2>
+      <h2 className="mb-4 font-sans text-[0.8125rem] font-semibold tracking-[0.18em] text-mist uppercase">{title}</h2>
       {children}
     </div>
   );
@@ -22,12 +22,17 @@ export function Footer() {
   const year = new Date().getFullYear();
   const socials = Object.entries(site.social);
   return (
-    <footer data-header="dark" data-surface="dark" className="surface-dark relative overflow-hidden bg-ink text-cream">
+    <footer
+      id="pie"
+      data-header="dark"
+      data-surface="dark"
+      className="surface-dark relative overflow-hidden bg-ink text-cream"
+    >
       <div className="container-site pt-[clamp(72px,9vw,128px)]">
         <div className="grid gap-x-8 gap-y-12 md:grid-cols-6 lg:grid-cols-12">
           <div className="md:col-span-6 lg:col-span-3">
             <Isotipo className="h-12 w-auto text-wood-light" />
-            <p className="mt-6 max-w-[32ch] text-lead text-cream">
+            <p className="text-lead mt-6 max-w-[32ch] text-cream">
               Alquiler de casetas de madera para ferias, mercados y eventos.
             </p>
             <ButtonLink href="/contacto" variant="light" className="mt-8">
@@ -116,14 +121,18 @@ export function Footer() {
       <FooterWordmark />
 
       <div className="container-site">
-        <div className="flex flex-col gap-3 border-t border-mist/20 py-6 text-[0.875rem] text-mist md:flex-row md:items-center md:justify-between pb-[max(24px,var(--safe-bottom))]">
+        <div className="flex flex-col gap-3 border-t border-mist/20 py-6 pb-[max(24px,var(--safe-bottom))] text-[0.875rem] text-mist md:flex-row md:items-center md:justify-between">
           <p>
             © {year} {site.name}. {site.legalName}, NIF {site.taxId}.
           </p>
           <div className="flex items-center gap-6">
             <a href="#arriba" className="group/top inline-flex min-h-[44px] items-center gap-2 hover:text-cream">
               Volver arriba
-              <svg viewBox="0 0 16 16" className="size-4 transition-transform duration-500 ease-brand group-hover/top:-translate-y-0.5" aria-hidden="true">
+              <svg
+                viewBox="0 0 16 16"
+                className="size-4 transition-transform duration-500 ease-brand group-hover/top:-translate-y-0.5"
+                aria-hidden="true"
+              >
                 <path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </a>

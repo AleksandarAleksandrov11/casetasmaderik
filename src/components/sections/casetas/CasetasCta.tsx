@@ -15,7 +15,7 @@ export function CasetasCta() {
           <Heading id="configurador-titulo" className="mt-6">
             {c.title}
           </Heading>
-          <p className="mt-6 max-w-[44ch] text-lead text-cream/80">{c.text}</p>
+          <p className="text-lead mt-6 max-w-[44ch] text-cream/80">{c.text}</p>
         </div>
         <div className="mt-14">
           <CasetasConfigurator />

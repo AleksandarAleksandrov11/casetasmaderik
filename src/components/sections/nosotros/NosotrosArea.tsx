@@ -22,7 +22,7 @@ export function NosotrosArea() {
           <Heading id="zona-titulo" className="mt-6">
             {a.title}
           </Heading>
-          <p className="mt-6 max-w-[38ch] text-lead text-stone" data-reveal>
+          <p className="text-lead mt-6 max-w-[38ch] text-stone" data-reveal>
             {all
               ? `Montamos casetas en toda ${zone}. Cuéntanos dónde es tu evento y revisamos transporte y accesos.`
               : `Trabajamos en ${zone}. Si tu evento está en otra provincia, consúltanos.`}
@@ -44,7 +44,9 @@ export function NosotrosArea() {
             className="h-auto w-full"
           />
           {!all ? (
-            <figcaption className="mt-4 text-[0.9375rem] text-stone">Provincias en las que trabajamos: {zone}.</figcaption>
+            <figcaption className="mt-4 text-[0.9375rem] text-stone">
+              Provincias en las que trabajamos: {zone}.
+            </figcaption>
           ) : null}
         </figure>
       </div>

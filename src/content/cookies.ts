@@ -29,7 +29,17 @@ export type CategoryInfo = {
   clear: (string | RegExp)[];
 };
 
+const SESSION = 'Sesión: se borra al cerrar la pestaña';
+
 const analyticsRows: CookieRow[] = [
+  {
+    name: 'cm:attribution',
+    provider: 'Casetas Maderik',
+    purpose:
+      'Almacenamiento de sesión (sessionStorage): recuerda la página de entrada y la campaña de tu visita para asociarlas a tu solicitud de presupuesto.',
+    duration: SESSION,
+    type: 'Propia',
+  },
   {
     name: 'Vercel Web Analytics',
     provider: 'Vercel Inc.',
@@ -88,6 +98,22 @@ export const cookieCategories: CategoryInfo[] = [
         provider: 'Casetas Maderik',
         purpose: 'Guarda tus preferencias de cookies.',
         duration: '12 meses',
+        type: 'Propia',
+      },
+      {
+        name: 'cm:presupuesto',
+        provider: 'Casetas Maderik',
+        purpose:
+          'Almacenamiento de sesión (sessionStorage): guarda el borrador del formulario de presupuesto mientras lo rellenas, para no perderlo si recargas la página.',
+        duration: SESSION,
+        type: 'Propia',
+      },
+      {
+        name: 'cm:intro',
+        provider: 'Casetas Maderik',
+        purpose:
+          'Almacenamiento de sesión (sessionStorage): recuerda que ya has visto la animación de entrada para no repetirla.',
+        duration: SESSION,
         type: 'Propia',
       },
     ],

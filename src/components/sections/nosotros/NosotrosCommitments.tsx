@@ -23,12 +23,12 @@ export function NosotrosCommitments() {
             >
               <span
                 aria-hidden="true"
-                className="col-span-4 font-display text-[clamp(2.75rem,2rem+3vw,5rem)] font-light leading-none tracking-[-0.03em] text-wood-dark tabular md:col-span-1 lg:col-span-2"
+                className="tabular col-span-4 font-display text-[clamp(2.75rem,2rem+3vw,5rem)] leading-none font-light tracking-[-0.03em] text-wood-dark md:col-span-1 lg:col-span-2"
               >
                 {item.n}
               </span>
-              <h3 className="col-span-4 text-h3 md:col-span-2 lg:col-span-4">{item.title}</h3>
-              <p className="col-span-4 max-w-[46ch] text-lead text-stone md:col-span-3 lg:col-span-5 lg:col-start-8">
+              <h3 className="text-h3 col-span-4 md:col-span-2 lg:col-span-4">{item.title}</h3>
+              <p className="text-lead col-span-4 max-w-[46ch] text-stone md:col-span-3 lg:col-span-5 lg:col-start-8">
                 {item.text}
               </p>
             </li>

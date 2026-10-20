@@ -13,8 +13,7 @@ export const homeHero = {
     { text: 'casetas de madera', weight: 'strong' },
     { text: 'para ferias y eventos', weight: 'light' },
   ],
-  subtitle:
-    'Mercados navideños, ferias, festivales y eventos privados. La llevamos, la montamos y la recogemos.',
+  subtitle: 'Mercados navideños, ferias, festivales y eventos privados. La llevamos, la montamos y la recogemos.',
   primary: { label: 'Pedir presupuesto', href: '/contacto' },
   secondary: { label: 'Ver la caseta', href: '/casetas' },
   scroll: 'Desliza',

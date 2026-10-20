@@ -24,7 +24,7 @@ export function Reviews() {
               <blockquote>
                 <p className="text-lead">{r.text}</p>
                 <footer className="mt-5 text-[0.9375rem] text-stone">
-                  <cite className="not-italic font-semibold text-ink">{r.author}</cite>
+                  <cite className="font-semibold text-ink not-italic">{r.author}</cite>
                   {r.role ? `, ${r.role}` : null}
                   {r.source ? (
                     <>

@@ -16,10 +16,9 @@ test('enlace "Saltar al contenido" es el primer elemento enfocable', async ({ pa
 test('header: página activa, compacto al bajar y oculto/visible según el scroll', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/nosotros');
-  await expect(page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Nosotros' })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  await expect(
+    page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Nosotros' }),
+  ).toHaveAttribute('aria-current', 'page');
   const header = page.locator('header').first();
   await expect(header).not.toHaveAttribute('data-scrolled', '');
   await page.evaluate(() => window.scrollTo(0, 900));
@@ -107,11 +106,12 @@ test.describe('sin JavaScript', () => {
     test(`${path} se lee entera y los contactos funcionan`, async ({ page }) => {
       await page.goto(path);
       await expect(page.locator('h1')).toBeVisible();
-      const hidden = await page.evaluate(() =>
-        Array.from(document.querySelectorAll('main h2, main p, main li')).filter((el) => {
-          const s = getComputedStyle(el);
-          return s.opacity === '0' || s.visibility === 'hidden';
-        }).length,
+      const hidden = await page.evaluate(
+        () =>
+          Array.from(document.querySelectorAll('main h2, main p, main li')).filter((el) => {
+            const s = getComputedStyle(el);
+            return s.opacity === '0' || s.visibility === 'hidden';
+          }).length,
       );
       expect(hidden).toBe(0);
       await expect(page.locator('a[href^="tel:+34656324123"]').first()).toBeAttached();
@@ -131,7 +131,9 @@ test.describe('movimiento reducido', () => {
       expect(await page.locator('.pin-spacer').count()).toBe(0);
       await expect(page.locator('html')).not.toHaveClass(/js-motion/);
       const hidden = await page.evaluate(
-        () => Array.from(document.querySelectorAll('[data-reveal]')).filter((e) => getComputedStyle(e).opacity === '0').length,
+        () =>
+          Array.from(document.querySelectorAll('[data-reveal]')).filter((e) => getComputedStyle(e).opacity === '0')
+            .length,
       );
       expect(hidden).toBe(0);
     });

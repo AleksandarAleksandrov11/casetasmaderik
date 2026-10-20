@@ -11,13 +11,24 @@ type ContactLinkProps = {
   className?: string;
   children: ReactNode;
   ariaLabel?: string;
+  magnetic?: boolean;
 };
 
 /** Enlace de contacto (tel:, mailto:, wa.me) que registra el clic si hay consentimiento. */
-export function ContactLink({ href, event, place, external, className, children, ariaLabel }: ContactLinkProps) {
+export function ContactLink({
+  href,
+  event,
+  place,
+  external,
+  className,
+  children,
+  ariaLabel,
+  magnetic,
+}: ContactLinkProps) {
   return (
     <a
       href={href}
+      data-magnetic={magnetic ? '' : undefined}
       className={className}
       aria-label={ariaLabel}
       onClick={() => trackEvent(event, { ubicacion: place })}

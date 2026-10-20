@@ -22,14 +22,18 @@ export function HomeEvents() {
                 {e.title}
               </Heading>
             </div>
-            <p className="max-w-[34ch] text-lead text-stone" data-reveal>
+            <p className="text-lead max-w-[34ch] text-stone" data-reveal>
               {e.intro}
             </p>
           </div>
         }
       >
         {e.cards.map((card, i) => (
-          <li key={card.slug} data-rail-item className="w-[78vw] max-w-[420px] flex-none snap-start sm:w-[44vw] lg:w-[min(28vw,440px)]">
+          <li
+            key={card.slug}
+            data-rail-item
+            className="w-[78vw] max-w-[420px] flex-none snap-start sm:w-[44vw] lg:w-[min(28vw,440px)]"
+          >
             <Link href={`/contacto?evento=${card.slug}`} className="group/card block rounded-sm">
               <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-paper">
                 <Image
@@ -41,7 +45,7 @@ export function HomeEvents() {
                   quality={75}
                   className="object-cover transition-transform duration-[1200ms] ease-brand group-hover/card:scale-[1.04]"
                 />
-                <span className="absolute top-4 left-4 font-display text-[0.875rem] tracking-[0.08em] text-cream/90 tabular">
+                <span className="tabular absolute top-4 left-4 font-display text-[0.875rem] tracking-[0.08em] text-cream/90">
                   {String(i + 1).padStart(2, '0')}
                 </span>
               </div>

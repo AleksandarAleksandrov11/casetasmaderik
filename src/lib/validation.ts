@@ -128,8 +128,7 @@ export function isValidPhone(value: string): boolean {
   return digits.length >= 9 && digits.length <= 15;
 }
 
-const requiredText = (max: number, empty: string, long: string) =>
-  z.string(empty).trim().min(1, empty).max(max, long);
+const requiredText = (max: number, empty: string, long: string) => z.string(empty).trim().min(1, empty).max(max, long);
 
 /* ------------------------------------------------------------------ */
 /* Pasos del formulario (cliente)                                      */
@@ -176,13 +175,19 @@ export function checkDates(v: DateFields, ctx: z.RefinementCtx, today: string, t
   }
   const days = daysInclusive(v.fechaInicio, v.fechaFin);
   if (days < 1) {
-    ctx.addIssue({ code: 'custom', path: ['fechaFin'], message: 'La fecha de fin debe ser igual o posterior a la de inicio.' });
+    ctx.addIssue({
+      code: 'custom',
+      path: ['fechaFin'],
+      message: 'La fecha de fin debe ser igual o posterior a la de inicio.',
+    });
   } else if (days > LIMITS.maxRangeDays) {
     ctx.addIssue({ code: 'custom', path: ['fechaFin'], message: 'El rango máximo es de 365 días.' });
   }
 }
 
-export const stepWhenWhereSchema = z.object(stepWhenWhereShape).superRefine((v, ctx) => checkDates(v, ctx, todayMadrid()));
+export const stepWhenWhereSchema = z
+  .object(stepWhenWhereShape)
+  .superRefine((v, ctx) => checkDates(v, ctx, todayMadrid()));
 
 export const casetasSchema = z.coerce
   .number('Indica cuántas casetas necesitas.')
@@ -205,7 +210,11 @@ export const stepContactSchema = z.object({
     .trim()
     .min(1, 'Indica tu teléfono.')
     .refine(isValidPhone, 'Indica un teléfono válido, de 9 a 15 dígitos.'),
-  email: z.string('Indica tu email.').trim().min(1, 'Indica tu email.').pipe(z.email('Indica un email válido.').max(254)),
+  email: z
+    .string('Indica tu email.')
+    .trim()
+    .min(1, 'Indica tu email.')
+    .pipe(z.email('Indica un email válido.').max(254)),
   empresa: z.string().trim().max(LIMITS.empresaMax, 'Máximo 120 caracteres.').optional(),
   consentimiento: z.boolean().refine((v) => v === true, 'Debes aceptar la política de privacidad.'),
   website: z.string().optional(),

@@ -36,7 +36,13 @@ export default function ContactoPage() {
       <ContactoHero />
       <ContactoChannels />
       <ContactoNext />
-      <FaqSection id="preguntas-presupuesto" surface="paper" label={contactoFaqIntro.label} title={contactoFaqIntro.title} faqs={contactoFaqs} />
+      <FaqSection
+        id="preguntas-presupuesto"
+        surface="paper"
+        label={contactoFaqIntro.label}
+        title={contactoFaqIntro.title}
+        faqs={contactoFaqs}
+      />
       <CtaFinal variant="general" title={contactoCta.title} text={contactoCta.text} actions={['llamar', 'whatsapp']} />
     </>
   );

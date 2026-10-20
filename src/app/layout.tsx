@@ -61,7 +61,13 @@ const bootScript = `(function(){var d=document.documentElement;d.classList.add('
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" dir="ltr" data-scroll-behavior="smooth" suppressHydrationWarning className={`${outfit.variable} ${manrope.variable}`}>
+    <html
+      lang="es"
+      dir="ltr"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+      className={`${outfit.variable} ${manrope.variable}`}
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>

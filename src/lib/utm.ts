@@ -1,7 +1,8 @@
 /**
- * Datos de contexto del formulario: UTM, landing y referrer. La landing y los
- * UTM solo se guardan en sessionStorage si hay consentimiento analítico; si no,
- * solo se envían los UTM presentes en la URL actual.
+ * Datos de contexto del formulario: UTM, landing y referrer. Se toman al
+ * entrar en la web y se guardan en memoria (no en el dispositivo); solo se
+ * guardan en sessionStorage, para sobrevivir a una recarga, si hay
+ * consentimiento analítico.
  */
 export const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const;
 export type UtmKey = (typeof UTM_KEYS)[number];
@@ -41,27 +42,44 @@ function safeSession(): Storage | null {
   }
 }
 
-/** Se llama al cargar cada página. Guarda la atribución solo con consentimiento. */
+// Página de entrada de esta carga, en memoria
+let entry: Attribution | null = null;
+
+/** Se llama una vez al cargar la web, antes de cualquier navegación interna. */
+export function captureEntry(): void {
+  if (entry) return;
+  entry = {
+    landing: window.location.pathname,
+    referrer: referrerDomain(document.referrer, window.location.hostname),
+    utm: readUtmFromUrl(window.location.search),
+  };
+}
+
+function readStored(): Attribution | null {
+  const stored = safeSession()?.getItem(STORAGE_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored) as Attribution;
+  } catch {
+    return null;
+  }
+}
+
+/** Con consentimiento analítico, guarda la atribución de la entrada en la sesión. */
 export function rememberAttribution(analyticsAllowed: boolean): void {
   if (!analyticsAllowed) return;
   const store = safeSession();
   if (!store) return;
-  const existing = store.getItem(STORAGE_KEY);
-  const utm = readUtmFromUrl(window.location.search);
+  captureEntry();
+  const existing = readStored();
   if (existing) {
     // Si llegan UTM nuevos en la misma sesión, se actualizan
-    if (Object.keys(utm).length > 0) {
-      const parsed = JSON.parse(existing) as Attribution;
-      store.setItem(STORAGE_KEY, JSON.stringify({ ...parsed, utm }));
+    if (entry && Object.keys(entry.utm).length > 0) {
+      store.setItem(STORAGE_KEY, JSON.stringify({ ...existing, utm: entry.utm }));
     }
     return;
   }
-  const data: Attribution = {
-    landing: window.location.pathname,
-    referrer: referrerDomain(document.referrer, window.location.hostname),
-    utm,
-  };
-  store.setItem(STORAGE_KEY, JSON.stringify(data));
+  store.setItem(STORAGE_KEY, JSON.stringify(entry));
 }
 
 export function forgetAttribution(): void {
@@ -70,21 +88,17 @@ export function forgetAttribution(): void {
 
 /** Contexto que se envía con el formulario. */
 export function collectAttribution(analyticsAllowed: boolean): Attribution {
-  const current: Attribution = {
+  const currentUtm = readUtmFromUrl(window.location.search);
+  const base = entry ?? {
     referrer: referrerDomain(document.referrer, window.location.hostname),
-    utm: readUtmFromUrl(window.location.search),
+    utm: {},
   };
-  if (!analyticsAllowed) return current;
-  const stored = safeSession()?.getItem(STORAGE_KEY);
-  if (!stored) return current;
-  try {
-    const parsed = JSON.parse(stored) as Attribution;
-    return {
-      landing: parsed.landing,
-      referrer: parsed.referrer ?? current.referrer,
-      utm: Object.keys(current.utm).length > 0 ? current.utm : parsed.utm,
-    };
-  } catch {
-    return current;
-  }
+  const stored = analyticsAllowed ? readStored() : null;
+  const utm =
+    Object.keys(currentUtm).length > 0 ? currentUtm : Object.keys(base.utm).length > 0 ? base.utm : (stored?.utm ?? {});
+  return {
+    landing: stored?.landing ?? base.landing,
+    referrer: stored?.referrer ?? base.referrer,
+    utm,
+  };
 }

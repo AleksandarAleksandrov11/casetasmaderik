@@ -16,7 +16,7 @@ export function NosotrosAbout() {
           <Heading id="quienes-titulo" className="mt-6">
             {a.title}
           </Heading>
-          <div className="mt-8 space-y-5 text-lead text-stone">
+          <div className="text-lead mt-8 space-y-5 text-stone">
             {a.paragraphs.map((p, i) => (
               <p key={p} data-reveal style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}>
                 {p}

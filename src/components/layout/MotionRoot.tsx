@@ -43,7 +43,14 @@ export function MotionRoot() {
     Promise.all([loadGsap(), import('lenis')])
       .then(([{ gsap, ScrollTrigger }, { default: LenisCtor }]) => {
         if (cancelled) return;
-        lenis = new LenisCtor({ autoRaf: false, lerp: 0.11, smoothWheel: true, anchors: { offset: -80 } });
+        lenis = new LenisCtor({
+          autoRaf: false,
+          lerp: 0.11,
+          smoothWheel: true,
+          anchors: { offset: -80 },
+          // El aviso de cookies, el menú y los diálogos tienen su propio scroll
+          prevent: (node) => node.id === 'cc-main' || node.id === 'menu-movil' || node.nodeName === 'DIALOG',
+        });
         lenis.on('scroll', ScrollTrigger.update);
         const tick = (time: number) => lenis?.raf(time * 1000);
         gsap.ticker.add(tick);
@@ -67,11 +74,23 @@ export function MotionRoot() {
     };
   }, []);
 
-  // Al cambiar de página (no en la carga inicial): arriba del todo
+  // Al cambiar de página (no en la carga inicial ni al volver atrás): arriba del todo
   const firstPath = useRef(true);
+  const historyNav = useRef(false);
+  useEffect(() => {
+    const onPop = () => {
+      historyNav.current = true;
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
   useEffect(() => {
     if (firstPath.current) {
       firstPath.current = false;
+      return;
+    }
+    if (historyNav.current) {
+      historyNav.current = false;
       return;
     }
     if (!window.location.hash) lenis?.scrollTo(0, { immediate: true, force: true });
@@ -166,7 +185,7 @@ export function MotionRoot() {
               el.textContent = fmt(0, decimals);
               gsap.to(state, {
                 v: target,
-                duration: 1.6,
+                duration: 1.2,
                 ease: 'power3.out',
                 scrollTrigger: { trigger: el, start: 'top 90%', once: true },
                 onUpdate: () => {
@@ -183,7 +202,12 @@ export function MotionRoot() {
                 {
                   yPercent: 10,
                   ease: 'none',
-                  scrollTrigger: { trigger: el.parentElement ?? el, start: 'top bottom', end: 'bottom top', scrub: true },
+                  scrollTrigger: {
+                    trigger: el.parentElement ?? el,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: true,
+                  },
                 },
               );
             });
@@ -191,21 +215,17 @@ export function MotionRoot() {
             // Líneas que se dibujan con el scroll
             document.querySelectorAll<HTMLElement>('[data-draw-line]').forEach((el) => {
               const vertical = el.dataset.drawLine === 'y';
-              gsap.fromTo(
-                el,
-                vertical ? { scaleY: 0 } : { scaleX: 0 },
-                {
-                  ...(vertical ? { scaleY: 1 } : { scaleX: 1 }),
-                  ease: 'none',
-                  transformOrigin: vertical ? 'top center' : 'left center',
-                  scrollTrigger: {
-                    trigger: el.closest('[data-draw-scope]') ?? el,
-                    start: 'top 75%',
-                    end: 'bottom 60%',
-                    scrub: 0.6,
-                  },
+              gsap.fromTo(el, vertical ? { scaleY: 0 } : { scaleX: 0 }, {
+                ...(vertical ? { scaleY: 1 } : { scaleX: 1 }),
+                ease: 'none',
+                transformOrigin: vertical ? 'top center' : 'left center',
+                scrollTrigger: {
+                  trigger: el.closest('[data-draw-scope]') ?? el,
+                  start: 'top 75%',
+                  end: 'bottom 60%',
+                  scrub: 0.6,
                 },
-              );
+              });
             });
           });
 

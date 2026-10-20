@@ -24,13 +24,15 @@ test.describe('SEO en el HTML servido', () => {
       if (LEGAL.includes(path)) expect(robots).toContain('noindex');
       else expect(robots).not.toContain('noindex');
       // JSON-LD válido
-      const blocks = [...html.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)].map((m) => JSON.parse(m[1]));
+      const blocks = [...html.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)].map((m) =>
+        JSON.parse(m[1]),
+      );
       expect(blocks.length).toBeGreaterThan(0);
       for (const b of blocks) expect(b['@context']).toBe('https://schema.org');
     });
   }
 
-  for (const path of PAGES) {
+  for (const path of [...PAGES, ...LEGAL]) {
     test(`imagen OG de ${path} responde 200`, async ({ request }) => {
       const html = await (await request.get(path)).text();
       const og = html.match(/<meta property="og:image" content="([^"]+)"/)?.[1];
@@ -58,7 +60,12 @@ test.describe('SEO en el HTML servido', () => {
     const xml = await (await request.get('/sitemap.xml')).text();
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(locs.sort()).toEqual(
-      ['https://casetasmaderik.es', 'https://casetasmaderik.es/casetas', 'https://casetasmaderik.es/contacto', 'https://casetasmaderik.es/nosotros'].sort(),
+      [
+        'https://casetasmaderik.es',
+        'https://casetasmaderik.es/casetas',
+        'https://casetasmaderik.es/contacto',
+        'https://casetasmaderik.es/nosotros',
+      ].sort(),
     );
     expect(xml).toContain('<lastmod>');
   });

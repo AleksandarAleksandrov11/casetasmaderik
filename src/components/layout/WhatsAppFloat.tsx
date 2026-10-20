@@ -26,15 +26,21 @@ export function WhatsAppFloat() {
   const [footerVisible, setFooterVisible] = useState(false);
   const [offset, setOffset] = useState(0);
 
+  // Visible cuando el hero (o la primera sección) ha salido por arriba
   useEffect(() => {
-    const onScroll = () => setPastHero(window.scrollY > window.innerHeight * 0.85);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const hero =
+      document.querySelector<HTMLElement>('[data-hero]') ?? document.querySelector<HTMLElement>('#contenido section');
+    if (!hero) return;
+    const io = new IntersectionObserver((entries) => {
+      const e = entries[0];
+      if (e) setPastHero(!e.isIntersecting && e.boundingClientRect.top < 0);
+    });
+    io.observe(hero);
+    return () => io.disconnect();
   }, [pathname]);
 
   useEffect(() => {
-    const footer = document.querySelector('footer');
+    const footer = document.getElementById('pie');
     if (!footer) return;
     const io = new IntersectionObserver((entries) => setFooterVisible(entries[0]?.isIntersecting ?? false));
     io.observe(footer);
@@ -50,9 +56,9 @@ export function WhatsAppFloat() {
         setOffset(0);
         return;
       }
-      const rect = banner.getBoundingClientRect();
-      const overlapsRight = rect.right > window.innerWidth - 100;
-      setOffset(overlapsRight ? Math.max(0, window.innerHeight - rect.top) : 0);
+      // offsetTop y offsetLeft no incluyen la transformación de entrada del aviso
+      const overlapsRight = banner.offsetLeft + banner.offsetWidth > window.innerWidth - 100;
+      setOffset(overlapsRight ? Math.max(0, window.innerHeight - banner.offsetTop) : 0);
     };
     measure();
     const mo = new MutationObserver(measure);
@@ -68,6 +74,7 @@ export function WhatsAppFloat() {
 
   return (
     <a
+      id="whatsapp-flotante"
       href={whatsappHref()}
       target="_blank"
       rel="noopener noreferrer"

@@ -2,14 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { CookieConsentConfig } from 'vanilla-cookieconsent';
-import {
-  CONSENT_COOKIE,
-  CONSENT_DAYS,
-  CONSENT_REVISION,
-  consentTexts,
-  cookieCategories,
-} from '@/content/cookies';
-import { forgetAttribution, rememberAttribution } from '@/lib/utm';
+import { CONSENT_COOKIE, CONSENT_DAYS, CONSENT_REVISION, consentTexts, cookieCategories } from '@/content/cookies';
+import { captureEntry, forgetAttribution, rememberAttribution } from '@/lib/utm';
 import { EVT } from '@/lib/events';
 import { setConsentState } from './trackEvent';
 import 'vanilla-cookieconsent/dist/cookieconsent.css';
@@ -34,6 +28,23 @@ export function useConsent(): ConsentContextValue {
 }
 
 type CC = typeof import('vanilla-cookieconsent');
+
+/** Altura del aviso, para reservar ese espacio al final de la página. */
+function measureBanner() {
+  const banner = document.querySelector<HTMLElement>('#cc-main .cm');
+  if (banner) document.documentElement.style.setProperty('--cc-banner-h', `${banner.offsetHeight}px`);
+}
+
+/**
+ * La librería encierra el Tabulador dentro del aviso aunque no sea modal.
+ * Se intercepta antes (fase de captura en window) para que el foco pueda
+ * salir del aviso y seguir por la página.
+ */
+function releaseBannerFocus(e: KeyboardEvent) {
+  if (e.key !== 'Tab') return;
+  const wrapper = document.querySelector('#cc-main .cm-wrapper');
+  if (wrapper && e.target instanceof Node && wrapper.contains(e.target)) e.stopPropagation();
+}
 
 function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
   const t = consentTexts;
@@ -68,6 +79,15 @@ function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
     },
     categories,
     onConsent: update,
+    onModalShow: ({ modalName }) => {
+      if (modalName !== 'consentModal') return;
+      // El aviso no es modal: no bloquea la página ni retiene el foco
+      document.querySelector('#cc-main .cm')?.setAttribute('aria-modal', 'false');
+      measureBanner();
+    },
+    onModalHide: ({ modalName }) => {
+      if (modalName === 'consentModal') document.documentElement.style.removeProperty('--cc-banner-h');
+    },
     onChange: ({ changedCategories }) => {
       update();
       // Al retirar un consentimiento se borran sus cookies y se recarga
@@ -80,7 +100,16 @@ function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
             cc.eraseCookies(cat.clear, '/', `.${window.location.hostname.replace(/^www\./, '')}`);
           }
         }
-        if (revoked.includes('analytics')) forgetAttribution();
+        // Avisa a GA4 y al píxel antes de recargar
+        const w = window as unknown as { gtag?: (...a: unknown[]) => void; fbq?: (...a: unknown[]) => void };
+        if (revoked.includes('analytics')) {
+          w.gtag?.('consent', 'update', { analytics_storage: 'denied' });
+          forgetAttribution();
+        }
+        if (revoked.includes('marketing')) {
+          w.gtag?.('consent', 'update', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+          w.fbq?.('consent', 'revoke');
+        }
         window.location.reload();
       }
     },
@@ -130,6 +159,9 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    captureEntry();
+    window.addEventListener('keydown', releaseBannerFocus, true);
+    window.addEventListener('resize', measureBanner);
     const isBot = /bot|crawl|spider|slurp|teoma/i.test(navigator.userAgent);
     import('vanilla-cookieconsent').then((mod) => {
       if (cancelled) return;
@@ -144,12 +176,8 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         setConsentState(next);
         setState(next);
         rememberAttribution(next.analytics);
-        document.documentElement.dataset.consent = [
-          next.analytics ? 'analytics' : '',
-          next.marketing ? 'marketing' : '',
-        ]
-          .filter(Boolean)
-          .join(' ') || 'none';
+        document.documentElement.dataset.consent =
+          [next.analytics ? 'analytics' : '', next.marketing ? 'marketing' : ''].filter(Boolean).join(' ') || 'none';
         window.dispatchEvent(new CustomEvent(EVT.consent, { detail: next }));
       };
       if (isBot) {
@@ -162,6 +190,8 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     });
     return () => {
       cancelled = true;
+      window.removeEventListener('keydown', releaseBannerFocus, true);
+      window.removeEventListener('resize', measureBanner);
     };
   }, []);
 

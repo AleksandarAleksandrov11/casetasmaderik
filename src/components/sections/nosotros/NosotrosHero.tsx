@@ -8,7 +8,11 @@ import { nosotrosHero } from '@/content/nosotros';
 export function NosotrosHero() {
   const h = nosotrosHero;
   return (
-    <section data-header="dark" data-surface="dark" className="surface-dark relative flex min-h-[88svh] items-end overflow-hidden bg-ink text-cream">
+    <section
+      data-header="dark"
+      data-surface="dark"
+      className="surface-dark relative flex min-h-[88svh] items-end overflow-hidden bg-ink text-cream"
+    >
       <div className="absolute inset-0" aria-hidden="true">
         <div data-parallax className="absolute inset-x-0 -top-[10%] -bottom-[10%]">
           <Image
@@ -34,8 +38,8 @@ export function NosotrosHero() {
           ]}
         />
         <Label className="mt-8">{h.label}</Label>
-        <h1 className="mt-6 max-w-[18ch] text-h1">{h.title}</h1>
-        <p className="mt-6 max-w-[48ch] text-lead text-cream/85">{h.text}</p>
+        <h1 className="text-h1 mt-6 max-w-[18ch]">{h.title}</h1>
+        <p className="text-lead mt-6 max-w-[48ch] text-cream/85">{h.text}</p>
       </div>
     </section>
   );

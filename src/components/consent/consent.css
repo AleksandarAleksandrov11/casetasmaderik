@@ -126,13 +126,74 @@
   font-size: 0.8125rem;
 }
 
-/* Móvil: hoja inferior que respeta el área segura */
+/* Con el aviso abierto, el final de la página queda por encima de él */
+html.show--consent body {
+  padding-bottom: var(--cc-banner-h, 0px);
+}
+
+@media screen and (min-width: 641px) {
+  html.show--consent body {
+    padding-bottom: 0;
+  }
+}
+
+/* Móvil: hoja inferior compacta que respeta el área segura */
 @media screen and (max-width: 640px) {
   #cc-main .cm {
     max-width: none;
     border-radius: 4px 4px 0 0;
     border-width: 1px 0 0;
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  #cc-main .cm__texts {
+    padding-top: 0.875rem;
+  }
+
+  #cc-main .cm__title,
+  #cc-main .cm__desc {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  #cc-main .cm__title {
+    font-size: 1.0625rem;
+  }
+
+  #cc-main .cm__title + .cm__desc {
+    margin-top: 0.375rem;
+  }
+
+  #cc-main .cm__desc {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    padding-bottom: 0.75rem;
+  }
+
+  #cc-main .cm__btns {
+    padding: 0.75rem 1rem 0.5rem;
+  }
+
+  /* Aceptar y Rechazar, uno al lado del otro */
+  #cc-main .cm__btn-group:first-child {
+    grid-auto-flow: column;
+    gap: 0.5rem;
+  }
+
+  #cc-main .cm__btn-group:first-child .cm__btn + .cm__btn {
+    margin-top: 0;
+  }
+
+  #cc-main .cm__btn-group + .cm__btn-group {
+    margin-top: 0.125rem;
+  }
+
+  #cc-main .cm__btn[data-role='show'] {
+    min-height: 40px;
+  }
+
+  #cc-main .cm__footer {
+    padding: 0.25em 0 0.35em;
   }
 
   #cc-main .cm--box {

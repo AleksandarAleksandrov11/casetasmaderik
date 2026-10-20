@@ -39,7 +39,13 @@ export function FooterWordmark() {
         {letters.map((l, i) =>
           l.d ? (
             <g key={i} className="wordmark__letter" style={{ ['--i' as string]: i }}>
-              <rect x={l.x1 - 4} y={-PAD_TOP} width={l.x2 - l.x1 + 8} height={100 + PAD_TOP + PAD_BOTTOM} fill="transparent" />
+              <rect
+                x={l.x1 - 4}
+                y={-PAD_TOP}
+                width={l.x2 - l.x1 + 8}
+                height={100 + PAD_TOP + PAD_BOTTOM}
+                fill="transparent"
+              />
               <path d={l.d} fill="currentColor" />
             </g>
           ) : null,

@@ -4,7 +4,8 @@ import { expect, test, type Page, type Request } from '@playwright/test';
  * Consentimiento (sección 13). El build de QA define NEXT_PUBLIC_GA_ID y
  * NEXT_PUBLIC_ANALYTICS_LOCAL=1; las peticiones externas se interceptan.
  */
-const THIRD_PARTY = /google-analytics\.com|googletagmanager\.com|facebook\.(com|net)|\/_vercel\/(insights|speed-insights)/;
+const THIRD_PARTY =
+  /google-analytics\.com|googletagmanager\.com|facebook\.(com|net)|\/_vercel\/(insights|speed-insights)/;
 
 async function track(page: Page): Promise<string[]> {
   const hits: string[] = [];
@@ -39,7 +40,9 @@ test('el aviso no bloquea la web y los botones tienen el mismo peso', async ({ p
   expect(Math.round(a!.height)).toBe(Math.round(r!.height));
   expect(Math.round(a!.width)).toBe(Math.round(r!.width));
   const styles = await Promise.all(
-    [accept, reject].map((b) => b.evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color].join())),
+    [accept, reject].map((b) =>
+      b.evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).color].join()),
+    ),
   );
   expect(styles[0]).toBe(styles[1]);
   // Sin muro: se puede navegar sin decidir

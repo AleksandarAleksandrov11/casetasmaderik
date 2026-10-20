@@ -28,36 +28,53 @@ async function sideImage(): Promise<{ src: string; poster: boolean }> {
 export async function renderOg({ title, eyebrow = 'Casetas Maderik' }: { title: string; eyebrow?: string }) {
   const [regular, medium, img] = await Promise.all([fontRegular, fontMedium, sideImage()]);
   return new ImageResponse(
-    (
-      <div style={{ width: '100%', height: '100%', display: 'flex', background: '#FBF8F3', fontFamily: 'Outfit' }}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            width: img.poster ? 640 : 700,
-            padding: '64px 0 56px 72px',
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`data:image/svg+xml;utf8,${encodeURIComponent(ISO_SVG)}`} width={78} height={69} alt="" />
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, color: '#98603E', fontSize: 20, letterSpacing: 4, fontWeight: 500 }}>
-              <div style={{ width: 28, height: 1, background: '#98603E' }} />
-              {eyebrow.toUpperCase()}
-            </div>
-            <div style={{ display: 'flex', marginTop: 24, fontSize: 62, lineHeight: 1.04, color: '#0E1615', letterSpacing: -1.5 }}>
-              {title}
-            </div>
+    <div style={{ width: '100%', height: '100%', display: 'flex', background: '#FBF8F3', fontFamily: 'Outfit' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          width: img.poster ? 640 : 700,
+          padding: '64px 0 56px 72px',
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`data:image/svg+xml;utf8,${encodeURIComponent(ISO_SVG)}`} width={78} height={69} alt="" />
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              color: '#98603E',
+              fontSize: 20,
+              letterSpacing: 4,
+              fontWeight: 500,
+            }}
+          >
+            <div style={{ width: 28, height: 1, background: '#98603E' }} />
+            {eyebrow.toUpperCase()}
           </div>
-          <div style={{ display: 'flex', fontSize: 22, color: '#5E6461' }}>casetasmaderik.es</div>
+          <div
+            style={{
+              display: 'flex',
+              marginTop: 24,
+              fontSize: 62,
+              lineHeight: 1.04,
+              color: '#0E1615',
+              letterSpacing: -1.5,
+            }}
+          >
+            {title}
+          </div>
         </div>
-        <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
+        <div style={{ display: 'flex', fontSize: 22, color: '#5E6461' }}>casetasmaderik.es</div>
       </div>
-    ),
+      <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={img.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+    </div>,
     {
       ...OG_SIZE,
       fonts: [
