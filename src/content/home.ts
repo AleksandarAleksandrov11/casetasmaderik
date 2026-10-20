@@ -49,6 +49,8 @@ export const homeEvents = {
   label: 'Eventos',
   title: 'Una caseta, muchos usos',
   intro: 'Elige tu tipo de evento y te preparamos la propuesta.',
+  // Fotos recortadas a 4:5 (ver public/images/stock/CREDITS.md). `focus` es el object-position que se
+  // aplica cuando la tarjeta queda más apaisada (escritorio con poca altura o móvil en horizontal).
   cards: [
     {
       slug: 'mercado-navideno',
@@ -56,27 +58,31 @@ export const homeEvents = {
       text: 'Luz cálida y mostrador para las noches de diciembre.',
       image: '/images/stock/mercado-navideno-luces-calidas.jpg',
       alt: 'Mercado navideño de noche con puestos de madera iluminados con luces cálidas',
+      focus: '50% 60%',
     },
     {
       slug: 'feria-bazar',
       title: 'Ferias y bazares',
       text: 'Puestos uniformes y ordenados para ferias locales.',
-      image: '/images/stock/feria-bazar-aire-libre.jpg',
-      alt: 'Feria al aire libre con puestos de artesanía en una plaza',
+      image: '/images/stock/feria-caseta-pino-mostrador.jpg',
+      alt: 'Caseta de madera de pino en una feria de día, con corazones de pan de especias y cestas sobre el mostrador',
+      focus: '50% 45%',
     },
     {
       slug: 'festival-gastronomico',
       title: 'Festivales gastronómicos',
       text: 'Barra y mostrador listos para jornadas largas.',
       image: '/images/stock/festival-gastronomico-street-food.jpg',
-      alt: 'Festival gastronómico con puestos de comida al atardecer',
+      alt: 'Paella gigante cocinándose a fuego de leña en un festival gastronómico',
+      focus: '50% 50%',
     },
     {
       slug: 'evento-corporativo',
       title: 'Eventos corporativos',
       text: 'Exposiciones, lanzamientos y activaciones de marca.',
-      image: '/images/stock/evento-corporativo-exterior.jpg',
-      alt: 'Evento corporativo al aire libre con un espacio de exposición',
+      image: '/images/stock/exposicion-pabellones-madera.jpg',
+      alt: 'Exposición con pabellones de listones de madera y tejado a dos aguas bajo una luz cálida',
+      focus: '50% 40%',
     },
     {
       slug: 'evento-privado',
@@ -84,6 +90,7 @@ export const homeEvents = {
       text: 'Bodas y celebraciones con un punto distinto.',
       image: '/images/stock/jardin-celebracion-luces.jpg',
       alt: 'Celebración en un jardín con guirnaldas de luces cálidas',
+      focus: '50% 55%',
     },
   ],
   cta: 'Pedir presupuesto',
