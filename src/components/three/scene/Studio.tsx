@@ -1,9 +1,9 @@
 'use client';
 
-import { memo, useRef, type RefObject } from 'react';
+import { memo, useLayoutEffect, useRef, type RefObject } from 'react';
 import * as THREE from 'three';
-import { useFrame } from '@react-three/fiber';
-import { ContactShadows, Environment, Lightformer } from '@react-three/drei';
+import { useFrame, useThree } from '@react-three/fiber';
+import { ContactShadows } from '@react-three/drei';
 import { lerp, type CasetaState, type Quality } from '../state';
 
 const KEY_DAY = new THREE.Color('#fff0dc');
@@ -24,8 +24,63 @@ export interface StudioProps {
   contact?: boolean;
 }
 
+type V3 = [number, number, number];
+
+/** Paneles de luz del entorno: color, intensidad, posición, tamaño y hacia dónde miran. */
+const PANELS: { color: string; intensity: number; position: V3; scale: [number, number]; target: V3 }[] = [
+  // Gran ventanal cenital
+  { color: '#fffaf2', intensity: 1.25, position: [0, 7, 0], scale: [12, 12], target: [0, 0, 0] },
+  // Luz principal delante a la izquierda
+  { color: '#fff1df', intensity: 3.4, position: [-6, 3.5, 6], scale: [7, 4], target: [0, 1, 0] },
+  // Relleno suave a la derecha
+  { color: '#f4f1ec', intensity: 0.55, position: [7, 2.5, 1.5], scale: [5, 3], target: [0, 1, 0] },
+  // Contraluz
+  { color: '#ffffff', intensity: 1.4, position: [1, 3, -8], scale: [10, 3], target: [0, 1, 0] },
+  // Rebote cálido del suelo
+  { color: '#e9d9c2', intensity: 0.55, position: [0, -4, 0], scale: [14, 14], target: [0, 0, 0] },
+];
+
 /**
- * Luz de estudio: entorno hecho solo con Lightformers (sin descargas), luz
+ * Entorno de estudio sin descargas: unos paneles emisivos (como los
+ * Lightformer de drei) prefiltrados una sola vez con PMREMGenerator. Más
+ * ligero que <Environment> de drei, que arrastra los cargadores HDR y EXR.
+ */
+function StudioEnvironment() {
+  const get = useThree((s) => s.get);
+  useLayoutEffect(() => {
+    const { gl, scene } = get();
+    const env = new THREE.Scene();
+    const geo = new THREE.PlaneGeometry(1, 1);
+    const mats: THREE.Material[] = [];
+    for (const p of PANELS) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(p.color).multiplyScalar(p.intensity),
+        side: THREE.DoubleSide,
+        toneMapped: false,
+      });
+      mats.push(mat);
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(...p.position);
+      mesh.scale.set(p.scale[0], p.scale[1], 1);
+      mesh.lookAt(...p.target);
+      env.add(mesh);
+    }
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const rt = pmrem.fromScene(env, 0.02, 0.1, 100);
+    scene.environment = rt.texture;
+    return () => {
+      if (scene.environment === rt.texture) scene.environment = null;
+      rt.dispose();
+      pmrem.dispose();
+      geo.dispose();
+      mats.forEach((m) => m.dispose());
+    };
+  }, [get]);
+  return null;
+}
+
+/**
+ * Luz de estudio: entorno hecho solo con paneles de luz (sin descargas), luz
  * principal con sombra suave, cielo cálido y sombra de contacto. De noche baja
  * el entorno y la luz principal se enfría.
  */
@@ -62,49 +117,7 @@ export const Studio = memo(function Studio({
 
   return (
     <>
-      <Environment resolution={high ? 256 : 128} frames={1} background={false}>
-        {/* Gran ventanal cenital y paneles laterales, como un estudio de fotografía */}
-        <Lightformer
-          form="rect"
-          intensity={1.25}
-          color="#fffaf2"
-          position={[0, 7, 0]}
-          rotation-x={Math.PI / 2}
-          scale={[12, 12, 1]}
-        />
-        <Lightformer
-          form="rect"
-          intensity={3.4}
-          color="#fff1df"
-          position={[-6, 3.5, 6]}
-          scale={[7, 4, 1]}
-          target={[0, 1, 0]}
-        />
-        <Lightformer
-          form="rect"
-          intensity={0.55}
-          color="#f4f1ec"
-          position={[7, 2.5, 1.5]}
-          scale={[5, 3, 1]}
-          target={[0, 1, 0]}
-        />
-        <Lightformer
-          form="rect"
-          intensity={1.4}
-          color="#ffffff"
-          position={[1, 3, -8]}
-          scale={[10, 3, 1]}
-          target={[0, 1, 0]}
-        />
-        <Lightformer
-          form="rect"
-          intensity={0.55}
-          color="#e9d9c2"
-          position={[0, -4, 0]}
-          rotation-x={-Math.PI / 2}
-          scale={[14, 14, 1]}
-        />
-      </Environment>
+      <StudioEnvironment />
       <hemisphereLight ref={hemi} args={[SKY_DAY, GROUND_DAY, 0.42]} />
       {/* Contraluz frío de noche para recortar la silueta sobre el fondo oscuro */}
       <directionalLight ref={moon} position={[-5, 7, -7]} intensity={0} color="#a9bdd8" />
