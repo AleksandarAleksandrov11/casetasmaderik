@@ -103,7 +103,7 @@ export const cookieCategories: CategoryInfo[] = [
   {
     id: 'marketing',
     title: 'Marketing',
-    description: 'Miden campañas publicitarias. Ahora mismo no están en uso y solo se activarían con tu permiso.',
+    description: 'Miden campañas publicitarias. Solo se activarían con tu permiso.',
     rows: marketingRows,
     clear: ['_fbp', '_fbc'],
   },

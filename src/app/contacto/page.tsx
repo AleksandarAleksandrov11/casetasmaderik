@@ -1,22 +1,43 @@
 import type { Metadata } from 'next';
-import { QuoteForm } from '@/components/form/QuoteForm';
-import { contactoHero, contactoMeta } from '@/content/contacto';
+import { ContactoHero } from '@/components/sections/contacto/ContactoHero';
+import { ContactoChannels } from '@/components/sections/contacto/ContactoChannels';
+import { ContactoNext } from '@/components/sections/contacto/ContactoNext';
+import { FaqSection } from '@/components/sections/shared/FaqSection';
+import { CtaFinal } from '@/components/sections/shared/CtaFinal';
+import { JsonLd } from '@/components/ui/JsonLd';
+import { contactoCta, contactoFaqIntro, contactoMeta } from '@/content/contacto';
+import { contactoFaqs } from '@/content/faqs';
 import { pageMetadata } from '@/lib/seo';
+import { breadcrumbNode, faqNode, graph, organizationNode, webPageNode, websiteNode } from '@/lib/schema';
 
 export const metadata: Metadata = pageMetadata({ ...contactoMeta, path: '/contacto' });
 
 export default function ContactoPage() {
   return (
-    <section data-header="light" className="bg-cream pt-[calc(var(--header-h)+24px)] pb-24">
-      <div className="container-site grid gap-12 lg:grid-cols-12">
-        <div className="lg:col-span-5">
-          <h1 className="text-h1">{contactoHero.title}</h1>
-          <p className="mt-6 text-lead text-stone">{contactoHero.text}</p>
-        </div>
-        <div className="lg:col-span-7">
-          <QuoteForm />
-        </div>
-      </div>
-    </section>
+    <>
+      <JsonLd
+        data={graph([
+          organizationNode(),
+          websiteNode(),
+          webPageNode({
+            kind: 'ContactPage',
+            path: '/contacto',
+            name: contactoMeta.title,
+            description: contactoMeta.description,
+            breadcrumb: true,
+          }),
+          breadcrumbNode('/contacto', [
+            { name: 'Inicio', path: '/' },
+            { name: 'Contacto', path: '/contacto' },
+          ]),
+          faqNode('/contacto', contactoFaqs),
+        ])}
+      />
+      <ContactoHero />
+      <ContactoChannels />
+      <ContactoNext />
+      <FaqSection id="preguntas-presupuesto" surface="paper" label={contactoFaqIntro.label} title={contactoFaqIntro.title} faqs={contactoFaqs} />
+      <CtaFinal variant="general" title={contactoCta.title} text={contactoCta.text} actions={['llamar', 'whatsapp']} />
+    </>
   );
 }
