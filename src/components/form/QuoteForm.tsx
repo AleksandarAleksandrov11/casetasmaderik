@@ -484,7 +484,7 @@ export function QuoteForm() {
                     </Button>
                   </div>
 
-                  <div aria-hidden="true" className="absolute top-0 -left-[10000px] size-px overflow-hidden">
+                  <div aria-hidden="true" className="sr-only">
                     <label htmlFor={`${idPrefix}-website`}>{FORM_COPY.honeypot}</label>
                     <input
                       id={`${idPrefix}-website`}

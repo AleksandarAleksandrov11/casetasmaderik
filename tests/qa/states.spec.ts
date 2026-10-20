@@ -165,3 +165,85 @@ test('footer con el wordmark animado', async ({ browser }) => {
     await ctx.close();
   }
 });
+
+test('formulario: pasos, errores, éxito y fallo de red', async ({ browser }) => {
+  test.setTimeout(180_000);
+  const day = (n: number) => {
+    const d = new Date(Date.now() + n * 86_400_000);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  for (const vp of [
+    { width: 1440, height: 900, mobile: false },
+    { width: 390, height: 844, mobile: true },
+  ]) {
+    for (const outcome of ['exito', 'error'] as const) {
+      const ctx = await browser.newContext({ viewport: vp, isMobile: vp.mobile, hasTouch: vp.mobile });
+      const page = await ctx.newPage();
+      // Una IP por contexto para no chocar con el límite de envíos
+      await page.setExtraHTTPHeaders({
+        'x-forwarded-for': `198.19.${vp.width % 250}.${outcome === 'exito' ? 11 : 12}`,
+      });
+      await prepare(page);
+      if (outcome === 'error') {
+        await page.route('**/api/presupuesto', (route) =>
+          route.fulfill({ status: 502, contentType: 'application/json', body: JSON.stringify({ ok: false }) }),
+        );
+      }
+      await page.goto('/contacto');
+      await dismissCookies(page);
+      await page.locator('[data-quote-form][data-ready="true"]').waitFor();
+      const panel = page.locator('#formulario');
+      const shotForm = async (name: string) => {
+        await page.waitForTimeout(800);
+        await panel.screenshot({ path: `${OUT}/formulario-${name}-${vp.width}.png` });
+      };
+      const next = page.getByRole('button', { name: 'Continuar' });
+
+      if (outcome === 'exito') {
+        await shotForm('paso1');
+        await next.click();
+        await shotForm('paso1-error');
+        await page.locator('[data-quote-form] label').filter({ hasText: 'Otro' }).click();
+        await page.getByLabel('¿Qué evento es?').fill('Feria de artesanía');
+        await shotForm('paso1-otro');
+        await next.click();
+        await page.getByLabel('Fecha de inicio').waitFor();
+        await next.click();
+        await shotForm('paso2-error');
+      } else {
+        await page.locator('[data-quote-form] label').filter({ hasText: 'Mercado navideño' }).click();
+        await page.getByLabel('Fecha de inicio').waitFor();
+      }
+      await page.getByLabel('Fecha de inicio').fill(day(30));
+      await page.getByLabel('Fecha de fin').fill(day(38));
+      await page.getByLabel('Localidad').fill('Alcalá de Henares');
+      await page.getByLabel('Provincia').selectOption('Madrid');
+      if (outcome === 'exito') await shotForm('paso2');
+      await next.click();
+      await page.getByRole('button', { name: 'Añadir una caseta' }).waitFor();
+      for (let i = 0; i < 7; i++) await page.getByRole('button', { name: 'Añadir una caseta' }).click();
+      if (outcome === 'exito') await shotForm('paso3');
+      await next.click();
+      const send = page.getByRole('button', { name: /Enviar solicitud|Enviando/ });
+      await send.waitFor();
+      if (outcome === 'exito') {
+        await send.click();
+        await shotForm('paso4-error');
+      }
+      await page.getByLabel('Nombre y apellidos').fill('Lucía Martín Ortega');
+      await page.getByLabel('Teléfono').fill('+34 600 123 456');
+      await page.getByLabel('Email').fill('lucia@example.com');
+      await page.getByLabel(/He leído y acepto/).check();
+      if (outcome === 'exito') await shotForm('paso4');
+      await send.click();
+      if (outcome === 'exito') {
+        await page.getByRole('heading', { name: 'Solicitud enviada' }).waitFor({ timeout: 20_000 });
+        await shotForm('exito');
+      } else {
+        await page.getByRole('alert').first().waitFor({ timeout: 20_000 });
+        await shotForm('error-red');
+      }
+      await ctx.close();
+    }
+  }
+});
