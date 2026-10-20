@@ -1,27 +1,74 @@
-// STUB: lo sustituye la implementación 3D (hero fijado con la caseta y scroll).
+import { Fragment } from 'react';
+import Link from 'next/link';
 import { homeHero } from '@/content/home';
 import { ButtonLink } from '@/components/ui/Button';
+import { Poster } from '@/components/three/Poster';
+import { posters } from '@/components/three/posters';
+import { InlineStyle } from '@/components/three/InlineStyle';
+import { threeCss } from '@/components/three/styles';
+import { HeroStage } from './hero/HeroStage';
+import { heroCss } from './hero/styles';
 
+/**
+ * S1. Hero 3D de Inicio. Todo el texto es HTML del servidor (el H1 es el
+ * LCP y nunca se oculta). Debajo del lienzo va el poster con el mismo
+ * encuadre; sin WebGL o con movimiento reducido se queda solo el poster.
+ */
 export function HomeHero() {
+  const h = homeHero;
   return (
-    <section data-header="light" className="relative flex min-h-[100svh] items-center bg-cream pt-[var(--header-h)]">
-      <div className="container-site">
-        <p className="label">{homeHero.label}</p>
-        <h1 className="text-hero mt-6">
-          {homeHero.titleLines.map((l) => (
-            <span key={l.text} className="block">
-              {l.text}
-            </span>
-          ))}
-        </h1>
-        <p className="text-lead mt-6 max-w-[46ch] text-stone">{homeHero.subtitle}</p>
-        <div className="mt-10 flex flex-wrap gap-4">
-          <ButtonLink href={homeHero.primary.href}>{homeHero.primary.label}</ButtonLink>
-          <a href={homeHero.secondary.href} className="link-underline">
-            {homeHero.secondary.label}
-          </a>
+    <>
+      <InlineStyle id="caseta-3d" css={threeCss} />
+      <InlineStyle id="caseta-hero" css={heroCss} />
+      <HeroStage
+        sceneDescription={h.sceneDescription}
+        scrollLabel={h.scroll}
+        poster={
+          <Poster
+            desktop={posters.heroDesktop}
+            mobile={posters.heroMobile}
+            media="wide"
+            eager
+            sizes={{ desktop: '(min-width: 1024px) 60vw, 70vw', mobile: '100vw' }}
+          />
+        }
+      >
+        <div className="hero__content container-site">
+          <div className="hero__col">
+            <div data-hero-head="">
+              <p className="label hero__label">{h.label}</p>
+              <h1 id="hero-titulo" className="hero__title">
+                {h.titleLines.map((l, i) => (
+                  <Fragment key={l.text}>
+                    {i > 0 ? ' ' : null}
+                    <span
+                      className={`hero__line ${l.weight === 'strong' ? 'hero__line--strong' : 'hero__line--light'}`}
+                    >
+                      {l.text}
+                    </span>
+                  </Fragment>
+                ))}
+              </h1>
+              <div className="hero__copy">
+                <p className="hero__sub" data-hero-sub="">
+                  {h.subtitle}
+                </p>
+                <p className="hero__night" data-hero-night="" aria-hidden="true">
+                  {h.night}
+                </p>
+              </div>
+            </div>
+            <div className="hero__ctas" data-hero-ctas="">
+              <ButtonLink href={h.primary.href} className="hero__primary">
+                {h.primary.label}
+              </ButtonLink>
+              <Link href={h.secondary.href} className="link-underline hero__secondary">
+                {h.secondary.label}
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </HeroStage>
+    </>
   );
 }

@@ -1,0 +1,88 @@
+{
+  "heroDesktop": {
+    "src": "/images/posters/hero-poster-desktop.avif",
+    "srcSm": "/images/posters/hero-poster-desktop-sm.avif",
+    "webp": "/images/posters/hero-poster-desktop.webp",
+    "webpSm": "/images/posters/hero-poster-desktop-sm.webp",
+    "width": 1655,
+    "height": 1102,
+    "smWidth": 828,
+    "fit": {
+      "hk": 1,
+      "wk": 0.65
+    },
+    "ax": 0.75,
+    "ay": 0.585,
+    "x": -0.414,
+    "y": -0.26656,
+    "w": 0.88408,
+    "h": 0.58868
+  },
+  "heroMobile": {
+    "src": "/images/posters/hero-poster-mobile.avif",
+    "srcSm": "/images/posters/hero-poster-mobile-sm.avif",
+    "webp": "/images/posters/hero-poster-mobile.webp",
+    "webpSm": "/images/posters/hero-poster-mobile-sm.webp",
+    "width": 1200,
+    "height": 813,
+    "smWidth": 600,
+    "fit": {
+      "hk": 0.56,
+      "wk": 1
+    },
+    "ax": 0.5,
+    "ay": 0.735,
+    "x": -0.51709,
+    "y": -0.34108,
+    "w": 1.06838,
+    "h": 0.72393
+  },
+  "viewer": {
+    "src": "/images/posters/caseta-poster.avif",
+    "srcSm": "/images/posters/caseta-poster-sm.avif",
+    "webp": "/images/posters/caseta-poster.webp",
+    "webpSm": "/images/posters/caseta-poster-sm.webp",
+    "width": 1641,
+    "height": 982,
+    "smWidth": 821,
+    "fit": "h",
+    "ax": 0.5,
+    "ay": 0.53,
+    "x": -0.51216,
+    "y": -0.30905,
+    "w": 1.10878,
+    "h": 0.66351
+  },
+  "viewerMobile": {
+    "src": "/images/posters/caseta-poster-mobile.avif",
+    "srcSm": "/images/posters/caseta-poster-mobile-sm.avif",
+    "webp": "/images/posters/caseta-poster-mobile.webp",
+    "webpSm": "/images/posters/caseta-poster-mobile-sm.webp",
+    "width": 1117,
+    "height": 688,
+    "smWidth": 559,
+    "fit": "w",
+    "ax": 0.5,
+    "ay": 0.53,
+    "x": -0.4547,
+    "y": -0.27359,
+    "w": 0.9547,
+    "h": 0.58803
+  },
+  "assembly": {
+    "src": "/images/posters/assembly-poster.avif",
+    "srcSm": "/images/posters/assembly-poster-sm.avif",
+    "webp": "/images/posters/assembly-poster.webp",
+    "webpSm": "/images/posters/assembly-poster-sm.webp",
+    "width": 1600,
+    "height": 1200,
+    "smWidth": 800,
+    "fit": "h",
+    "ax": 0.5,
+    "ay": 0.5,
+    "x": -0.6666666666666666,
+    "y": -0.5,
+    "w": 1.3333333333333333,
+    "h": 1
+  }
+}
