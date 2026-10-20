@@ -90,7 +90,9 @@ describe('validación por pasos del borrador', () => {
     expect(validateStep(0, { ...EMPTY_DRAFT, tipoEvento: 'Otro' }, TODAY)).toEqual({
       tipoEventoOtro: 'Cuéntanos qué evento es.',
     });
-    expect(validateStep(0, { ...EMPTY_DRAFT, tipoEvento: 'Otro', tipoEventoOtro: 'Feria medieval' }, TODAY)).toEqual({});
+    expect(validateStep(0, { ...EMPTY_DRAFT, tipoEvento: 'Otro', tipoEventoOtro: 'Feria medieval' }, TODAY)).toEqual(
+      {},
+    );
     // El texto de "Otro" se ignora si se elige otro tipo
     expect(validateStep(0, { ...EMPTY_DRAFT, tipoEvento: 'Feria o bazar', tipoEventoOtro: '' }, TODAY)).toEqual({});
   });
@@ -114,7 +116,9 @@ describe('validación por pasos del borrador', () => {
     expect(validateStep(1, { ...base, fechaFin: '2026-12-01' }, TODAY).fechaFin).toBe(
       'La fecha de fin debe ser igual o posterior a la de inicio.',
     );
-    expect(validateStep(1, { ...base, fechaFin: '2027-12-12' }, TODAY).fechaFin).toBe('El rango máximo es de 365 días.');
+    expect(validateStep(1, { ...base, fechaFin: '2027-12-12' }, TODAY).fechaFin).toBe(
+      'El rango máximo es de 365 días.',
+    );
     expect(validateStep(1, { ...base, fechaFin: '2027-12-11' }, TODAY)).toEqual({});
     expect(validateStep(1, { ...base, fechaFin: '', unDia: true }, TODAY)).toEqual({});
     expect(validateStep(1, { ...base, fechaFin: '2020-01-01', unDia: true }, TODAY)).toEqual({});
@@ -123,7 +127,9 @@ describe('validación por pasos del borrador', () => {
   it('paso 3: número de casetas entre 1 y 200', () => {
     expect(validateStep(2, { ...validDraft, casetas: '' }, TODAY).casetas).toBe('Indica cuántas casetas necesitas.');
     expect(validateStep(2, { ...validDraft, casetas: '0' }, TODAY).casetas).toBe('Mínimo 1 caseta.');
-    expect(validateStep(2, { ...validDraft, casetas: '201' }, TODAY).casetas).toBe('Para más de 200 casetas, llámanos.');
+    expect(validateStep(2, { ...validDraft, casetas: '201' }, TODAY).casetas).toBe(
+      'Para más de 200 casetas, llámanos.',
+    );
     expect(validateStep(2, { ...validDraft, casetas: '2.5' }, TODAY).casetas).toBe('Indica un número entero.');
     expect(validateStep(2, { ...validDraft, casetas: '200' }, TODAY)).toEqual({});
     expect(validateStep(2, { ...validDraft, comentarios: 'x'.repeat(1001) }, TODAY).comentarios).toBe(
@@ -168,7 +174,10 @@ describe('petición a la API', () => {
   };
 
   it('convierte el borrador y pasa la validación del servidor', () => {
-    const body = draftToLeadRequest({ ...validDraft, email: ' Lucia@Example.com ', localidad: '  Madrid   centro ' }, ctx);
+    const body = draftToLeadRequest(
+      { ...validDraft, email: ' Lucia@Example.com ', localidad: '  Madrid   centro ' },
+      ctx,
+    );
     expect(body).toMatchObject({
       casetas: 4,
       email: 'lucia@example.com',
@@ -178,7 +187,11 @@ describe('petición a la API', () => {
       consentimiento: true,
       tipoEventoOtro: undefined,
     });
-    const parsed = leadRequestSchema.safeParse({ ...body, fechaInicio: addDays(todayMadrid(), 10), fechaFin: addDays(todayMadrid(), 12) });
+    const parsed = leadRequestSchema.safeParse({
+      ...body,
+      fechaInicio: addDays(todayMadrid(), 10),
+      fechaFin: addDays(todayMadrid(), 12),
+    });
     expect(parsed.success).toBe(true);
   });
 
@@ -190,7 +203,13 @@ describe('petición a la API', () => {
 
   it('el servidor rechaza "Otro" sin detalle y consentimiento falso', () => {
     const body = draftToLeadRequest(
-      { ...validDraft, tipoEvento: 'Otro', tipoEventoOtro: '', fechaInicio: addDays(todayMadrid(), 5), fechaFin: addDays(todayMadrid(), 6) },
+      {
+        ...validDraft,
+        tipoEvento: 'Otro',
+        tipoEventoOtro: '',
+        fechaInicio: addDays(todayMadrid(), 5),
+        fechaFin: addDays(todayMadrid(), 6),
+      },
       ctx,
     );
     const result = leadRequestSchema.safeParse({ ...body, consentimiento: false });

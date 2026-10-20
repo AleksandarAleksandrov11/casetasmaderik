@@ -36,7 +36,9 @@ z.config({ jitless: true });
  * Las reglas cruzadas (Otro, fechas) se evalúan aunque otros campos fallen,
  * para devolver todos los errores a la vez.
  */
-const ALWAYS_REFINE = { when: (payload: { value: unknown }) => typeof payload.value === 'object' && payload.value !== null };
+const ALWAYS_REFINE = {
+  when: (payload: { value: unknown }) => typeof payload.value === 'object' && payload.value !== null,
+};
 
 const requiredText = (max: number, empty: string, long: string) => z.string(empty).trim().min(1, empty).max(max, long);
 

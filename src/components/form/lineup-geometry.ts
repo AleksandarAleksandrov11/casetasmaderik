@@ -56,7 +56,9 @@ function buildStall(): StallShapes {
   const top = WIN.z + WIN.h;
 
   // Tablones verticales: pocas líneas, solo para sugerir la madera
-  const sidePlanks = [4, 8, 12, 16].map((y) => `M${iso([L, y, 0.6])}L${iso([L, y, ZE + (y <= D / 2 ? y : D - y) * SLOPE - 0.6])}`);
+  const sidePlanks = [4, 8, 12, 16].map(
+    (y) => `M${iso([L, y, 0.6])}L${iso([L, y, ZE + (y <= D / 2 ? y : D - y) * SLOPE - 0.6])}`,
+  );
   const frontPlanks = Array.from({ length: 6 }, (_, i) => {
     const x = (L / 7) * (i + 1);
     return `M${iso([x, D, 0.6])}L${iso([x, D, WIN.z - COUNTER.thick - 0.4])}`;

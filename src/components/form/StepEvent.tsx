@@ -2,22 +2,11 @@
 
 import { useRef } from 'react';
 import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
-import { AnimatePresence, m } from 'motion/react';
-import { Briefcase, Check, Flower2, PencilLine, Store, TreePine, UtensilsCrossed, type LucideIcon } from 'lucide-react';
-import { EASE } from '@/lib/motion';
 import { EVENT_TYPES, LIMITS, type QuoteDraft, type TipoEvento } from '@/lib/quote-data';
+import { EVENT_GRID_CLASS, EventCardContent, eventCardClass } from './frame';
 import { FORM_COPY } from './copy';
 import { Field, FieldError, describedBy, inputClass } from './fields';
 import { StepLegend } from './StepHeader';
-
-const ICONS: Record<TipoEvento, LucideIcon> = {
-  'Mercado navideño': TreePine,
-  'Feria o bazar': Store,
-  'Festival gastronómico': UtensilsCrossed,
-  'Evento corporativo': Briefcase,
-  'Evento privado': Flower2,
-  Otro: PencilLine,
-};
 
 type StepEventProps = {
   idPrefix: string;
@@ -47,9 +36,8 @@ export function StepEvent({ idPrefix, showErrors, onPointerPick }: StepEventProp
         control={control}
         name="tipoEvento"
         render={({ field }) => (
-          <div className="clear-both grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className={EVENT_GRID_CLASS}>
             {EVENT_TYPES.map((option, index) => {
-              const Icon = ICONS[option.value];
               const checked = field.value === option.value;
               return (
                 <label
@@ -57,12 +45,7 @@ export function StepEvent({ idPrefix, showErrors, onPointerPick }: StepEventProp
                   onPointerDown={() => {
                     pointer.current = true;
                   }}
-                  className={[
-                    'group relative flex min-h-[116px] cursor-pointer flex-col justify-between gap-5 rounded-sm border bg-white p-4 sm:min-h-[128px] sm:p-5',
-                    'transition-[border-color,background-color] duration-300 ease-brand',
-                    'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-3 has-[:focus-visible]:outline-wood has-[:focus-visible]:outline-solid',
-                    checked ? 'border-wood bg-wood/[0.06]' : 'border-sand hover:border-ink/35',
-                  ].join(' ')}
+                  className={eventCardClass(checked)}
                 >
                   <input
                     ref={index === 0 ? field.ref : undefined}
@@ -85,17 +68,7 @@ export function StepEvent({ idPrefix, showErrors, onPointerPick }: StepEventProp
                       onPointerPick(option.value);
                     }}
                   />
-                  <Icon aria-hidden="true" strokeWidth={1.5} className="size-7 text-wood transition-transform duration-500 ease-brand group-hover:-translate-y-0.5" />
-                  <span className="pr-1 font-display text-[1.0625rem] leading-[1.2] text-ink sm:text-[1.125rem]">{option.value}</span>
-                  <span
-                    aria-hidden="true"
-                    className={[
-                      'absolute top-4 right-4 flex size-[22px] items-center justify-center rounded-full border transition-[background-color,border-color,opacity] duration-300 ease-brand sm:top-5 sm:right-5',
-                      checked ? 'border-wood bg-wood opacity-100' : 'border-sand bg-white opacity-0 group-hover:opacity-100',
-                    ].join(' ')}
-                  >
-                    <Check strokeWidth={2.5} className={`size-3 text-cream ${checked ? '' : 'opacity-0'}`} />
-                  </span>
+                  <EventCardContent value={option.value} checked={checked} />
                 </label>
               );
             })}
@@ -104,41 +77,32 @@ export function StepEvent({ idPrefix, showErrors, onPointerPick }: StepEventProp
       />
       <FieldError id={groupId} message={tipoError} />
 
-      <AnimatePresence initial={false}>
-        {tipo === 'Otro' ? (
-          <m.div
-            key="otro"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="mt-6"
-          >
-            <Field id={otroId} label={FORM_COPY.otroLabel} error={otroError}>
-              <input
-                id={otroId}
-                type="text"
-                autoComplete="off"
-                maxLength={LIMITS.otroMax}
-                placeholder={FORM_COPY.otroPlaceholder}
-                required
-                aria-invalid={otroError ? true : undefined}
-                aria-describedby={describedBy(otroId, otroError)}
-                data-autofocus=""
-                className={inputClass(Boolean(otroError))}
-                {...otro}
-                ref={(el) => {
-                  otro.ref(el);
-                  if (el && focusOtro.current) {
-                    focusOtro.current = false;
-                    el.focus({ preventScroll: true });
-                  }
-                }}
-              />
-            </Field>
-          </m.div>
-        ) : null}
-      </AnimatePresence>
+      {tipo === 'Otro' ? (
+        <div key="otro" className="q-drop mt-6">
+          <Field id={otroId} label={FORM_COPY.otroLabel} error={otroError}>
+            <input
+              id={otroId}
+              type="text"
+              autoComplete="off"
+              maxLength={LIMITS.otroMax}
+              placeholder={FORM_COPY.otroPlaceholder}
+              required
+              aria-invalid={otroError ? true : undefined}
+              aria-describedby={describedBy(otroId, otroError)}
+              data-autofocus=""
+              className={inputClass(Boolean(otroError))}
+              {...otro}
+              ref={(el) => {
+                otro.ref(el);
+                if (el && focusOtro.current) {
+                  focusOtro.current = false;
+                  el.focus({ preventScroll: true });
+                }
+              }}
+            />
+          </Field>
+        </div>
+      ) : null}
     </fieldset>
   );
 }

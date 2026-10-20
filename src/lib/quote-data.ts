@@ -212,8 +212,7 @@ export type LeadErrorCode =
   | 'not_configured';
 
 export type LeadResponse =
-  | { ok: true; numero: number }
-  | { ok: false; error: string; code?: LeadErrorCode; fields?: Record<string, string> };
+  { ok: true; numero: number } | { ok: false; error: string; code?: LeadErrorCode; fields?: Record<string, string> };
 
 /* ------------------------------------------------------------------ */
 /* Borrador del formulario (cliente)                                   */

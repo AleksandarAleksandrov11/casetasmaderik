@@ -94,7 +94,11 @@ export function StepWhenWhere({ idPrefix, showErrors }: { idPrefix: string; show
               />
             )}
           </Field>
-          <p id={`${ids.fin}-hint`} aria-live="polite" className="mt-2 min-h-[1.25rem] text-[0.875rem] leading-snug text-stone">
+          <p
+            id={`${ids.fin}-hint`}
+            aria-live="polite"
+            className="mt-2 min-h-[1.25rem] text-[0.875rem] leading-snug text-stone"
+          >
             {days}
           </p>
         </div>
@@ -102,7 +106,12 @@ export function StepWhenWhere({ idPrefix, showErrors }: { idPrefix: string; show
 
       <label htmlFor={ids.unDia} className="mt-1 inline-flex min-h-11 items-center gap-3 text-[0.9375rem] text-ink">
         <span className="relative inline-flex">
-          <input id={ids.unDia} type="checkbox" className={checkboxClass(false)} {...register('unDia', { deps: ['fechaFin'] })} />
+          <input
+            id={ids.unDia}
+            type="checkbox"
+            className={checkboxClass(false)}
+            {...register('unDia', { deps: ['fechaFin'] })}
+          />
           <CheckboxMark />
         </span>
         <span>{FORM_COPY.unDia}</span>

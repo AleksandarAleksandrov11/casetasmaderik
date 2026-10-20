@@ -104,7 +104,12 @@ function json(body: LeadResponse, status = 200, headers: Record<string, string> 
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
 }
 
-function fail(code: LeadErrorCode, status: number, extra: Partial<Extract<LeadResponse, { ok: false }>> = {}, headers?: Record<string, string>) {
+function fail(
+  code: LeadErrorCode,
+  status: number,
+  extra: Partial<Extract<LeadResponse, { ok: false }>> = {},
+  headers?: Record<string, string>,
+) {
   return json({ ok: false, error: MESSAGES[code], code, ...extra }, status, headers);
 }
 
@@ -283,7 +288,9 @@ export async function handleLeadRequest(request: Request, options: HandlerOption
     return fail('not_configured', 500);
   }
   if (!secret) {
-    console.error('[presupuesto] Falta la variable de entorno APPS_SCRIPT_SECRET. Copia el secreto desde el menú de la hoja.');
+    console.error(
+      '[presupuesto] Falta la variable de entorno APPS_SCRIPT_SECRET. Copia el secreto desde el menú de la hoja.',
+    );
     return fail('not_configured', 500);
   }
 

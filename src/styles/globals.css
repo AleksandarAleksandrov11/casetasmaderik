@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './caseta-lineup.css';
 
 /* ------------------------------------------------------------------ */
 /* Tokens de marca                                                     */
@@ -659,6 +660,72 @@ html.js-motion .page-enter {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Formulario de presupuesto: transiciones solo con CSS (opacity y transform) */
+.q-progress {
+  transition: transform 0.7s var(--ease-brand);
+}
+
+html.js-motion .q-enter {
+  animation: q-enter 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-step[data-dir='1'] {
+  animation: q-step-forward 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-step[data-dir='-1'] {
+  animation: q-step-back 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-drop {
+  animation: q-drop 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: q-draw 0.7s var(--ease-brand) forwards;
+}
+
+html.js-motion .q-draw--late {
+  animation-duration: 0.6s;
+  animation-delay: 0.45s;
+}
+
+@keyframes q-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes q-step-forward {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+@keyframes q-step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes q-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes q-draw {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 

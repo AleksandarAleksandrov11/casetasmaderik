@@ -43,7 +43,10 @@ type FieldProps = {
 export function Field({ id, label, error, hint, optional, className = '', children }: FieldProps) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-2 flex items-baseline justify-between gap-3 text-[0.9375rem] font-semibold text-ink">
+      <label
+        htmlFor={id}
+        className="mb-2 flex items-baseline justify-between gap-3 text-[0.9375rem] font-semibold text-ink"
+      >
         <span>{label}</span>
         {optional ? <span className="text-[0.8125rem] font-normal text-stone">{FORM_COPY.optional}</span> : null}
       </label>

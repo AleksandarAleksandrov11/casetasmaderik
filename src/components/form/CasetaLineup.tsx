@@ -1,5 +1,4 @@
 import { STALL, computeLayout } from './lineup-geometry';
-import './caseta-lineup.css';
 
 type CasetaLineupProps = {
   count: number;
@@ -57,24 +56,14 @@ export function CasetaLineup({ count, max = 12, className = '', tone = 'light', 
       {...a11y}
     >
       {ordered.map((slot) => (
-        <g
-          key={slot.index}
-          className="cm-lineup__slot"
-          style={{ transform: `translate(${slot.x}px, ${slot.y}px)` }}
-        >
+        <g key={slot.index} className="cm-lineup__slot" style={{ transform: `translate(${slot.x}px, ${slot.y}px)` }}>
           <g className="cm-lineup__stall" style={{ animationDelay: `${(slot.index % 6) * 45}ms` }}>
             <Stall />
           </g>
         </g>
       ))}
       {layout.plus ? (
-        <text
-          key="plus"
-          className="cm-lineup__plus"
-          x={layout.plus.x}
-          y={layout.plus.y}
-          dominantBaseline="middle"
-        >
+        <text key="plus" className="cm-lineup__plus" x={layout.plus.x} y={layout.plus.y} dominantBaseline="middle">
           +{layout.extra.toLocaleString('es-ES')}
         </text>
       ) : null}

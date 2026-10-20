@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { POST } from '@/app/api/presupuesto/route';
-import { MAX_BODY_BYTES, RATE_LIMIT, buildLeadPayload, handleLeadRequest, maskPayload, resetRateLimit } from '@/lib/lead-server';
+import {
+  MAX_BODY_BYTES,
+  RATE_LIMIT,
+  buildLeadPayload,
+  handleLeadRequest,
+  maskPayload,
+  resetRateLimit,
+} from '@/lib/lead-server';
 import { addDays, leadRequestSchema, todayMadrid, type LeadRequestBody } from '@/lib/validation';
 
 const URL_GAS = 'https://script.google.com/macros/s/TEST/exec';
@@ -50,7 +57,13 @@ function request(body: unknown, init: { ip?: string | null; headers?: Record<str
 }
 
 const upstreamOk = (numero: number) =>
-  vi.fn(async () => new Response(JSON.stringify({ ok: true, numero }), { status: 200, headers: { 'content-type': 'application/json' } }));
+  vi.fn(
+    async () =>
+      new Response(JSON.stringify({ ok: true, numero }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+  );
 
 const prodEnv = { NODE_ENV: 'production', APPS_SCRIPT_URL: URL_GAS, APPS_SCRIPT_SECRET: SECRET };
 
@@ -134,7 +147,10 @@ describe('POST /api/presupuesto: reenvío a Apps Script', () => {
 
 describe('POST /api/presupuesto: errores de Apps Script', () => {
   it('502 si Apps Script rechaza el secreto, sin filtrarlo', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ ok: false, error: 'unauthorized' }))));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify({ ok: false, error: 'unauthorized' }))),
+    );
     const res = await handleLeadRequest(request(validBody()), { env: prodEnv });
     expect(res.status).toBe(502);
     const text = await res.text();
@@ -144,23 +160,35 @@ describe('POST /api/presupuesto: errores de Apps Script', () => {
   });
 
   it('502 si la respuesta no es JSON (por ejemplo, la página de acceso de Google)', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('<html>Inicia sesión</html>', { status: 200 })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('<html>Inicia sesión</html>', { status: 200 })),
+    );
     const res = await handleLeadRequest(request(validBody()), { env: prodEnv });
     expect(res.status).toBe(502);
   });
 
   it('502 si Apps Script responde con error HTTP', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('fallo', { status: 500 })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('fallo', { status: 500 })),
+    );
     const res = await handleLeadRequest(request(validBody()), { env: prodEnv });
     expect(res.status).toBe(502);
   });
 
   it('502 si la red falla o se agota el tiempo', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('fetch failed'))));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Promise.reject(new TypeError('fetch failed'))),
+    );
     expect((await handleLeadRequest(request(validBody()), { env: prodEnv })).status).toBe(502);
 
     const timeout = new DOMException('The operation was aborted due to timeout', 'TimeoutError');
-    vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(timeout)));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Promise.reject(timeout)),
+    );
     const res = await handleLeadRequest(request(validBody()), { env: prodEnv });
     expect(res.status).toBe(502);
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('no respondió en 15 s'));
@@ -194,7 +222,9 @@ describe('POST /api/presupuesto: sin APPS_SCRIPT_URL', () => {
   });
 
   it('en producción sin secreto responde 500', async () => {
-    const res = await handleLeadRequest(request(validBody()), { env: { NODE_ENV: 'production', APPS_SCRIPT_URL: URL_GAS } });
+    const res = await handleLeadRequest(request(validBody()), {
+      env: { NODE_ENV: 'production', APPS_SCRIPT_URL: URL_GAS },
+    });
     expect(res.status).toBe(500);
   });
 });
@@ -221,29 +251,48 @@ describe('POST /api/presupuesto: antispam y validación', () => {
     const fetchMock = upstreamOk(3);
     vi.stubGlobal('fetch', fetchMock);
     const now = 10_000_000;
-    const fast = await handleLeadRequest(request(validBody({ startedAt: now - 1_000, sentAt: undefined })), { env: prodEnv, now: () => now });
+    const fast = await handleLeadRequest(request(validBody({ startedAt: now - 1_000, sentAt: undefined })), {
+      env: prodEnv,
+      now: () => now,
+    });
     expect(await fast.json()).toEqual({ ok: true, numero: 0 });
-    const slow = await handleLeadRequest(request(validBody({ startedAt: now - 60_000, sentAt: undefined })), { env: prodEnv, now: () => now });
+    const slow = await handleLeadRequest(request(validBody({ startedAt: now - 60_000, sentAt: undefined })), {
+      env: prodEnv,
+      now: () => now,
+    });
     expect(await slow.json()).toEqual({ ok: true, numero: 3 });
   });
 
   it('datos no válidos: 400 con el error de cada campo', async () => {
     const res = await handleLeadRequest(
-      request(validBody({ email: 'no-es-email', casetas: 0, tipoEvento: 'Otro', tipoEventoOtro: undefined, consentimiento: false as true })),
+      request(
+        validBody({
+          email: 'no-es-email',
+          casetas: 0,
+          tipoEvento: 'Otro',
+          tipoEventoOtro: undefined,
+          consentimiento: false as true,
+        }),
+      ),
       { env: prodEnv },
     );
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.ok).toBe(false);
     expect(data.code).toBe('validation');
-    expect(Object.keys(data.fields)).toEqual(expect.arrayContaining(['email', 'casetas', 'tipoEventoOtro', 'consentimiento']));
+    expect(Object.keys(data.fields)).toEqual(
+      expect.arrayContaining(['email', 'casetas', 'tipoEventoOtro', 'consentimiento']),
+    );
   });
 
   it('fechas fuera de rango: 400', async () => {
     const today = todayMadrid();
-    const res = await handleLeadRequest(request(validBody({ fechaInicio: addDays(today, -5), fechaFin: addDays(today, -1) })), {
-      env: prodEnv,
-    });
+    const res = await handleLeadRequest(
+      request(validBody({ fechaInicio: addDays(today, -5), fechaFin: addDays(today, -1) })),
+      {
+        env: prodEnv,
+      },
+    );
     expect(res.status).toBe(400);
     expect((await res.json()).fields.fechaInicio).toBe('La fecha de inicio debe ser hoy o posterior.');
   });
@@ -255,7 +304,9 @@ describe('POST /api/presupuesto: antispam y validación', () => {
   });
 
   it('solo acepta application/json: 415', async () => {
-    const res = await handleLeadRequest(request(validBody(), { headers: { 'content-type': 'text/plain' } }), { env: prodEnv });
+    const res = await handleLeadRequest(request(validBody(), { headers: { 'content-type': 'text/plain' } }), {
+      env: prodEnv,
+    });
     expect(res.status).toBe(415);
   });
 
@@ -265,7 +316,9 @@ describe('POST /api/presupuesto: antispam y validación', () => {
       { env: prodEnv },
     );
     expect(declared.status).toBe(413);
-    const real = await handleLeadRequest(request(validBody({ comentarios: 'x'.repeat(MAX_BODY_BYTES) })), { env: prodEnv });
+    const real = await handleLeadRequest(request(validBody({ comentarios: 'x'.repeat(MAX_BODY_BYTES) })), {
+      env: prodEnv,
+    });
     expect(real.status).toBe(413);
   });
 
@@ -295,7 +348,9 @@ describe('POST /api/presupuesto: antispam y validación', () => {
   it('usa x-real-ip si no hay x-forwarded-for', async () => {
     vi.stubGlobal('fetch', upstreamOk(1));
     for (let i = 0; i < RATE_LIMIT.max; i++) {
-      await handleLeadRequest(request(validBody(), { ip: null, headers: { 'x-real-ip': '192.0.2.44' } }), { env: prodEnv });
+      await handleLeadRequest(request(validBody(), { ip: null, headers: { 'x-real-ip': '192.0.2.44' } }), {
+        env: prodEnv,
+      });
     }
     const res = await handleLeadRequest(request(validBody(), { ip: null, headers: { 'x-real-ip': '192.0.2.44' } }), {
       env: prodEnv,

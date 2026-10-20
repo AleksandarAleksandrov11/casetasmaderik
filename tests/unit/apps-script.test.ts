@@ -63,7 +63,8 @@ class FakeSheet {
   set(row: number, col: number, value: unknown): void {
     if (value === '' || value === null || value === undefined) this.cells.delete(`${row}:${col}`);
     else this.cells.set(`${row}:${col}`, value);
-    if (typeof value === 'string' && value.startsWith('=')) this.formulas.push({ cell: `${row}:${col}`, formula: value });
+    if (typeof value === 'string' && value.startsWith('='))
+      this.formulas.push({ cell: `${row}:${col}`, formula: value });
   }
 
   rowValues(row: number, cols = 31): unknown[] {
@@ -319,13 +320,16 @@ function createGas(): Gas {
     Session: { getScriptTimeZone: () => 'Europe/Madrid' },
   };
   const ctx = vm.createContext(sandbox);
-  vm.runInContext(`${CODE}\n;globalThis.__test = { CONFIG, COLUMNS, COL, NCOL, PROVINCIAS };`, ctx, { filename: 'Code.gs' });
-  const call = <T,>(name: string, ...args: unknown[]): T => (ctx[name] as Fn)(...args) as T;
+  vm.runInContext(`${CODE}\n;globalThis.__test = { CONFIG, COLUMNS, COL, NCOL, PROVINCIAS };`, ctx, {
+    filename: 'Code.gs',
+  });
+  const call = <T>(name: string, ...args: unknown[]): T => (ctx[name] as Fn)(...args) as T;
   return { ctx, ss, props, cache, mails, quota, locks, call };
 }
 
 const madridToday = () => formatDate(new Date(), 'Europe/Madrid', 'yyyy-MM-dd');
-const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+const addDays = (date: string, days: number) =>
+  new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
 function payload(secret: string, overrides: Obj = {}): Obj {
   const today = madridToday();
@@ -379,10 +383,37 @@ describe('Apps Script: setup', () => {
   it('crea las pestañas, la cabecera en el orden pedido y la configuración regional', () => {
     const titles = gas.ss.sheet('Solicitudes').rowValues(1);
     expect(titles).toEqual([
-      'Nº', 'Recibido', 'Estado', 'Nombre', 'Teléfono', 'Email', 'Empresa', 'Tipo de evento', 'Detalle del evento',
-      'Fecha inicio', 'Fecha fin', 'Días', 'Localidad', 'Provincia', 'Nº de casetas', 'Comentarios', 'Página de origen',
-      'Landing', 'Referrer', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'Dispositivo',
-      'Acepta privacidad', 'Fecha consentimiento', 'Versión política', 'ID solicitud', 'Notas internas', 'Último contacto',
+      'Nº',
+      'Recibido',
+      'Estado',
+      'Nombre',
+      'Teléfono',
+      'Email',
+      'Empresa',
+      'Tipo de evento',
+      'Detalle del evento',
+      'Fecha inicio',
+      'Fecha fin',
+      'Días',
+      'Localidad',
+      'Provincia',
+      'Nº de casetas',
+      'Comentarios',
+      'Página de origen',
+      'Landing',
+      'Referrer',
+      'utm_source',
+      'utm_medium',
+      'utm_campaign',
+      'utm_term',
+      'utm_content',
+      'Dispositivo',
+      'Acepta privacidad',
+      'Fecha consentimiento',
+      'Versión política',
+      'ID solicitud',
+      'Notas internas',
+      'Último contacto',
     ]);
     expect(gas.ss.sheets.map((s) => s.name)).toEqual(['Solicitudes', 'Panel']);
     expect(gas.ss.name).toBe('Casetas Maderik · Solicitudes');
@@ -409,7 +440,19 @@ describe('Apps Script: setup', () => {
       expect(formula).not.toContain(';');
     }
     const all = formulas.join('\n');
-    for (const fn of ['COUNT(', 'COUNTIFS(', 'COUNTIF(', 'SUMIF(', 'SUMIFS(', 'EOMONTH(', 'EDATE(', 'QUERY(', 'FILTER(', 'SORT(', 'TODAY()']) {
+    for (const fn of [
+      'COUNT(',
+      'COUNTIFS(',
+      'COUNTIF(',
+      'SUMIF(',
+      'SUMIFS(',
+      'EOMONTH(',
+      'EDATE(',
+      'QUERY(',
+      'FILTER(',
+      'SORT(',
+      'TODAY()',
+    ]) {
       expect(all).toContain(fn);
     }
     expect(all).toContain('"Perdido"');
@@ -434,7 +477,11 @@ describe('Apps Script: doPost', () => {
   it('guarda la fila, asigna el número 1 y envía los dos emails', () => {
     // La confirmación al cliente viene desactivada: se activa para esta prueba
     (gas.ctx.__test as { CONFIG: Obj }).CONFIG.sendClientConfirmation = true;
-    const body = payload(secret, { tipoEvento: 'Otro', tipoEventoOtro: 'Feria medieval', empresa: 'Asociación Centro' });
+    const body = payload(secret, {
+      tipoEvento: 'Otro',
+      tipoEventoOtro: 'Feria medieval',
+      empresa: 'Asociación Centro',
+    });
     expect(post(gas, body)).toEqual({ ok: true, numero: 1 });
 
     const sheet = gas.ss.sheet('Solicitudes');
@@ -457,7 +504,8 @@ describe('Apps Script: doPost', () => {
     expect(internal.to).toBe('info@casetasmaderik.es');
     expect(internal.subject).toBe('Nueva solicitud 1 · Feria medieval · 4 casetas · Madrid');
     expect(internal.replyTo).toBe('lucia@example.com');
-    for (const button of ['Llamar', 'WhatsApp', 'Responder', 'Abrir hoja']) expect(internal.htmlBody).toContain(`>${button}</a>`);
+    for (const button of ['Llamar', 'WhatsApp', 'Responder', 'Abrir hoja'])
+      expect(internal.htmlBody).toContain(`>${button}</a>`);
     expect(internal.htmlBody).toContain('tel:+34600123456');
     expect(internal.htmlBody).toContain('https://wa.me/34600123456');
     expect(internal.htmlBody).toContain('#gid=');
@@ -476,13 +524,23 @@ describe('Apps Script: doPost', () => {
 
   it('rechaza un secreto incorrecto sin guardar nada', () => {
     expect(post(gas, payload('otro-secreto'))).toEqual({ ok: false, error: 'unauthorized' });
-    expect(gas.ss.sheet('Solicitudes').rowValues(2).every((v) => v === '')).toBe(true);
+    expect(
+      gas.ss
+        .sheet('Solicitudes')
+        .rowValues(2)
+        .every((v) => v === ''),
+    ).toBe(true);
     expect(gas.mails).toHaveLength(0);
   });
 
   it('campo trampa relleno: responde ok sin guardar', () => {
     expect(post(gas, payload(secret, { website: 'http://spam.example' }))).toEqual({ ok: true, numero: 0 });
-    expect(gas.ss.sheet('Solicitudes').rowValues(2).every((v) => v === '')).toBe(true);
+    expect(
+      gas.ss
+        .sheet('Solicitudes')
+        .rowValues(2)
+        .every((v) => v === ''),
+    ).toBe(true);
     expect(gas.mails).toHaveLength(0);
   });
 
@@ -506,7 +564,17 @@ describe('Apps Script: doPost', () => {
     expect(res.ok).toBe(false);
     expect(res.error).toBe('validation');
     expect(Object.keys(res.fields as Obj).sort()).toEqual(
-      ['casetas', 'consentimiento', 'dispositivo', 'email', 'fechaFin', 'fechaInicio', 'provincia', 'telefono', 'tipoEventoOtro'].sort(),
+      [
+        'casetas',
+        'consentimiento',
+        'dispositivo',
+        'email',
+        'fechaFin',
+        'fechaInicio',
+        'provincia',
+        'telefono',
+        'tipoEventoOtro',
+      ].sort(),
     );
     const longRange = post(gas, payload(secret, { fechaFin: addDays(today, 30 + 365) }));
     expect((longRange.fields as Obj).fechaFin).toBe('El rango máximo es de 365 días.');

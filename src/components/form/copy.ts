@@ -71,7 +71,9 @@ export const FORM_COPY = {
   successThanks: (nombre: string) => `Gracias, ${nombre}. Te respondemos en ${site.responseTime}.`,
   successNumber: (n: number) => `Tu número de solicitud es el ${n}.`,
   successWhatsappMessage: (n: number) =>
-    n > 0 ? `Hola, acabo de enviar la solicitud ${n} desde la web.` : 'Hola, acabo de enviar una solicitud desde la web.',
+    n > 0
+      ? `Hola, acabo de enviar la solicitud ${n} desde la web.`
+      : 'Hola, acabo de enviar una solicitud desde la web.',
   home: 'Volver al inicio',
   noscriptTitle: 'Para usar el formulario necesitas JavaScript.',
   noscriptText: 'Escríbenos o llámanos y te preparamos el presupuesto igual.',

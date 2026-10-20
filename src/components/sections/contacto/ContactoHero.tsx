@@ -2,7 +2,8 @@ import { Mail, Phone } from 'lucide-react';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ContactLink } from '@/components/layout/ContactLink';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
-import { QuoteForm } from '@/components/form/QuoteForm';
+import { QuoteFormIsland } from '@/components/form/QuoteFormIsland';
+import { QuoteFormStatic } from '@/components/form/QuoteFormStatic';
 import { Label } from '@/components/ui/Label';
 import { contactoHero } from '@/content/contacto';
 import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
@@ -61,7 +62,9 @@ export function ContactoHero() {
             <ContactList className="mt-12 hidden lg:block" />
           </div>
           <div id="formulario" className="scroll-mt-24 lg:col-span-7">
-            <QuoteForm />
+            <QuoteFormIsland>
+              <QuoteFormStatic />
+            </QuoteFormIsland>
           </div>
           <ContactList className="lg:hidden" />
         </div>

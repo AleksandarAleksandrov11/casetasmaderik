@@ -41,7 +41,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
       <StepLegend step={2} id={`${idPrefix}-title`} />
       <div className="clear-both rounded-sm border border-sand bg-paper/50 px-2 pt-5 pb-4 sm:px-8 sm:pt-7">
         <CasetaLineup count={count} />
-        <p className="mt-3 text-center text-[0.875rem] text-stone tabular" aria-hidden="true">
+        <p className="tabular mt-3 text-center text-[0.875rem] text-stone" aria-hidden="true">
           {count > 0 ? casetasLabel(count) : ' '}
         </p>
       </div>
@@ -70,7 +70,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
               data-autofocus=""
               aria-invalid={casetasError ? true : undefined}
               aria-describedby={describedBy(ids.casetas, casetasError)}
-              className={`${inputClass(Boolean(casetasError), false)} w-24 flex-none rounded-none text-center font-display text-[1.375rem] tabular [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+              className={`${inputClass(Boolean(casetasError), false)} tabular w-24 flex-none [appearance:textfield] rounded-none text-center font-display text-[1.375rem] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
               {...register('casetas')}
             />
             <button
@@ -101,7 +101,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
                   aria-label={casetasLabel(n)}
                   onClick={() => set(n)}
                   className={[
-                    'flex h-11 min-w-11 items-center justify-center rounded-sm border px-3 text-[0.9375rem] font-semibold tabular transition-colors duration-300 ease-brand',
+                    'tabular flex h-11 min-w-11 items-center justify-center rounded-sm border px-3 text-[0.9375rem] font-semibold transition-colors duration-300 ease-brand',
                     active ? 'border-wood bg-wood text-cream' : 'border-sand bg-white text-ink hover:border-ink/35',
                   ].join(' ')}
                 >
@@ -113,13 +113,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
         </div>
       </div>
 
-      <Field
-        id={ids.comentarios}
-        label={FORM_COPY.comentarios}
-        optional
-        error={comentariosError}
-        className="mt-7"
-      >
+      <Field id={ids.comentarios} label={FORM_COPY.comentarios} optional error={comentariosError} className="mt-7">
         <textarea
           id={ids.comentarios}
           rows={3}

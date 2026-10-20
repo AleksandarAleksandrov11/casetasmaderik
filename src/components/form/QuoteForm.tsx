@@ -2,14 +2,12 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { FormProvider, useForm, type FieldError, type Resolver } from 'react-hook-form';
-import { AnimatePresence, LazyMotion, MotionConfig, domAnimation, m } from 'motion/react';
 import { ArrowLeft, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { Button, ButtonAnchor } from '@/components/ui/Button';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { getConsentState, trackEvent } from '@/components/consent/trackEvent';
-import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
+import { whatsappHref } from '@/content/site';
 import { detectDevice, prefersReducedMotion } from '@/lib/device';
-import { EASE } from '@/lib/motion';
 import { collectAttribution } from '@/lib/utm';
 import {
   EMPTY_DRAFT,
@@ -24,6 +22,7 @@ import {
   type QuoteDraft,
 } from '@/lib/quote-data';
 import { FORM_COPY, STEPS } from './copy';
+import { ACTIONS_CLASS, FormProgress, NEXT_BUTTON_CLASS, NoScriptContact, PANEL_CLASS, ROOT_CLASS } from './frame';
 import { firstName } from './format';
 import { clearDraft, createId, loadDraft, saveDraft } from './storage';
 import { StepContact } from './StepContact';
@@ -95,12 +94,6 @@ async function postLead(body: unknown): Promise<{ status: number; data: LeadResp
   }
 }
 
-const stepVariants = {
-  enter: (dir: number) => ({ opacity: 0, x: dir * 20 }),
-  center: { opacity: 1, x: 0, transition: { duration: 0.45, ease: EASE } },
-  exit: (dir: number) => ({ opacity: 0, x: dir * -12, transition: { duration: 0.18, ease: EASE } }),
-};
-
 /**
  * Formulario de presupuesto en cuatro pasos. Sin props: lee ?evento=<slug> y
  * ?casetas=<n> de la URL al montarse, guarda el borrador en sessionStorage y
@@ -118,7 +111,8 @@ export function QuoteForm() {
   const { getValues, reset, setError, setFocus, subscribe, trigger, getFieldState } = methods;
 
   const [step, setStep] = useState(0);
-  const [direction, setDirection] = useState<1 | -1>(1);
+  // 0 hasta el primer cambio de paso: el primer paso no se anima al cargar
+  const [direction, setDirection] = useState<0 | 1 | -1>(0);
   const [attempted, setAttempted] = useState<readonly boolean[]>([false, false, false, false]);
   const [status, setStatus] = useState<Status>('idle');
   const [notice, setNotice] = useState<Notice>(null);
@@ -367,7 +361,8 @@ export function QuoteForm() {
     pendingFocus.current = false;
     el.focus({ preventScroll: true });
     const top = rootRef.current?.getBoundingClientRect().top ?? 0;
-    if (top < 80) rootRef.current?.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    if (top < 80)
+      rootRef.current?.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   }, []);
 
   const isSending = status === 'sending';
@@ -376,174 +371,136 @@ export function QuoteForm() {
   const rootStyle = { '--quote-inset': `${inset}px` } as CSSProperties;
 
   return (
-    <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user">
-        <div ref={rootRef} data-quote-form="" style={rootStyle} className="relative scroll-mt-[calc(var(--header-h-compact)+16px)] [html:not(.js)_&]:hidden">
-          <p className="sr-only" aria-live="polite" aria-atomic="true">
-            {announcement}
-          </p>
-          <div className="rounded-sm border border-sand bg-paper/55 px-5 py-7 sm:px-9 sm:py-10 lg:px-11 lg:py-11">
-            <AnimatePresence mode="wait" initial={false}>
-              {status === 'success' ? (
-                <m.div
-                  key="success"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } }}
+    <>
+      <div ref={rootRef} data-quote-form="" style={rootStyle} className={ROOT_CLASS}>
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          {announcement}
+        </p>
+        <div className={PANEL_CLASS}>
+          {status === 'success' ? (
+            <div key="success" className="q-enter">
+              <Success nombre={result.nombre} numero={result.numero} headingRef={onSuccessHeading} />
+            </div>
+          ) : (
+            <div key="form">
+              <FormProvider {...methods}>
+                <form
+                  noValidate
+                  aria-label={FORM_COPY.formLabel}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void next();
+                  }}
+                  onKeyDown={onKeyDown}
                 >
-                  <Success nombre={result.nombre} numero={result.numero} headingRef={onSuccessHeading} />
-                </m.div>
-              ) : (
-                <m.div key="form" exit={{ opacity: 0, transition: { duration: 0.2 } }}>
-                  <FormProvider {...methods}>
-                    <form
-                      noValidate
-                      aria-label={FORM_COPY.formLabel}
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        void next();
-                      }}
-                      onKeyDown={onKeyDown}
-                    >
-                      <div className="mb-8 sm:mb-10">
-                        <div className="flex items-baseline justify-between gap-4 text-[0.875rem]">
-                          <p className="font-semibold text-ink tabular">{FORM_COPY.stepOf(step + 1, STEP_COUNT)}</p>
-                          <p className="text-stone">{STEPS[step].short}</p>
-                        </div>
-                        <div className="relative mt-3 h-0.5 overflow-hidden bg-sand" aria-hidden="true">
-                          <m.div
-                            className="absolute inset-0 origin-left bg-wood"
-                            initial={false}
-                            animate={{ scaleX: (step + 1) / STEP_COUNT }}
-                            transition={{ duration: 0.7, ease: EASE }}
-                          />
-                        </div>
-                      </div>
+                  <FormProgress step={step} />
 
-                      <AnimatePresence mode="wait" initial={false} custom={direction}>
-                        <m.div
-                          key={step}
-                          ref={onStepMount}
-                          custom={direction}
-                          variants={stepVariants}
-                          initial="enter"
-                          animate="center"
-                          exit="exit"
-                        >
-                          {step === 0 ? (
-                            <StepEvent idPrefix={idPrefix} showErrors={showErrors} onPointerPick={onPointerPick} />
-                          ) : step === 1 ? (
-                            <StepWhenWhere idPrefix={idPrefix} showErrors={showErrors} />
-                          ) : step === 2 ? (
-                            <StepQuantity idPrefix={idPrefix} showErrors={showErrors} />
-                          ) : (
-                            <StepContact idPrefix={idPrefix} showErrors={showErrors} onEdit={goTo} onConsent={revealActions} />
-                          )}
-                        </m.div>
-                      </AnimatePresence>
+                  <div key={step} ref={onStepMount} className="q-step" data-dir={direction}>
+                    {step === 0 ? (
+                      <StepEvent idPrefix={idPrefix} showErrors={showErrors} onPointerPick={onPointerPick} />
+                    ) : step === 1 ? (
+                      <StepWhenWhere idPrefix={idPrefix} showErrors={showErrors} />
+                    ) : step === 2 ? (
+                      <StepQuantity idPrefix={idPrefix} showErrors={showErrors} />
+                    ) : (
+                      <StepContact
+                        idPrefix={idPrefix}
+                        showErrors={showErrors}
+                        onEdit={goTo}
+                        onConsent={revealActions}
+                      />
+                    )}
+                  </div>
 
-                      {notice ? (
-                        <div role="alert" className="mt-8 rounded-sm border border-error/25 bg-white px-4 py-4 sm:px-5">
-                          <p className="flex items-start gap-3 text-[0.9375rem] leading-snug text-ink">
-                            <TriangleAlert aria-hidden="true" strokeWidth={1.5} className="mt-px size-5 flex-none text-error" />
-                            <span>{notice.text}</span>
-                          </p>
-                          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:pl-8">
-                            {notice.retry ? (
-                              <Button
-                                size="md"
-                                variant="primary"
-                                onClick={() => void submit()}
-                                aria-disabled={isSending || undefined}
-                                className="max-sm:w-full"
-                              >
-                                {FORM_COPY.retry}
-                              </Button>
-                            ) : null}
-                            <ButtonAnchor
-                              href={whatsappHref()}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              variant="outline"
-                              magnetic={false}
-                              className="max-sm:w-full"
-                              icon={<WhatsAppIcon className="size-5" />}
-                              onClick={() => trackEvent('click_whatsapp', { ubicacion: 'formulario_error' })}
-                            >
-                              WhatsApp
-                            </ButtonAnchor>
-                          </div>
-                        </div>
-                      ) : null}
-
-                      <div
-                        data-quote-actions=""
-                        style={{ scrollMarginBottom: inset + 16 }}
-                        className="mt-10 flex items-center justify-between gap-3 border-t border-sand pt-6"
-                      >
-                        {step > 0 ? (
-                          <button
-                            type="button"
-                            onClick={() => goTo(step - 1)}
-                            className="group inline-flex min-h-[52px] items-center gap-2 rounded-sm pr-3 pl-1 text-[0.9375rem] font-semibold text-stone transition-colors duration-300 ease-brand hover:text-ink"
+                  {notice ? (
+                    <div role="alert" className="mt-8 rounded-sm border border-error/25 bg-white px-4 py-4 sm:px-5">
+                      <p className="flex items-start gap-3 text-[0.9375rem] leading-snug text-ink">
+                        <TriangleAlert
+                          aria-hidden="true"
+                          strokeWidth={1.5}
+                          className="mt-px size-5 flex-none text-error"
+                        />
+                        <span>{notice.text}</span>
+                      </p>
+                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:pl-8">
+                        {notice.retry ? (
+                          <Button
+                            size="md"
+                            variant="primary"
+                            onClick={() => void submit()}
+                            aria-disabled={isSending || undefined}
+                            className="max-sm:w-full"
                           >
-                            <ArrowLeft
-                              aria-hidden="true"
-                              strokeWidth={1.5}
-                              className="size-[18px] transition-transform duration-500 ease-brand group-hover:-translate-x-1"
-                            />
-                            {FORM_COPY.back}
-                          </button>
-                        ) : (
-                          <span aria-hidden="true" />
-                        )}
-                        <Button
-                          type="submit"
-                          arrow={!isSending}
-                          aria-disabled={isSending || undefined}
-                          aria-busy={isSending || undefined}
-                          icon={isSending ? <LoaderCircle aria-hidden="true" strokeWidth={1.75} className="size-5 animate-spin" /> : undefined}
-                          className="min-w-[10.5rem] max-sm:flex-1"
-                          onFocus={inset > 0 ? revealActions : undefined}
+                            {FORM_COPY.retry}
+                          </Button>
+                        ) : null}
+                        <ButtonAnchor
+                          href={whatsappHref()}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variant="outline"
+                          magnetic={false}
+                          className="max-sm:w-full"
+                          icon={<WhatsAppIcon className="size-5" />}
+                          onClick={() => trackEvent('click_whatsapp', { ubicacion: 'formulario_error' })}
                         >
-                          {isLast ? (isSending ? FORM_COPY.sending : FORM_COPY.submit) : FORM_COPY.next}
-                        </Button>
+                          WhatsApp
+                        </ButtonAnchor>
                       </div>
+                    </div>
+                  ) : null}
 
-                      <div aria-hidden="true" className="absolute top-0 -left-[10000px] size-px overflow-hidden">
-                        <label htmlFor={`${idPrefix}-website`}>{FORM_COPY.honeypot}</label>
-                        <input id={`${idPrefix}-website`} type="text" tabIndex={-1} autoComplete="off" {...methods.register('website')} />
-                      </div>
-                    </form>
-                  </FormProvider>
-                </m.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  <div data-quote-actions="" style={{ scrollMarginBottom: inset + 16 }} className={ACTIONS_CLASS}>
+                    {step > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => goTo(step - 1)}
+                        className="group inline-flex min-h-[52px] items-center gap-2 rounded-sm pr-3 pl-1 text-[0.9375rem] font-semibold text-stone transition-colors duration-300 ease-brand hover:text-ink"
+                      >
+                        <ArrowLeft
+                          aria-hidden="true"
+                          strokeWidth={1.5}
+                          className="size-[18px] transition-transform duration-500 ease-brand group-hover:-translate-x-1"
+                        />
+                        {FORM_COPY.back}
+                      </button>
+                    ) : (
+                      <span aria-hidden="true" />
+                    )}
+                    <Button
+                      type="submit"
+                      arrow={!isSending}
+                      aria-disabled={isSending || undefined}
+                      aria-busy={isSending || undefined}
+                      icon={
+                        isSending ? (
+                          <LoaderCircle aria-hidden="true" strokeWidth={1.75} className="size-5 animate-spin" />
+                        ) : undefined
+                      }
+                      className={NEXT_BUTTON_CLASS}
+                      onFocus={inset > 0 ? revealActions : undefined}
+                    >
+                      {isLast ? (isSending ? FORM_COPY.sending : FORM_COPY.submit) : FORM_COPY.next}
+                    </Button>
+                  </div>
+
+                  <div aria-hidden="true" className="absolute top-0 -left-[10000px] size-px overflow-hidden">
+                    <label htmlFor={`${idPrefix}-website`}>{FORM_COPY.honeypot}</label>
+                    <input
+                      id={`${idPrefix}-website`}
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      {...methods.register('website')}
+                    />
+                  </div>
+                </form>
+              </FormProvider>
+            </div>
+          )}
         </div>
-        <noscript>
-          <div className="rounded-sm border border-sand bg-paper/55 px-5 py-7 sm:px-9 sm:py-10">
-            <p className="font-display text-[1.5rem] leading-tight text-ink">{FORM_COPY.noscriptTitle}</p>
-            <p className="mt-3 text-stone">{FORM_COPY.noscriptText}</p>
-            <ul className="mt-6 space-y-1 text-[1.0625rem]">
-              <li>
-                <a href={emailHref} className="link-underline">
-                  {site.email}
-                </a>
-              </li>
-              <li>
-                <a href={phoneHref} className="link-underline">
-                  {site.phone.display}
-                </a>
-              </li>
-              <li>
-                <a href={whatsappHref()} className="link-underline" rel="noopener noreferrer">
-                  WhatsApp
-                </a>
-              </li>
-            </ul>
-          </div>
-        </noscript>
-      </MotionConfig>
-    </LazyMotion>
+      </div>
+      <NoScriptContact />
+    </>
   );
 }

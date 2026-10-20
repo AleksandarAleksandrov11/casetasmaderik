@@ -30,7 +30,9 @@ let ipSeed = 0;
 /** Cada test con su IP para no chocar con el límite de 5 envíos por IP. */
 async function open(page: Page, query = '', { keepBanner = false } = {}) {
   ipSeed += 1;
-  await page.setExtraHTTPHeaders({ 'x-forwarded-for': `198.18.${(process.pid + ipSeed) % 250}.${(Date.now() + ipSeed) % 250}` });
+  await page.setExtraHTTPHeaders({
+    'x-forwarded-for': `198.18.${(process.pid + ipSeed) % 250}.${(Date.now() + ipSeed) % 250}`,
+  });
   await page.addInitScript(() => {
     try {
       window.sessionStorage.setItem('cm:intro', '1');
@@ -46,13 +48,17 @@ async function open(page: Page, query = '', { keepBanner = false } = {}) {
 const form = (page: Page) => page.getByRole('form', { name: 'Formulario de presupuesto' });
 const next = (page: Page) => page.getByRole('button', { name: 'Continuar' });
 const send = (page: Page) => page.getByRole('button', { name: /Enviar solicitud|Enviando/ });
-const stepLabel = (page: Page, n: number) => expect(form(page).getByText(`Paso ${n} de 4`, { exact: true })).toBeVisible();
+const stepLabel = (page: Page, n: number) =>
+  expect(form(page).getByText(`Paso ${n} de 4`, { exact: true })).toBeVisible();
 
 async function pickEvent(page: Page, name: string) {
   await page.locator('[data-quote-form] label').filter({ hasText: name }).click();
 }
 
-async function fillWhenWhere(page: Page, opts: { start?: string; end?: string; oneDay?: boolean; city?: string; province?: string } = {}) {
+async function fillWhenWhere(
+  page: Page,
+  opts: { start?: string; end?: string; oneDay?: boolean; city?: string; province?: string } = {},
+) {
   await page.getByLabel('Fecha de inicio').fill(opts.start ?? inDays(30));
   if (opts.oneDay) await page.getByLabel('Es un solo día').check();
   else await page.getByLabel('Fecha de fin').fill(opts.end ?? inDays(38));
@@ -85,7 +91,8 @@ test.describe('Formulario de presupuesto', () => {
     const errors: string[] = [];
     page.on('console', (m) => {
       // Los fallos de red se comprueban aparte con su URL
-      if ((m.type() === 'error' || m.type() === 'warning') && !m.text().startsWith('Failed to load resource')) errors.push(m.text());
+      if ((m.type() === 'error' || m.type() === 'warning') && !m.text().startsWith('Failed to load resource'))
+        errors.push(m.text());
     });
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('response', (r) => {
@@ -153,14 +160,16 @@ test.describe('Formulario de presupuesto', () => {
   });
 
   test('pantalla de éxito con número de solicitud, WhatsApp y volver al inicio', async ({ page }) => {
-    await page.route(API, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true,"numero":42}' }));
+    await page.route(API, (route) =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true,"numero":42}' }),
+    );
     await open(page);
     await reachContact(page);
     await fillContact(page, 'Ana Ruiz');
     await send(page).click();
     await expect(page.getByRole('heading', { name: 'Solicitud enviada' })).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Tu número de solicitud es el 42.')).toBeVisible();
-    const whatsapp = page.getByRole('link', { name: 'Escribir por WhatsApp' });
+    const whatsapp = page.locator('#formulario').getByRole('link', { name: 'Escribir por WhatsApp' });
     await expect(whatsapp).toHaveAttribute('href', /wa\.me\/34656324123\?text=.*solicitud%2042/);
     await expect(page.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '/');
   });
@@ -178,7 +187,12 @@ test.describe('Formulario de presupuesto', () => {
     // Paso 2
     await stepLabel(page, 2);
     await next(page).click();
-    for (const message of ['Indica la fecha de inicio.', 'Indica la fecha de fin o marca “Es un solo día”.', 'Indica la localidad.', 'Elige una provincia.']) {
+    for (const message of [
+      'Indica la fecha de inicio.',
+      'Indica la fecha de fin o marca “Es un solo día”.',
+      'Indica la localidad.',
+      'Elige una provincia.',
+    ]) {
       await expect(form(page).getByText(message)).toBeVisible();
     }
     await expect(page.getByLabel('Fecha de inicio')).toBeFocused();
@@ -203,7 +217,12 @@ test.describe('Formulario de presupuesto', () => {
     // Paso 4
     await stepLabel(page, 4);
     await send(page).click();
-    for (const message of ['Indica tu nombre.', 'Indica tu teléfono.', 'Indica tu email.', 'Debes aceptar la política de privacidad.']) {
+    for (const message of [
+      'Indica tu nombre.',
+      'Indica tu teléfono.',
+      'Indica tu email.',
+      'Debes aceptar la política de privacidad.',
+    ]) {
       await expect(form(page).getByText(message)).toBeVisible();
     }
     await expect(page.getByLabel('Nombre y apellidos')).toBeFocused();
@@ -338,9 +357,12 @@ test.describe('Formulario de presupuesto', () => {
     });
     await send(page).click();
     const alert = form(page).getByRole('alert');
-    await expect(alert).toContainText('No hemos podido enviar tu solicitud. Inténtalo de nuevo o escríbenos por WhatsApp.', {
-      timeout: 15_000,
-    });
+    await expect(alert).toContainText(
+      'No hemos podido enviar tu solicitud. Inténtalo de nuevo o escríbenos por WhatsApp.',
+      {
+        timeout: 15_000,
+      },
+    );
     await expect(alert.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', /wa\.me\/34656324123/);
     await expect(page.getByLabel('Nombre y apellidos')).toHaveValue('Pedro Gómez');
     await expect(page.getByLabel(/He leído y acepto/)).toBeChecked();
@@ -358,13 +380,19 @@ test.describe('Formulario de presupuesto', () => {
 
   test('error del servidor (429) muestra el aviso sin perder datos', async ({ page }) => {
     await page.route(API, (route) =>
-      route.fulfill({ status: 429, contentType: 'application/json', body: '{"ok":false,"error":"x","code":"rate_limited"}' }),
+      route.fulfill({
+        status: 429,
+        contentType: 'application/json',
+        body: '{"ok":false,"error":"x","code":"rate_limited"}',
+      }),
     );
     await open(page);
     await reachContact(page);
     await fillContact(page);
     await send(page).click();
-    await expect(form(page).getByRole('alert')).toContainText('Has enviado varias solicitudes en poco tiempo.', { timeout: 15_000 });
+    await expect(form(page).getByRole('alert')).toContainText('Has enviado varias solicitudes en poco tiempo.', {
+      timeout: 15_000,
+    });
     await expect(page.getByLabel('Email')).toHaveValue('lucia@example.com');
   });
 
@@ -468,7 +496,6 @@ test.describe('Formulario de presupuesto', () => {
     const after = await page.evaluate(() => JSON.parse(sessionStorage.getItem('cm:presupuesto') ?? '{}').id);
     expect(after).toBe(before);
   });
-
 });
 
 test.describe('Formulario sin JavaScript', () => {

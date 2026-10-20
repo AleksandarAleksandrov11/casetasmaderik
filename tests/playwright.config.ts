@@ -21,7 +21,8 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,
-  workers: process.env.CI ? 2 : 3,
+  // Con 4 núcleos y WebGL por software (SwiftShader), más de 2 a la vez da falsos fallos
+  workers: 2,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never', outputFolder: '../playwright-report' }]],
   outputDir: '../test-results',
