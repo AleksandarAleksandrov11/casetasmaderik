@@ -39,7 +39,7 @@ export default defineConfig({
         url: BASE_URL,
         reuseExistingServer: true,
         timeout: 120_000,
-        env: { LEADS_MOCK: '1' },
+        env: { LEADS_MOCK: '1', VERCEL_JSON_LOCAL: '1' },
       },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunch } },

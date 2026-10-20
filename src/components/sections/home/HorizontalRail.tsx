@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MEDIA } from '@/lib/motion';
+import { getLenis } from '@/components/layout/MotionRoot';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -56,7 +57,10 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
         const max = distance();
         if (max <= 0) return;
         const target = Math.min(1, Math.max(0, (item.offsetLeft - 40) / max));
-        window.scrollTo({ top: st.start + target * (st.end - st.start), behavior: 'auto' });
+        const top = st.start + target * (st.end - st.start);
+        const lenis = getLenis();
+        if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
+        else window.scrollTo({ top, behavior: 'auto' });
       };
       track.addEventListener('focusin', onFocus);
 

@@ -64,7 +64,7 @@ describe('metadatos', () => {
 });
 
 describe('JSON-LD', () => {
-  const roundTrip = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
+  const roundTrip = (v: unknown): unknown => JSON.parse(JSON.stringify(v));
 
   it('Organization con los campos obligatorios', () => {
     const org = roundTrip(organizationNode()) as Record<string, unknown>;
