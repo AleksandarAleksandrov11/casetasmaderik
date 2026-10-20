@@ -14,7 +14,7 @@ checker.on('link', (r) => {
 const result = await checker.check({
   path: base,
   recurse: true,
-  // Los enlaces externos (WhatsApp, Instagram, crédito) se listan pero no se comprueban desde el sandbox
+  // Los enlaces externos (WhatsApp, Instagram, AEPD) se listan pero no se comprueban desde el sandbox
   linksToSkip: [`^(?!${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`],
   timeout: 20000,
   concurrency: 8,
