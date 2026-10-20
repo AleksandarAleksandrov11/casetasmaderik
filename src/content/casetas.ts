@@ -54,13 +54,15 @@ export const casetasSpecs = {
     { id: 'lateral', title: 'Alzado lateral' },
     { id: 'planta', title: 'Planta' },
   ],
+  plansNote: 'Medidas exteriores aproximadas. Te confirmamos el espacio necesario para tu recinto en el presupuesto.',
   download: { label: 'Descargar ficha técnica', href: '/ficha-tecnica-caseta-madera.pdf' },
   product,
 };
 
 export const casetasAssembly = {
   label: 'Montaje',
-  title: 'Plegable. Se monta en tu recinto.',
+  /** Dos frases: cada una empieza en su propia línea. */
+  title: ['Plegable.', 'Se monta en tu recinto.'],
   text: 'Llega plegada, la montamos en el sitio y al terminar la recogemos.',
   steps: [
     { title: 'Transporte', text: 'La caseta viaja plegada y protegida hasta tu recinto.' },

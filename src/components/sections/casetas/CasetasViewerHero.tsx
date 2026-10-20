@@ -42,9 +42,9 @@ export function CasetasViewerHero() {
           <Poster
             desktop={posters.viewer}
             mobile={posters.viewerMobile}
-            media="lg"
+            media="wide"
             eager
-            sizes={{ desktop: '(min-width: 1024px) 58vw, 100vw', mobile: '100vw' }}
+            sizes={{ desktop: '(min-width: 1024px) 50vw, 60vw', mobile: '100vw' }}
           />
         }
         list={

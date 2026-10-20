@@ -19,17 +19,37 @@ export const viewerCss = /* css */ `
   gap: 36px;
 }
 
+/*
+ * El H1 usa la escala H1 de la web (text-h1), siempre por encima de los H2.
+ * 14ch deja "Caseta de madera / para ferias y eventos" en dos líneas cuando
+ * hay ancho (tableta) y tres en móvil y en la columna de escritorio.
+ */
 .viewer__title {
-  font-size: clamp(2.25rem, 1.35rem + 2.7vw, 4.25rem);
   max-width: 14ch;
 }
 
 @media (min-width: 1024px) {
   .viewer__grid {
-    grid-template-columns: minmax(0, 4.3fr) minmax(0, 7.7fr);
+    grid-template-columns: minmax(0, 5.25fr) minmax(0, 6.75fr);
     align-items: center;
     gap: clamp(32px, 4vw, 72px);
     min-height: calc(100svh - var(--header-h) - clamp(48px, 7vw, 112px));
+  }
+}
+
+/*
+ * En dos columnas, el H1 solo se reduce si la columna no da para tres líneas:
+ * "ferias y eventos", la línea más larga, mide unas 6,45 em.
+ */
+@supports (width: 1cqi) {
+  @media (min-width: 1024px) {
+    .viewer__copy {
+      container-type: inline-size;
+    }
+
+    .viewer__title {
+      font-size: min(var(--fs-h1), calc(100cqi / 6.6));
+    }
   }
 }
 
@@ -102,8 +122,36 @@ export const viewerCss = /* css */ `
   container-type: inline-size;
 }
 
+/*
+ * El poster corta la sombra en su borde derecho. En la caja apaisada del
+ * móvil en horizontal ese borde queda dentro de la caja: se funde.
+ */
+.viewer__visual .caseta-poster img {
+  -webkit-mask-image: linear-gradient(to right, #000 95%, transparent);
+  mask-image: linear-gradient(to right, #000 95%, transparent);
+}
+
+/*
+ * Proporción de la caja según el encuadre (VIEWER_WIDE en ViewerStage y el
+ * poster con media="wide"): cuadrada en móvil vertical, 5:4 en tableta
+ * vertical (encuadre por ancho en los dos casos) y apaisada en móvil
+ * horizontal y escritorio (encuadre por alto), siempre dentro de la pantalla.
+ */
+@media (min-width: 600px) {
+  .viewer__box {
+    aspect-ratio: 5 / 4;
+  }
+}
+
+@media (min-width: 600px) and (min-aspect-ratio: 5/4) {
+  .viewer__box {
+    aspect-ratio: auto;
+    height: min(80svh, 75cqw);
+  }
+}
+
 @media (min-width: 1024px) {
-  /* Siempre apaisada (el encuadre de escritorio ajusta por alto) */
+  /* Siempre apaisada: el encuadre por alto o por ancho cabe igual */
   .viewer__box {
     aspect-ratio: auto;
     height: min(clamp(440px, 74svh, 780px), 86cqw);

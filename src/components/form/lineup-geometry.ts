@@ -99,18 +99,19 @@ export const STALL = buildStall();
 
 /*
  * Disposición: cada caseta se desplaza en el mundo según (s, -s), que en
- * isométrico es un paso horizontal en pantalla. La segunda fila va delante y
- * desplazada medio paso. Se dibuja de atrás adelante y de derecha a izquierda.
+ * isométrico es un paso horizontal en pantalla. Cada fila va delante de la
+ * anterior, alternando medio paso de desplazamiento. Se dibuja de atrás
+ * adelante y de derecha a izquierda.
  */
 const STEP_WORLD = 31;
 export const STEP_X = round(2 * STEP_WORLD * C); // paso horizontal en pantalla
-const ROW_DY = 30; // la fila delantera baja 30 unidades en pantalla
+const ROW_DY = 30; // cada fila delantera baja 30 unidades en pantalla
 
 /** Caja de una caseta en pantalla respecto a su origen. */
 export const STALL_BOX = { minX: -24, maxX: 30, minY: -22, maxY: 29 };
 export const PLUS_W = 44;
 
-export type Slot = { index: number; x: number; y: number; row: 0 | 1 };
+export type Slot = { index: number; x: number; y: number; row: number };
 
 export type Layout = {
   slots: Slot[];
@@ -120,11 +121,49 @@ export type Layout = {
   height: number;
 };
 
-/** Huecos para `count` casetas (como mucho `max`) centrados en un lienzo fijo. */
-export function computeLayout(count: number, max: number): Layout {
+/**
+ * Reparte n casetas en filas de como mucho perRow (las de atrás igual o más
+ * llenas). Coordenadas locales: la primera caseta de la fila trasera en el
+ * origen. Devuelve también la caja del contenido, con el hueco del "+N".
+ */
+function arrange(n: number, perRow: number, plusW: number) {
+  const rows = Math.max(1, Math.ceil(n / perRow));
+  const local: Omit<Slot, 'index'>[] = [];
+  let left = n;
+  for (let row = 0; row < rows; row++) {
+    const inRow = Math.ceil(left / (rows - row));
+    const shift = row % 2 ? STEP_X / 2 : 0;
+    for (let i = 0; i < inRow; i++) local.push({ x: i * STEP_X + shift, y: row * ROW_DY, row });
+    left -= inRow;
+  }
+  const lastX = local.reduce((m, s) => Math.max(m, s.x), 0);
+  return {
+    local,
+    rows,
+    contentW: lastX + (STALL_BOX.maxX - STALL_BOX.minX) + plusW,
+    contentH: STALL_BOX.maxY - STALL_BOX.minY + (rows - 1) * ROW_DY,
+  };
+}
+
+/** Coloca las casetas desplazadas y el "+N" junto a la última de la fila delantera. */
+function place(local: Omit<Slot, 'index'>[], rows: number, extra: number, offX: number, offY: number) {
+  const slots = local.map((s, index) => ({ index, row: s.row, x: round(s.x + offX), y: round(s.y + offY) }));
+  const frontRow = slots.filter((s) => s.row === rows - 1);
+  const anchor = frontRow[frontRow.length - 1];
+  const plus = extra > 0 && anchor ? { x: round(anchor.x + STALL_BOX.maxX + 10), y: round(anchor.y + 8) } : null;
+  return { slots, plus };
+}
+
+function clampCount(count: number, max: number) {
   const safeMax = Math.max(1, Math.floor(max));
   const n = Math.max(0, Math.min(Math.floor(count), safeMax));
   const extra = Math.max(0, Math.floor(count) - safeMax);
+  return { safeMax, n, extra };
+}
+
+/** Huecos para `count` casetas (como mucho `max`) centrados en un lienzo fijo. */
+export function computeLayout(count: number, max: number): Layout {
+  const { safeMax, n, extra } = clampCount(count, max);
   const perRowMax = safeMax > 6 ? Math.ceil(safeMax / 2) : safeMax;
   const twoRowsCanvas = safeMax > perRowMax;
 
@@ -133,24 +172,42 @@ export function computeLayout(count: number, max: number): Layout {
   const width = round(canvasRowW + (STALL_BOX.maxX - STALL_BOX.minX) + PLUS_W + 8);
   const height = round(STALL_BOX.maxY - STALL_BOX.minY + (twoRowsCanvas ? ROW_DY : 0) + 6);
 
-  const twoRows = n > perRowMax;
-  const back = twoRows ? Math.ceil(n / 2) : n;
-  const front = n - back;
-
-  const local: Omit<Slot, 'index'>[] = [];
-  for (let i = 0; i < back; i++) local.push({ x: i * STEP_X, y: 0, row: 0 });
-  for (let i = 0; i < front; i++) local.push({ x: i * STEP_X + STEP_X / 2, y: ROW_DY, row: 1 });
-
-  const lastX = local.reduce((m, s) => Math.max(m, s.x), 0);
-  const plusW = extra > 0 ? PLUS_W : 0;
-  const contentW = lastX + (STALL_BOX.maxX - STALL_BOX.minX) + plusW;
-  const contentH = STALL_BOX.maxY - STALL_BOX.minY + (twoRows ? ROW_DY : 0);
+  const { local, rows, contentW, contentH } = arrange(n, perRowMax, extra > 0 ? PLUS_W : 0);
   const offX = (width - contentW) / 2 - STALL_BOX.minX;
   const offY = (height - contentH) / 2 - STALL_BOX.minY;
+  return { ...place(local, rows, extra, offX, offY), extra, width, height };
+}
 
-  const slots = local.map((s, index) => ({ index, row: s.row, x: round(s.x + offX), y: round(s.y + offY) }));
-  const frontRow = slots.filter((s) => s.row === (twoRows ? 1 : 0));
-  const anchor = frontRow[frontRow.length - 1];
-  const plus = extra > 0 && anchor ? { x: round(anchor.x + STALL_BOX.maxX + 10), y: round(anchor.y + 8) } : null;
-  return { slots, extra, plus, width, height };
+/**
+ * Escenario con zoom: lienzo apaisado fijo, filas de 4 (1, 4, 8 y 12 casetas
+ * forman una, una, dos y tres filas) y la mayor escala que cabe, con tope
+ * para que una caseta sola no lo llene todo.
+ */
+export const STAGE = { width: 400, height: 200, pad: 18, perRow: 4, maxScale: 2.6 } as const;
+
+export type StageLayout = Layout & { scale: number };
+
+/**
+ * Huecos centrados en el origen y escala del grupo para el escenario. El
+ * componente coloca el grupo en el centro del lienzo: al cambiar el número,
+ * la escala pasa de un valor a otro con una transición (la vista se aleja o
+ * se acerca) mientras las casetas se recolocan.
+ */
+export function computeStage(count: number, max: number): StageLayout {
+  const { n, extra } = clampCount(count, max);
+  const { local, rows, contentW, contentH } = arrange(n, STAGE.perRow, extra > 0 ? PLUS_W : 0);
+  const offX = -contentW / 2 - STALL_BOX.minX;
+  const offY = -contentH / 2 - STALL_BOX.minY;
+  const scale = Math.min(
+    STAGE.maxScale,
+    (STAGE.width - 2 * STAGE.pad) / contentW,
+    (STAGE.height - 2 * STAGE.pad) / contentH,
+  );
+  return {
+    ...place(local, rows, extra, offX, offY),
+    extra,
+    width: STAGE.width,
+    height: STAGE.height,
+    scale: round(scale),
+  };
 }

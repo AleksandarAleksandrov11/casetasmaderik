@@ -2,10 +2,24 @@
  * Planos acotados de la caseta (alzado frontal, alzado lateral y planta) en
  * SVG. Unidades: centímetros. Las cotas se dibujan al entrar en pantalla.
  * Solo se acotan las medidas confirmadas: 2,90, 2,00 y 2,47 m.
+ *
+ * Los tres comparten marco (FRAME) y tope de ancho: en tarjetas del mismo
+ * ancho se dibujan a la misma escala, con el suelo de los alzados alineado.
  */
 
 const GROUND = 260; // y del suelo en coordenadas SVG
 const Y = (h: number) => GROUND - h;
+
+/** Marco común (cm) y ancho máximo en pantalla: escala de 0,85 px por cm como mucho. */
+const FRAME = { w: 400, h: 316 };
+const PLAN_CLASS = 'plan-svg mx-auto max-w-[340px]';
+const viewBox = (x: number, y: number) => `${x} ${y} ${FRAME.w} ${FRAME.h}`;
+
+/**
+ * Tamaño de las cotas en unidades del plano (sustituye a los 15 de
+ * globals.css): con la escala común quedan entre 12 y 16 px en pantalla.
+ */
+const LABEL = { fontSize: 19 };
 
 const BOARD = 12;
 
@@ -45,7 +59,7 @@ function DimH({ x1, x2, y, label }: { x1: number; x2: number; y: number; label: 
       <line x1={x1} x2={x1} y1={y - 7} y2={y + 7} className="plan-dim__tick" />
       <line x1={x2} x2={x2} y1={y - 7} y2={y + 7} className="plan-dim__tick" />
       <line x1={x1} x2={x2} y1={y} y2={y} pathLength={1} className="plan-dim__line" />
-      <text x={(x1 + x2) / 2} y={y + 22} textAnchor="middle" className="plan-dim__label">
+      <text x={(x1 + x2) / 2} y={y + 22} textAnchor="middle" className="plan-dim__label" style={LABEL}>
         {label}
       </text>
     </g>
@@ -64,6 +78,7 @@ function DimV({ y1, y2, x, label }: { y1: number; y2: number; x: number; label: 
         textAnchor="middle"
         transform={`rotate(-90 ${x + 22} ${(y1 + y2) / 2})`}
         className="plan-dim__label"
+        style={LABEL}
       >
         {label}
       </text>
@@ -74,7 +89,7 @@ function DimV({ y1, y2, x, label }: { y1: number; y2: number; x: number; label: 
 export function FrontElevation() {
   const win = { x1: 30, x2: 260, b: 100, t: 192 };
   return (
-    <svg viewBox="-40 -6 400 316" className="plan-svg" role="img" aria-labelledby="plano-frontal-t">
+    <svg viewBox={viewBox(-40, -6)} className={PLAN_CLASS} role="img" aria-labelledby="plano-frontal-t">
       <title id="plano-frontal-t">Alzado frontal: 2,90 m de largo y 2,47 m de alto</title>
       <line x1={-30} x2={330} y1={GROUND} y2={GROUND} className="plan-ground" />
       <rect x={0} y={Y(12)} width={290} height={12} className="plan-base" />
@@ -98,7 +113,7 @@ export function SideElevation() {
   const eave = 205;
   const ridge = 247;
   return (
-    <svg viewBox="-40 -6 310 316" className="plan-svg" role="img" aria-labelledby="plano-lateral-t">
+    <svg viewBox={viewBox(-85, -6)} className={PLAN_CLASS} role="img" aria-labelledby="plano-lateral-t">
       <title id="plano-lateral-t">Alzado lateral: 2,00 m de ancho y 2,47 m de alto</title>
       <line x1={-30} x2={240} y1={GROUND} y2={GROUND} className="plan-ground" />
       <rect x={0} y={Y(12)} width={200} height={12} className="plan-base" />
@@ -119,7 +134,7 @@ export function SideElevation() {
 
 export function FloorPlan() {
   return (
-    <svg viewBox="-40 -40 400 300" className="plan-svg" role="img" aria-labelledby="plano-planta-t">
+    <svg viewBox={viewBox(-30, -36)} className={PLAN_CLASS} role="img" aria-labelledby="plano-planta-t">
       <title id="plano-planta-t">Planta: 2,90 por 2,00 m, unos 5,8 metros cuadrados</title>
       {/* Vuelo de la cubierta y cumbrera */}
       <rect x={-15} y={-15} width={320} height={230} className="plan-dashed" />

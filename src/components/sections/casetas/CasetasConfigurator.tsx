@@ -23,7 +23,7 @@ export function CasetasConfigurator() {
   };
 
   return (
-    <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+    <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
       <div className="lg:col-span-5">
         <div
           role="radiogroup"
@@ -58,13 +58,12 @@ export function CasetasConfigurator() {
           {c.cta}
         </ButtonLink>
         <p className="mt-4 text-[0.9375rem] text-mist" aria-live="polite">
-          {option.value === 1
-            ? 'Una caseta.'
-            : `Te llevamos al formulario con ${option.value} casetas, y lo ajustas allí.`}
+          {`Te llevamos al formulario con ${option.value} ${option.value === 1 ? 'caseta' : 'casetas'}, y lo ajustas allí.`}
         </p>
       </div>
-      <div className="lg:col-span-6 lg:col-start-7">
-        <CasetaLineup count={option.draw} max={12} tone="dark" className="w-full" />
+      {/* En móvil, la ilustración va encima de las opciones: se ve el cambio sin que lo tape el dedo */}
+      <div className="order-first lg:order-none lg:col-span-6 lg:col-start-7">
+        <CasetaLineup count={option.draw} max={12} zoom tone="dark" className="mx-auto max-w-[40rem]" />
       </div>
     </div>
   );

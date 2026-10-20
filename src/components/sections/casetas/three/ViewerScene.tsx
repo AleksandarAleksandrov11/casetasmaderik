@@ -24,7 +24,7 @@ export interface ViewerSceneProps {
   orbitRef: RefObject<ViewerOrbit>;
   hotspotsRef: RefObject<(HTMLElement | null)[]>;
   hotspotIds: string[];
-  /** 'h' en escritorio (caja apaisada), 'w' en móvil (caja cuadrada). */
+  /** 'h' con la caja apaisada (escritorio y móvil en horizontal), 'w' en vertical (caja cuadrada o 5:4). */
   fit: FitMode;
   quality: Quality;
   dpr: number | [number, number];

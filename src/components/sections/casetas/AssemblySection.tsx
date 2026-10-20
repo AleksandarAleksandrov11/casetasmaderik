@@ -24,7 +24,12 @@ export function AssemblySection() {
           <div>
             <p className="label">{a.label}</p>
             <h2 id="montaje-titulo" className="assembly__title text-h2 mt-6">
-              {a.title}
+              {a.title.map((line, i) => (
+                <span key={line} className="block">
+                  {i > 0 ? ' ' : null}
+                  {line}
+                </span>
+              ))}
             </h2>
             <p className="assembly__text text-lead mt-6 text-mist">{a.text}</p>
           </div>
