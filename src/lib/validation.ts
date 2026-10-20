@@ -25,6 +25,13 @@ import {
  */
 export * from './quote-data';
 
+/*
+ * Sin compilación JIT: zod comprueba si puede usar new Function() y, con la
+ * CSP de vercel.json (sin 'unsafe-eval'), esa comprobación deja un error de CSP
+ * en la consola. Con esquemas tan pequeños no hay diferencia de rendimiento.
+ */
+z.config({ jitless: true });
+
 /**
  * Las reglas cruzadas (Otro, fechas) se evalúan aunque otros campos fallen,
  * para devolver todos los errores a la vez.
