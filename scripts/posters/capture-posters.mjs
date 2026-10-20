@@ -48,13 +48,19 @@ function frameMetrics(fit, ax, w, h) {
 /**
  * Cada poster: página y clave de captura, ventana, encuadre (ancla y ajuste,
  * iguales a los del plano inicial) y tamaños de salida.
+ *
+ * La ventana de captura deja aire alrededor de la caseta para que la sombra
+ * (que se desvanece en la escena, ver Studio.tsx) quede entera dentro del
+ * recorte: el poster se coloca en unidades de encuadre, así que sirve igual
+ * en cualquier pantalla. Si algo toca el borde del lienzo, la captura falla.
  */
 const JOBS = [
   {
     key: 'heroDesktop',
     url: '/?poster=hero',
     file: 'hero-poster-desktop',
-    viewport: { width: 1600, height: 1000 },
+    // Más ancha que el contenedor: a la derecha de la caseta caben 0,68 u
+    viewport: { width: 2000, height: 1000 },
     dpr: 2,
     selector: '.hero__visual canvas',
     // Debe coincidir con DESKTOP en src/components/sections/home/hero/shots.ts
@@ -67,14 +73,16 @@ const JOBS = [
     key: 'heroMobile',
     url: '/?poster=hero-mobile',
     file: 'hero-poster-mobile',
-    viewport: { width: 430, height: 932 },
-    dpr: 3,
+    // Disposición apilada (vertical) con la escala limitada por el alto de la
+    // caja: a los lados de la caseta queda sitio para toda la sombra
+    viewport: { width: 1000, height: 1100 },
+    dpr: 2,
     mobile: true,
     selector: '.hero__visual canvas',
     // Debe coincidir con MOBILE en shots.ts
-    fit: { hk: 0.56, wk: 1 },
+    fit: { hk: 1.15, wk: 1 },
     ax: 0.5,
-    ay: 0.735,
+    ay: 0.48,
     maxWidth: 1200,
   },
   {
@@ -143,6 +151,8 @@ async function capture(browser, job) {
   await page.addInitScript(() => {
     try {
       sessionStorage.setItem('cm:intro', '1');
+      // SwiftShader es WebGL por software: sin esto la web no carga el 3D (ver lib/device.ts)
+      sessionStorage.setItem('cm:3d-forzar', '1');
     } catch {}
   });
   await page.goto(BASE + job.url, { waitUntil: 'load' });
@@ -162,6 +172,22 @@ async function capture(browser, job) {
   if (errors.length) console.warn(`  avisos en ${job.url}:\n   ${errors.join('\n   ')}`);
   await ctx.close();
   return Buffer.from(dataUrl.split(',')[1], 'base64');
+}
+
+/** Bordes del lienzo (izquierda, arriba, derecha, abajo) con algún píxel no transparente. */
+async function edgeAlpha(png) {
+  const { data, info } = await sharp(png).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: w, height: h, channels: c } = info;
+  const alpha = (x, y) => data[(y * w + x) * c + 3];
+  const hit = (n, at) => Array.from({ length: n }, (_, i) => at(i)).some((v) => v > 0);
+  return [
+    ['izquierda', hit(h, (y) => alpha(0, y))],
+    ['arriba', hit(w, (x) => alpha(x, 0))],
+    ['derecha', hit(h, (y) => alpha(w - 1, y))],
+    ['abajo', hit(w, (x) => alpha(x, h - 1))],
+  ]
+    .filter(([, touched]) => touched)
+    .map(([side]) => side);
 }
 
 async function encode(img, name, width, maxWidth) {
@@ -194,6 +220,7 @@ async function main() {
     args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
   });
   const manifest = {};
+  const failed = [];
   try {
     for (const job of JOBS) {
       if (ONLY.length && !ONLY.some((o) => job.key.toLowerCase().includes(o.toLowerCase()))) continue;
@@ -216,6 +243,17 @@ async function main() {
           .png({ compressionLevel: 9, palette: false })
           .toFile(join(OUT, `${job.file}.png`));
         console.log(`  ${job.file}.png 1200x630 (lienzo ${W}x${H})`);
+        continue;
+      }
+
+      // Nada puede tocar el borde del lienzo: sería un corte recto en el poster.
+      // El poster anterior se conserva y la captura termina con error.
+      const edges = await edgeAlpha(png);
+      if (edges.length) {
+        failed.push(job.key);
+        console.error(
+          `  ${job.file}: hay píxeles en el borde del lienzo (${edges.join(', ')}); amplía la ventana de captura o el aire del encuadre`,
+        );
         continue;
       }
 
@@ -335,6 +373,10 @@ ${entries.join('\n')}
     // prettier es opcional aquí
   }
   console.log('manifiesto escrito en', MANIFEST);
+  if (failed.length) {
+    console.error(`posters sin regenerar: ${failed.join(', ')}`);
+    process.exitCode = 1;
+  }
 }
 
 main().catch((e) => {

@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei';
 import { lerp, type CasetaState, type Quality } from '../state';
+import { HALF_L, HALF_W } from '../caseta/spec';
 
 const KEY_DAY = new THREE.Color('#fff0dc');
 const KEY_NIGHT = new THREE.Color('#9db4d0');
@@ -39,6 +40,36 @@ const PANELS: { color: string; intensity: number; position: V3; scale: [number, 
   // Rebote cálido del suelo
   { color: '#e9d9c2', intensity: 0.55, position: [0, -4, 0], scale: [14, 14], target: [0, 0, 0] },
 ];
+
+/**
+ * Sombra arrojada: se desvanece con la distancia a la planta de la caseta
+ * (metros fuera del rectángulo de 2,90 × 2,00). Así termina suave dentro del
+ * encuadre, como con una luz de estudio grande, y nunca en un corte recto en
+ * el borde del lienzo ni del poster. Tono casi negro cálido: oscurece igual
+ * sobre crema y nunca aclara sobre tinta.
+ */
+const SHADOW_COLOR = '#1a120c';
+const SHADOW_FADE_FROM = 0.05;
+const SHADOW_FADE_TO = 0.8;
+
+const glsl = (n: number) => n.toFixed(3);
+
+function fadeShadow(shader: THREE.WebGLProgramParametersWithUniforms) {
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nvarying vec2 vGround;')
+    .replace(
+      '#include <begin_vertex>',
+      '#include <begin_vertex>\nvGround = (modelMatrix * vec4(transformed, 1.0)).xz;',
+    );
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', '#include <common>\nvarying vec2 vGround;')
+    .replace(
+      '#include <tonemapping_fragment>',
+      `vec2 outside = max(abs(vGround) - vec2(${glsl(HALF_L)}, ${glsl(HALF_W)}), 0.0);
+      gl_FragColor.a *= 1.0 - smoothstep(${glsl(SHADOW_FADE_FROM)}, ${glsl(SHADOW_FADE_TO)}, length(outside));
+      #include <tonemapping_fragment>`,
+    );
+}
 
 /**
  * Entorno de estudio sin descargas: unos paneles emisivos (como los
@@ -141,7 +172,14 @@ export const Studio = memo(function Studio({
       {high ? (
         <mesh rotation-x={-Math.PI / 2} position-y={0.001} receiveShadow renderOrder={1}>
           <planeGeometry args={[16, 16]} />
-          <shadowMaterial ref={catcher} transparent opacity={0.2} color="#2b1d12" depthWrite={false} />
+          <shadowMaterial
+            ref={catcher}
+            transparent
+            opacity={0.15}
+            color={SHADOW_COLOR}
+            depthWrite={false}
+            onBeforeCompile={fadeShadow}
+          />
         </mesh>
       ) : null}
       {contact ? (
