@@ -33,7 +33,7 @@ for (const route of ROUTES) {
           .filter((e) => !e.classList.contains('is-in') && !e.classList.contains('is-split'))
           .map((e) => `${e.tagName.toLowerCase()} "${(e.textContent ?? '').trim().slice(0, 30)}"`),
       );
-      const overflow = await horizontalOverflow(page);
+      const overflow = await horizontalOverflow(page, vp.width);
       const clipped = await clippedText(page);
       const small = vp.mobile && vp.width <= 430 ? await smallTargets(page) : [];
       const csp = await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp ?? []);

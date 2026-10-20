@@ -44,7 +44,7 @@ export async function dismissCookies(page: Page): Promise<void> {
   const reject = page.locator('#cc-main button[data-role="necessary"]').first();
   try {
     await reject.waitFor({ state: 'visible', timeout: 4000 });
-    await reject.click();
+    await reject.click({ timeout: 5000 });
     await page.waitForTimeout(300);
   } catch {
     // Sin aviso (ya decidido o bot)
@@ -68,11 +68,16 @@ export async function scrollThrough(page: Page): Promise<void> {
 }
 
 /** Elementos que desbordan en horizontal (fuera de contenedores con scroll o recorte). */
-export async function horizontalOverflow(page: Page): Promise<{ overflow: boolean; culprits: string[] }> {
-  return page.evaluate(() => {
-    const vw = window.innerWidth;
+export async function horizontalOverflow(
+  page: Page,
+  expectedWidth: number,
+): Promise<{ overflow: boolean; culprits: string[] }> {
+  return page.evaluate((expected) => {
+    // En móvil, si algo desborda, el navegador ensancha el viewport de diseño:
+    // se compara con el ancho del dispositivo, no con innerWidth
+    const vw = expected;
     const doc = document.documentElement;
-    const overflow = doc.scrollWidth > vw;
+    const overflow = doc.scrollWidth > vw || window.innerWidth > vw;
     const culprits: string[] = [];
     const clipped = (el: Element): boolean => {
       for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
@@ -92,7 +97,7 @@ export async function horizontalOverflow(page: Page): Promise<{ overflow: boolea
       }
     }
     return { overflow, culprits };
-  });
+  }, expectedWidth);
 }
 
 /** Titulares y botones que se salen de su caja. */

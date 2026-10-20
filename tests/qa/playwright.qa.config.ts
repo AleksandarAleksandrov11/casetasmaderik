@@ -24,7 +24,7 @@ export default defineConfig({
   workers: Number(process.env.QA_WORKERS ?? 3),
   reporter: [['list'], ['json', { outputFile: 'output/qa-results.json' }]],
   outputDir: './output/test-results',
-  use: { baseURL: BASE_URL, locale: 'es-ES', timezoneId: 'Europe/Madrid' },
+  use: { baseURL: BASE_URL, locale: 'es-ES', timezoneId: 'Europe/Madrid', actionTimeout: 15_000 },
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {

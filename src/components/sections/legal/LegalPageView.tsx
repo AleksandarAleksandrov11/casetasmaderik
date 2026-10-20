@@ -101,8 +101,8 @@ export function LegalPageView({ page }: { page: LegalPage }) {
           <p className="mt-6 max-w-[62ch] text-lead text-stone">{page.intro}</p>
           <p className="mt-4 text-[0.9375rem] text-stone">Última actualización: {site.legalUpdated}</p>
 
-          <div className="mt-14 grid gap-12 border-t border-sand pt-12 lg:grid-cols-12">
-            <nav aria-label="Índice" className="lg:col-span-3">
+          <div className="mt-14 grid grid-cols-1 gap-12 border-t border-sand pt-12 lg:grid-cols-12">
+            <nav aria-label="Índice" className="min-w-0 lg:col-span-3">
               <div className="lg:sticky lg:top-[calc(var(--header-h-compact)+32px)]">
                 <p className="text-[0.8125rem] font-semibold tracking-[0.18em] text-wood uppercase">Índice</p>
                 <ol className="mt-4 space-y-1 text-[0.9375rem]">
@@ -116,7 +116,7 @@ export function LegalPageView({ page }: { page: LegalPage }) {
                 </ol>
               </div>
             </nav>
-            <article className="prose-legal lg:col-span-8 lg:col-start-5">
+            <article className="prose-legal min-w-0 lg:col-span-8 lg:col-start-5">
               {page.sections.map((s) => (
                 <section key={s.id} id={s.id} aria-labelledby={`${s.id}-t`} className="first:[&>h2]:mt-0">
                   <h2 id={`${s.id}-t`}>{s.title}</h2>
