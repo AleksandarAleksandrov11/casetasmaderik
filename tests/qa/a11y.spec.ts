@@ -16,6 +16,8 @@ for (const route of ROUTES) {
       await page.goto(route.path);
       await dismissCookies(page);
       await scrollThrough(page);
+      // Que terminen las transiciones de revelado antes de medir contrastes
+      await page.waitForTimeout(1500);
       const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
       await context.close();

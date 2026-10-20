@@ -15,7 +15,12 @@ function CookieTable() {
           <h3>{cat.title}</h3>
           <p>{cat.description}</p>
           {cat.rows.length > 0 ? (
-            <div className="-mx-1 overflow-x-auto px-1">
+            <div
+              className="-mx-1 overflow-x-auto px-1"
+              tabIndex={0}
+              role="region"
+              aria-label={`Tabla de cookies ${cat.title.toLowerCase()}`}
+            >
               <table>
                 <caption className="sr-only">Cookies {cat.title.toLowerCase()}</caption>
                 <thead>
