@@ -5,7 +5,6 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import CasetaCanvas from '@/components/three/scene/CasetaCanvas';
 import { CasetaModel } from '@/components/three/caseta/CasetaModel';
-import { Dimensions } from '@/components/three/caseta/Dimensions';
 import { Studio } from '@/components/three/scene/Studio';
 import { PerfProbe } from '@/components/three/scene/PerfProbe';
 import { applyShot } from '@/components/three/scene/camera';
@@ -51,8 +50,7 @@ export default function HeroScene({
       className="caseta-canvas"
     >
       <Rig shotRef={shotRef} fit={fit} />
-      <CasetaModel stateRef={stateRef} quality={quality} />
-      <Dimensions stateRef={stateRef} />
+      <CasetaModel stateRef={stateRef} quality={quality} showDimensions />
       <Studio stateRef={stateRef} quality={quality} />
       {onSlow && !capture ? <PerfProbe onSlow={onSlow} /> : null}
     </CasetaCanvas>

@@ -189,7 +189,7 @@ export function HeroStage({
               stateRef={stateRef}
               shotRef={shotRef}
               onInvalidate={onInvalidate}
-              fit={shots.fit}
+              fit={posterKey === 'og' ? 'h' : shots.fit}
               quality={forceHigh ? 'high' : quality}
               dpr={dpr}
               active={inView || capture}

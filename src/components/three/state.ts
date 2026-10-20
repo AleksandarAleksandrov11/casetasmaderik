@@ -39,11 +39,41 @@ export interface CameraShot {
   /** Posición del objetivo en pantalla (0..1). */
   ax: number;
   ay: number;
-  /** Escala: metros visibles en la dimensión de ajuste (alto o ancho del lienzo). */
+  /** Escala: metros que ocupan la unidad de encuadre (alto, ancho o u del contenedor). */
   span: number;
 }
 
-export type FitMode = 'h' | 'w';
+/**
+ * Encuadre respecto al contenedor de la web (máx. 1440 px más márgenes):
+ * la unidad de escala es u = min(alto * hk, anchoÚtil * wk) y el ancla
+ * horizontal se mide dentro del ancho útil del contenedor. Así la caseta
+ * guarda proporción con el texto en 4:3, 16:9 y pantallas de 2560 px.
+ */
+export interface FrameFit {
+  hk: number;
+  wk: number;
+}
+
+/** 'h': escala por alto; 'w': por ancho; FrameFit: por el contenedor. */
+export type FitMode = 'h' | 'w' | FrameFit;
+
+/** Mismas medidas que .container-site (globals.css). */
+export const CONTAINER_MAX = 1440;
+
+export function gutterPx(w: number): number {
+  return Math.min(56, Math.max(20, w * 0.04));
+}
+
+/** Unidad de escala (px) y ancla horizontal (px) para un lienzo de w × h px CSS. */
+export function frameMetrics(fit: FitMode, ax: number, w: number, h: number): { u: number; x: number } {
+  if (fit === 'h') return { u: h, x: ax * w };
+  if (fit === 'w') return { u: w, x: ax * w };
+  const g = gutterPx(w);
+  const container = Math.min(w, CONTAINER_MAX + 2 * g);
+  const content = container - 2 * g;
+  const offset = (w - container) / 2 + g;
+  return { u: Math.min(h * fit.hk, content * fit.wk), x: offset + ax * content };
+}
 
 /** Campo de visión vertical de referencia (grados). */
 export const BASE_FOV = 30;

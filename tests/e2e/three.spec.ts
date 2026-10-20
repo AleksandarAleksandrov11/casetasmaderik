@@ -204,7 +204,10 @@ test.describe('3D de la caseta', () => {
     const fps = (result.frames * 1000) / result.ms;
     info.annotations.push({ type: 'fps', description: `${fps.toFixed(1)} fps (${renderer})` });
     console.log(`fps medidos: ${fps.toFixed(1)} con ${renderer}`);
-    test.skip(/swiftshader/i.test(renderer), `WebGL por software (SwiftShader): ${fps.toFixed(1)} fps, no representativo`);
+    test.skip(
+      /swiftshader/i.test(renderer),
+      `WebGL por software (SwiftShader): ${fps.toFixed(1)} fps, no representativo`,
+    );
     expect(fps).toBeGreaterThanOrEqual(MIN_FPS);
   });
 

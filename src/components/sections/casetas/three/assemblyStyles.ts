@@ -42,7 +42,8 @@ export const assemblyCss = /* css */ `
   height: 100%;
   flex-direction: column;
   padding-top: calc(var(--header-h-compact) + var(--safe-top) + 12px);
-  padding-bottom: calc(20px + var(--safe-bottom));
+  /* Deja sitio al botón flotante de WhatsApp en móvil */
+  padding-bottom: calc(84px + var(--safe-bottom));
   pointer-events: none;
 }
 

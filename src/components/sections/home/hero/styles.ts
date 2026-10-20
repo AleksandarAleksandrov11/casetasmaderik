@@ -194,7 +194,12 @@ html.js-motion .hero__scroll-line::after {
   }
 
   .hero__title {
-    font-size: clamp(2.4rem, min(5.35vw, 10.6svh), 7.5rem);
+    /* También limitado por el ancho útil del contenedor (pantallas muy anchas) */
+    font-size: clamp(
+      2.4rem,
+      min(5.35vw, 10.6svh, calc((min(100vw, 1440px + 2 * var(--gutter)) - 2 * var(--gutter)) * 0.058)),
+      7.5rem
+    );
   }
 
   .hero__scroll {

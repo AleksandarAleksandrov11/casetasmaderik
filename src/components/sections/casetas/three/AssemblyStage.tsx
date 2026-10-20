@@ -154,7 +154,7 @@ export function AssemblyStage({
                 stateRef={stateRef}
                 shotRef={shotRef}
                 animRef={animRef}
-                fit={capture || wide ? 'h' : 'w'}
+                fit={capture ? 'h' : wide ? ASSEMBLY_DESKTOP.fit : ASSEMBLY_MOBILE.fit}
                 quality={quality}
                 dpr={dpr}
                 active={inView || capture}

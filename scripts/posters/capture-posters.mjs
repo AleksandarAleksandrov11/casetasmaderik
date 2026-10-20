@@ -30,11 +30,20 @@ const arg = (name, def) => {
   return i >= 0 ? args[i + 1] : def;
 };
 const BASE = arg('base', process.env.POSTER_BASE ?? 'http://localhost:3400');
-const ONLY = arg('only', '')
-  .split(',')
-  .filter(Boolean);
+const ONLY = arg('only', '').split(',').filter(Boolean);
 const CHROMIUM = process.env.PW_CHROMIUM_PATH ?? '/opt/pw-browsers/chromium';
 const CREAM = { r: 251, g: 248, b: 243, alpha: 1 };
+
+/** Igual que frameMetrics (src/components/three/state.ts), en px CSS. */
+function frameMetrics(fit, ax, w, h) {
+  if (fit === 'h') return { u: h, x: ax * w };
+  if (fit === 'w') return { u: w, x: ax * w };
+  const g = Math.min(56, Math.max(20, w * 0.04));
+  const container = Math.min(w, 1440 + 2 * g);
+  const content = container - 2 * g;
+  const offset = (w - container) / 2 + g;
+  return { u: Math.min(h * fit.hk, content * fit.wk), x: offset + ax * content };
+}
 
 /**
  * Cada poster: página y clave de captura, ventana, encuadre (ancla y ajuste,
@@ -48,8 +57,9 @@ const JOBS = [
     viewport: { width: 1600, height: 1000 },
     dpr: 2,
     selector: '.hero__visual canvas',
-    fit: 'h',
-    ax: 0.725,
+    // Debe coincidir con DESKTOP en src/components/sections/home/hero/shots.ts
+    fit: { hk: 1, wk: 0.65 },
+    ax: 0.75,
     ay: 0.585,
     maxWidth: 1800,
   },
@@ -61,9 +71,10 @@ const JOBS = [
     dpr: 3,
     mobile: true,
     selector: '.hero__visual canvas',
-    fit: 'w',
+    // Debe coincidir con MOBILE en shots.ts
+    fit: { hk: 0.56, wk: 1 },
     ax: 0.5,
-    ay: 0.75,
+    ay: 0.735,
     maxWidth: 1200,
   },
   {
@@ -135,9 +146,13 @@ async function capture(browser, job) {
     } catch {}
   });
   await page.goto(BASE + job.url, { waitUntil: 'load' });
-  await page.waitForFunction(() => window.__casetaReady === true && typeof window.__casetaCapture === 'function', null, {
-    timeout: 120_000,
-  });
+  await page.waitForFunction(
+    () => window.__casetaReady === true && typeof window.__casetaCapture === 'function',
+    null,
+    {
+      timeout: 120_000,
+    },
+  );
   // Un par de frames más para que todo (sombras, entorno) esté asentado
   await page.waitForTimeout(800);
   const dataUrl = await page.evaluate(() => {
@@ -153,10 +168,22 @@ async function encode(img, name, width, maxWidth) {
   const w = Math.min(width, maxWidth);
   const big = img.clone().resize({ width: w });
   const sm = img.clone().resize({ width: Math.round(w / 2) });
-  await big.clone().avif({ quality: 58, effort: 6 }).toFile(join(OUT, `${name}.avif`));
-  await sm.clone().avif({ quality: 58, effort: 6 }).toFile(join(OUT, `${name}-sm.avif`));
-  await big.clone().webp({ quality: 82, alphaQuality: 90, effort: 6 }).toFile(join(OUT, `${name}.webp`));
-  await sm.clone().webp({ quality: 82, alphaQuality: 90, effort: 6 }).toFile(join(OUT, `${name}-sm.webp`));
+  await big
+    .clone()
+    .avif({ quality: 58, effort: 6 })
+    .toFile(join(OUT, `${name}.avif`));
+  await sm
+    .clone()
+    .avif({ quality: 58, effort: 6 })
+    .toFile(join(OUT, `${name}-sm.avif`));
+  await big
+    .clone()
+    .webp({ quality: 82, alphaQuality: 90, effort: 6 })
+    .toFile(join(OUT, `${name}.webp`));
+  await sm
+    .clone()
+    .webp({ quality: 82, alphaQuality: 90, effort: 6 })
+    .toFile(join(OUT, `${name}-sm.webp`));
   return { width: w, smWidth: Math.round(w / 2) };
 }
 
@@ -178,11 +205,17 @@ async function main() {
 
       if (job.og) {
         // Base de Open Graph: caseta de tres cuartos sobre crema, aire a la izquierda
-        await sharp({ create: { width: W, height: H, channels: 4, background: CREAM } })
+        const flat = await sharp({ create: { width: W, height: H, channels: 4, background: CREAM } })
           .composite([{ input: png }])
-          .png({ compressionLevel: 9 })
+          .png()
+          .toBuffer();
+        // El lienzo puede medir un píxel menos por redondeo: tamaño exacto de Open Graph
+        await sharp(flat)
+          .resize(1200, 630, { fit: 'cover', position: 'right' })
+          .flatten({ background: CREAM })
+          .png({ compressionLevel: 9, palette: false })
           .toFile(join(OUT, `${job.file}.png`));
-        console.log(`  ${job.file}.png ${W}x${H}`);
+        console.log(`  ${job.file}.png 1200x630 (lienzo ${W}x${H})`);
         continue;
       }
 
@@ -202,9 +235,9 @@ async function main() {
         const tw = Math.max(cw, Math.round((ch * 4) / 3));
         const th = Math.round((tw * 3) / 4);
         const buf = await img.png().toBuffer();
-        img = sharp({ create: { width: tw, height: th, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([
-          { input: buf, left: Math.round((tw - cw) / 2), top: Math.round((th - ch) / 2) },
-        ]);
+        img = sharp({
+          create: { width: tw, height: th, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+        }).composite([{ input: buf, left: Math.round((tw - cw) / 2), top: Math.round((th - ch) / 2) }]);
         const out = await encode(sharp(await img.png().toBuffer()), job.file, tw, job.maxWidth);
         manifest[job.key] = {
           src: `/images/posters/${job.file}.avif`,
@@ -226,9 +259,10 @@ async function main() {
         continue;
       }
 
-      const unit = job.fit === 'h' ? H : W;
-      const ax = job.ax * W;
-      const ay = job.ay * H;
+      // Recorte en px CSS relativo al ancla, en unidades de encuadre u
+      const dpr = job.dpr;
+      const { u, x: ax } = frameMetrics(job.fit, job.ax, W / dpr, H / dpr);
+      const ay = (job.ay * H) / dpr;
       const out = await encode(img, job.file, cw, job.maxWidth);
       manifest[job.key] = {
         src: `/images/posters/${job.file}.avif`,
@@ -241,10 +275,10 @@ async function main() {
         fit: job.fit,
         ax: job.ax,
         ay: job.ay,
-        x: +((left - ax) / unit).toFixed(5),
-        y: +((top - ay) / unit).toFixed(5),
-        w: +(cw / unit).toFixed(5),
-        h: +(ch / unit).toFixed(5),
+        x: +((left / dpr - ax) / u).toFixed(5),
+        y: +((top / dpr - ay) / u).toFixed(5),
+        w: +(cw / dpr / u).toFixed(5),
+        h: +(ch / dpr / u).toFixed(5),
       };
       console.log(`  ${job.file} recorte ${cw}x${ch} de ${W}x${H}`);
     }
@@ -277,7 +311,8 @@ export interface PosterEntry {
   width: number;
   height: number;
   smWidth: number;
-  fit: 'h' | 'w';
+  /** 'h' por alto, 'w' por ancho, u otro objeto: encuadre por el contenedor (ver frameMetrics). */
+  fit: 'h' | 'w' | { hk: number; wk: number };
   ax: number;
   ay: number;
   x: number;

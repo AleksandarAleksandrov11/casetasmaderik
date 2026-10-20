@@ -11,7 +11,8 @@ export interface PosterEntry {
   width: number;
   height: number;
   smWidth: number;
-  fit: 'h' | 'w';
+  /** 'h' por alto, 'w' por ancho, u otro objeto: encuadre por el contenedor (ver frameMetrics). */
+  fit: 'h' | 'w' | { hk: number; wk: number };
   ax: number;
   ay: number;
   x: number;
@@ -29,16 +30,19 @@ export const posters: Record<
     srcSm: '/images/posters/hero-poster-desktop-sm.avif',
     webp: '/images/posters/hero-poster-desktop.webp',
     webpSm: '/images/posters/hero-poster-desktop-sm.webp',
-    width: 1706,
-    height: 1172,
-    smWidth: 853,
-    fit: 'h',
-    ax: 0.725,
+    width: 1655,
+    height: 1102,
+    smWidth: 828,
+    fit: {
+      hk: 1,
+      wk: 0.65,
+    },
+    ax: 0.75,
     ay: 0.585,
-    x: -0.413,
-    y: -0.265,
-    w: 0.853,
-    h: 0.586,
+    x: -0.414,
+    y: -0.26656,
+    w: 0.88408,
+    h: 0.58868,
   },
   heroMobile: {
     src: '/images/posters/hero-poster-mobile.avif',
@@ -46,15 +50,18 @@ export const posters: Record<
     webp: '/images/posters/hero-poster-mobile.webp',
     webpSm: '/images/posters/hero-poster-mobile-sm.webp',
     width: 1200,
-    height: 813,
+    height: 814,
     smWidth: 600,
-    fit: 'w',
+    fit: {
+      hk: 0.56,
+      wk: 1,
+    },
     ax: 0.5,
-    ay: 0.75,
-    x: -0.46819,
-    y: -0.30896,
-    w: 0.96819,
-    h: 0.65632,
+    ay: 0.735,
+    x: -0.51711,
+    y: -0.34074,
+    w: 1.06843,
+    h: 0.72455,
   },
   viewer: {
     src: '/images/posters/caseta-poster.avif',

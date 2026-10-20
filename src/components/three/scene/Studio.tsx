@@ -9,7 +9,7 @@ import { lerp, type CasetaState, type Quality } from '../state';
 const KEY_DAY = new THREE.Color('#fff0dc');
 const KEY_NIGHT = new THREE.Color('#9db4d0');
 const SKY_DAY = new THREE.Color('#fff8ee');
-const SKY_NIGHT = new THREE.Color('#33465c');
+const SKY_NIGHT = new THREE.Color('#283544');
 const GROUND_DAY = new THREE.Color('#d8c3a5');
 const GROUND_NIGHT = new THREE.Color('#1a1712');
 
@@ -45,7 +45,7 @@ export const Studio = memo(function Studio({
   useFrame((state) => {
     const n = stateRef?.current?.night ?? 0;
     state.scene.environmentIntensity = lerp(1, 0.14, n);
-    if (moon.current) moon.current.intensity = n * 1.1;
+    if (moon.current) moon.current.intensity = n * 0.75;
     const k = key.current;
     if (k) {
       k.intensity = lerp(2.4, 0.3, n);
@@ -53,7 +53,7 @@ export const Studio = memo(function Studio({
     }
     const h = hemi.current;
     if (h) {
-      h.intensity = lerp(0.42, 0.75, n);
+      h.intensity = lerp(0.42, 0.62, n);
       h.color.lerpColors(SKY_DAY, SKY_NIGHT, n);
       h.groundColor.lerpColors(GROUND_DAY, GROUND_NIGHT, n);
     }

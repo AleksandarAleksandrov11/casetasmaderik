@@ -17,6 +17,9 @@ interface DimDef {
   /** Líneas de referencia desde la caseta hasta la cota. */
   ext: [V3, V3][];
   labelAt: V3;
+  /** Desplazamiento de la etiqueta en px de pantalla y alineación (a la izquierda del punto o centrada). */
+  shift?: [number, number];
+  align?: 'center' | 'left';
   range: [number, number];
 }
 
@@ -75,7 +78,9 @@ export const DIMENSIONS: DimDef[] = [
         [-HALF_L - 0.02, 0.002, -HALF_W - 0.65],
       ],
     ],
-    labelAt: [-HALF_L - 0.02, TOTAL_H / 2, -HALF_W - 1.02],
+    labelAt: [-HALF_L - 0.02, TOTAL_H / 2, -HALF_W - 0.55],
+    shift: [-12, 0],
+    align: 'left',
     range: [0.5, 1],
   },
 ];
@@ -132,7 +137,9 @@ export function Dimensions({ stateRef, color = '#F3EDE4' }: DimensionsProps) {
       const x = ((_v.x + 1) / 2) * width;
       const y = ((1 - _v.y) / 2) * height + (1 - lt) * 8;
       el.style.opacity = String(lt);
-      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -50%)`;
+      const [sx, sy] = d.shift ?? [0, 0];
+      const tx = d.align === 'left' ? '-100%' : '-50%';
+      el.style.transform = `translate3d(${(x + sx).toFixed(1)}px, ${(y + sy).toFixed(1)}px, 0) translate(${tx}, -50%)`;
     });
   });
 

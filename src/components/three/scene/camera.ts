@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { BASE_FOV, lerp, type CameraShot, type FitMode } from '../state';
+import { BASE_FOV, frameMetrics, lerp, type CameraShot, type FitMode } from '../state';
 
 const DEG = Math.PI / 180;
 
@@ -21,10 +21,12 @@ export function applyShot(cam: THREE.PerspectiveCamera, s: CameraShot, w: number
   cam.lookAt(s.tx, s.ty, 0);
   cam.fov = BASE_FOV;
   const visible = 2 * s.dist * Math.tan((BASE_FOV * DEG) / 2);
-  const spanH = fit === 'h' ? s.span : (s.span * h) / Math.max(w, 1);
+  // `span` metros ocupan la unidad u (px); el alto visible es span * h / u
+  const { u, x } = frameMetrics(fit, s.ax, w, h);
+  const spanH = (s.span * h) / Math.max(u, 1);
   cam.zoom = visible / spanH;
   cam.aspect = w / Math.max(h, 1);
-  cam.setViewOffset(w, h, w * (0.5 - s.ax), h * (0.5 - s.ay), w, h);
+  cam.setViewOffset(w, h, w * 0.5 - x, h * (0.5 - s.ay), w, h);
   cam.updateProjectionMatrix();
 }
 

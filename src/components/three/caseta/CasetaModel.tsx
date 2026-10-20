@@ -6,6 +6,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { buildCaseta, type WallId } from './build';
 import { createMaterials } from './materials';
 import { createCasetaTextures, loadTextureSources } from './textures';
+import { Dimensions } from './Dimensions';
 import { BASE_H, COUNTER_T, FRAME_W, HALF_W, WIN_Y0 } from './spec';
 import {
   bracketAngle,
@@ -28,6 +29,10 @@ export interface CasetaModelProps {
   night?: number;
   /** Despiece: 1 = plegada, 0 = montada. */
   exploded?: number;
+  /**
+   * Cotas 2,90 / 2,00 / 2,47 m. Con props se animan solas; con `stateRef`
+   * solo se montan y su aparición la marca `stateRef.current.dims`.
+   */
   showDimensions?: boolean;
   quality?: Quality;
   /** Sombra suave bajo la base que se mueve con la caseta (escenas de montaje). */
@@ -106,7 +111,9 @@ export function CasetaModel({
     const t = 0.018;
     const k = t * (1 + Math.SQRT2);
     const s = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(a, 0), new THREE.Vector2(0, -a)]);
-    s.holes.push(new THREE.Path([new THREE.Vector2(t, -t), new THREE.Vector2(t, -a + k), new THREE.Vector2(a - k, -t)]));
+    s.holes.push(
+      new THREE.Path([new THREE.Vector2(t, -t), new THREE.Vector2(t, -a + k), new THREE.Vector2(a - k, -t)]),
+    );
     const g = new THREE.ExtrudeGeometry(s, { depth: 0.01, bevelEnabled: false });
     g.rotateY(-Math.PI / 2);
     g.translate(0.005, 0, 0);
@@ -311,6 +318,7 @@ export function CasetaModel({
 
   return (
     <group name="caseta">
+      {showDimensions ? <Dimensions stateRef={stateRef ?? internal} /> : null}
       <group name="base">
         <mesh name="base-metal" geometry={build.baseMetal} material={mats.metal} receiveShadow />
         <mesh name="floor" geometry={build.baseWood} material={mats.wood} receiveShadow />
