@@ -108,7 +108,7 @@ export function LegalPageView({ page }: { page: LegalPage }) {
                 <ol className="mt-4 space-y-1 text-[0.9375rem]">
                   {page.sections.map((s) => (
                     <li key={s.id}>
-                      <a href={`#${s.id}`} className="inline-flex min-h-[40px] items-center text-stone hover:text-ink">
+                      <a href={`#${s.id}`} className="inline-flex min-h-[44px] items-center text-stone hover:text-ink">
                         {s.title}
                       </a>
                     </li>

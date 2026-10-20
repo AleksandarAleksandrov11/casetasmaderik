@@ -7,7 +7,7 @@ import { FooterWordmark } from './FooterWordmark';
 import { emailHref, legalNav, nav, phoneHref, serviceAreaText, site, whatsappHref } from '@/content/site';
 
 const linkClass =
-  'inline-flex min-h-[44px] items-center text-cream/90 transition-colors duration-300 hover:text-wood-light';
+  'inline-flex min-h-[44px] min-w-[44px] items-center text-cream/90 transition-colors duration-300 hover:text-wood-light';
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (

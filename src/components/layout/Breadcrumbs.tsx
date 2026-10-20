@@ -17,7 +17,7 @@ export function Breadcrumbs({ items, tone = 'light' }: { items: Crumb[]; tone?: 
                 </span>
               ) : (
                 <>
-                  <Link href={item.path} className="inline-flex min-h-[44px] items-center underline-offset-4 hover:underline">
+                  <Link href={item.path} className="inline-flex min-h-[44px] min-w-[44px] items-center underline-offset-4 hover:underline">
                     {item.name}
                   </Link>
                   <span aria-hidden="true" className="opacity-60">

@@ -87,6 +87,27 @@ export function MotionRoot() {
       );
       revealEls.forEach((el) => io.observe(el));
       cleanups.push(() => io.disconnect());
+
+      // Si el scroll salta por encima de un elemento (ancla, scroll muy rápido),
+      // IntersectionObserver no avisa: se revela todo lo que ya ha quedado arriba
+      let frame = 0;
+      const sweep = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          const limit = window.innerHeight;
+          revealEls.forEach((el) => {
+            if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < limit) {
+              el.classList.add('is-in');
+              io.unobserve(el);
+            }
+          });
+        });
+      };
+      window.addEventListener('scroll', sweep, { passive: true });
+      cleanups.push(() => {
+        cancelAnimationFrame(frame);
+        window.removeEventListener('scroll', sweep);
+      });
     } else {
       revealEls.forEach((el) => el.classList.add('is-in'));
     }

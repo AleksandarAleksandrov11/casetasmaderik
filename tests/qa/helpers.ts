@@ -14,6 +14,9 @@ export function watch(page: Page): Problems {
     const err = r.failure()?.errorText ?? '';
     // Las precargas de Next que se cancelan al cerrar la página no son fallos reales
     if (err.includes('ERR_ABORTED') && /[?&]_rsc=/.test(r.url())) return;
+    // La captura a página completa cambia el viewport y el navegador cancela la
+    // imagen responsive en curso para pedir otra: no es un fallo del sitio
+    if (err.includes('ERR_ABORTED') && r.url().includes('/_next/image')) return;
     problems.network.push(`${r.method()} ${r.url()} ${err}`);
   });
   page.on('response', (r) => {

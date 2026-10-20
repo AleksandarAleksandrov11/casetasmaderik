@@ -28,11 +28,10 @@ for (const route of ROUTES) {
       await dismissCookies(page);
       await scrollThrough(page);
 
-      const pending = await page.evaluate(
-        () =>
-          Array.from(document.querySelectorAll('[data-reveal], [data-reveal-image], [data-split]')).filter(
-            (e) => !e.classList.contains('is-in') && !e.classList.contains('is-split'),
-          ).length,
+      const pending = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('[data-reveal], [data-reveal-image], [data-split]'))
+          .filter((e) => !e.classList.contains('is-in') && !e.classList.contains('is-split'))
+          .map((e) => `${e.tagName.toLowerCase()} "${(e.textContent ?? '').trim().slice(0, 30)}"`),
       );
       const overflow = await horizontalOverflow(page);
       const clipped = await clippedText(page);
@@ -46,9 +45,12 @@ for (const route of ROUTES) {
       expect.soft(overflow.overflow, 'scrollWidth > innerWidth').toBe(false);
       expect.soft(clipped, 'Texto cortado').toEqual([]);
       expect.soft(small, 'Objetivos táctiles < 44 px').toEqual([]);
-      expect.soft(pending, 'Revelados pendientes tras recorrer la página').toBe(0);
+      expect.soft(pending, 'Revelados pendientes tras recorrer la página').toEqual([]);
       expect.soft([...problems.csp, ...csp], 'Violaciones de CSP').toEqual([]);
-      expect.soft(problems.console, 'Errores de consola').toEqual([]);
+      // En la 404 el propio documento responde 404 y Chromium lo anota en consola
+      const consoleErrors =
+        'status' in route ? problems.console.filter((m) => !m.includes('status of 404')) : problems.console;
+      expect.soft(consoleErrors, 'Errores de consola').toEqual([]);
       expect.soft(problems.network, 'Peticiones fallidas').toEqual([]);
     });
   }
