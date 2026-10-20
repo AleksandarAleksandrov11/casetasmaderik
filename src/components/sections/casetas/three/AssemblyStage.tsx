@@ -15,7 +15,8 @@ import {
 import { MEDIA } from '@/lib/motion';
 import { markTooSlowFor3D } from '@/lib/device';
 import { loadGsap } from '@/lib/gsap-loader';
-import { ASSEMBLY_DESKTOP, ASSEMBLY_MOBILE, ASSEMBLY_POSTER, ASSEMBLY_WIDE, STEP_AT } from './assemblyShots';
+import { ASSEMBLY_DESKTOP, ASSEMBLY_MOBILE, ASSEMBLY_POSTER, STEP_AT } from './assemblyShots';
+import { WIDE } from './media';
 import type { AssemblyAnim } from './AssemblyScene';
 
 const AssemblyScene = dynamic(() => import('./AssemblyScene'), { ssr: false });
@@ -47,7 +48,7 @@ export function AssemblyStage({
   const can3D = useCan3D();
   const posterKey = usePosterKey();
   const capture = posterKey === 'assembly';
-  const wide = useMedia(ASSEMBLY_WIDE);
+  const wide = useMedia(WIDE);
   const big = useMedia(MEDIA.desktop);
   const fine = useMedia(MEDIA.finePointer);
   const forceHigh = useDevFlag('hq') || capture;
@@ -90,7 +91,7 @@ export function AssemblyStage({
       .then(({ gsap }) => {
         if (cancelled) return;
         const mm = gsap.matchMedia();
-        mm.add({ wide: ASSEMBLY_WIDE, all: 'all' }, (ctx) => {
+        mm.add({ wide: WIDE, all: 'all' }, (ctx) => {
           const isWide = Boolean(ctx.conditions?.wide);
           const S = isWide ? ASSEMBLY_DESKTOP : ASSEMBLY_MOBILE;
           const st = stateRef.current;

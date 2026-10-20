@@ -7,7 +7,8 @@ export const casetasMeta = {
 };
 
 export const casetasHero = {
-  title: 'Caseta de madera para ferias y eventos',
+  /** Por frases: el titular solo se parte entre ellas ("Caseta de madera para ferias y eventos"). */
+  title: ['Caseta', 'de madera', 'para ferias', 'y eventos'],
   text: '2,90 × 2,00 × 2,47 m. Tres ventanas con mostrador, puerta de acceso y cubierta impermeabilizada.',
   primary: { label: 'Pedir presupuesto', href: '/contacto' },
   hint: 'Arrastra para girar',
@@ -114,10 +115,11 @@ export const casetasConfigurator = {
   title: '¿Cuántas casetas necesitas?',
   text: 'Elige una opción y te llevamos al formulario con el dato ya puesto.',
   options: [
-    { id: '1', label: '1', value: 1, draw: 1 },
-    { id: '2-5', label: '2 a 5', value: 3, draw: 4 },
-    { id: '6-10', label: '6 a 10', value: 8, draw: 8 },
-    { id: '10+', label: 'Más de 10', value: 12, draw: 12 },
+    // value: casetas que se precargan en el formulario y que dibuja la ilustración
+    { id: '1', label: '1', value: 1 },
+    { id: '2-5', label: '2 a 5', value: 3 },
+    { id: '6-10', label: '6 a 10', value: 8 },
+    { id: '10+', label: 'Más de 10', value: 12 },
   ],
   cta: 'Pedir presupuesto',
 };

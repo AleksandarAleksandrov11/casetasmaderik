@@ -1,3 +1,5 @@
+import { WIDE } from './media';
+
 /**
  * Estilos del montaje despiezado de /casetas.
  * Se sirven en línea con <style precedence> (React 19) desde los componentes
@@ -176,7 +178,7 @@ export const assemblyCss = /* css */ `
 }
 
 /* Escritorio y apaisado */
-@media (min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4) {
+@media ${WIDE} {
   .assembly[data-mode='3d'] {
     height: calc(100svh + 280vh);
   }

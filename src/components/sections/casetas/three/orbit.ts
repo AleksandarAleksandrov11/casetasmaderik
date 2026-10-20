@@ -19,13 +19,6 @@ export const ORBIT_LIMITS = { elMin: 3, elMax: 36, zoomMin: 0.85, zoomMax: 1.7 }
 /** Vista inicial (también es el encuadre del poster). */
 export const VIEWER_START = { az: 32, el: 9, zoom: 1 } as const;
 
-/**
- * Caja apaisada con encuadre por alto (escritorio y móvil en horizontal).
- * Igual que la consulta WIDE de Poster.tsx y las reglas de viewerStyles.ts.
- */
-export const VIEWER_WIDE =
-  '(min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4)';
-
 export function createOrbit(): ViewerOrbit {
   const { az, el, zoom } = VIEWER_START;
   return { az, el, zoom, azT: az, elT: el, zoomT: zoom, auto: true };

@@ -16,10 +16,15 @@ const PLAN_CLASS = 'plan-svg mx-auto max-w-[340px]';
 const viewBox = (x: number, y: number) => `${x} ${y} ${FRAME.w} ${FRAME.h}`;
 
 /**
- * Tamaño de las cotas en unidades del plano (sustituye a los 15 de
- * globals.css): con la escala común quedan entre 12 y 16 px en pantalla.
+ * Cotas a 20 unidades del plano (en lugar de los 15 de globals.css): con la
+ * escala común miden de 12,5 a 17 px en pantalla. Una sola regla, más
+ * específica que la de globals.css; CasetasSpecs la sirve en línea.
  */
-const LABEL = { fontSize: 19 };
+export const plansCss = /* css */ `
+.plan .plan-svg .plan-dim__label {
+  font-size: 20px;
+}
+`;
 
 const BOARD = 12;
 
@@ -59,7 +64,7 @@ function DimH({ x1, x2, y, label }: { x1: number; x2: number; y: number; label: 
       <line x1={x1} x2={x1} y1={y - 7} y2={y + 7} className="plan-dim__tick" />
       <line x1={x2} x2={x2} y1={y - 7} y2={y + 7} className="plan-dim__tick" />
       <line x1={x1} x2={x2} y1={y} y2={y} pathLength={1} className="plan-dim__line" />
-      <text x={(x1 + x2) / 2} y={y + 22} textAnchor="middle" className="plan-dim__label" style={LABEL}>
+      <text x={(x1 + x2) / 2} y={y + 22} textAnchor="middle" className="plan-dim__label">
         {label}
       </text>
     </g>
@@ -78,7 +83,6 @@ function DimV({ y1, y2, x, label }: { y1: number; y2: number; x: number; label: 
         textAnchor="middle"
         transform={`rotate(-90 ${x + 22} ${(y1 + y2) / 2})`}
         className="plan-dim__label"
-        style={LABEL}
       >
         {label}
       </text>

@@ -20,17 +20,35 @@ export const viewerCss = /* css */ `
 }
 
 /*
- * El H1 usa la escala H1 de la web (text-h1), siempre por encima de los H2.
- * 14ch deja "Caseta de madera / para ferias y eventos" en dos líneas cuando
- * hay ancho (tableta) y tres en móvil y en la columna de escritorio.
+ * El H1 usa la escala H1 de la web, siempre por encima de los H2, y no baja
+ * de 2,6 rem (titular de hero). Va por frases que no se parten
+ * (CasetasViewerHero): 14ch lo deja en dos líneas en tableta ("Caseta de
+ * madera / para ferias y eventos"), en tres o cuatro en móvil y en cuatro en
+ * la columna de escritorio ("Caseta / de madera / para ferias / y eventos").
  */
 .viewer__title {
+  font-size: max(2.6rem, var(--fs-h1));
   max-width: 14ch;
+}
+
+/*
+ * La frase más larga ("de madera") mide unas 4,6 em: si la columna no diera
+ * para ella, el titular se reduce en lugar de desbordar. Con la rejilla de
+ * escritorio no ocurre (la escala H1 cabe desde 1024 px): es una red.
+ */
+@supports (width: 1cqi) {
+  .viewer__copy {
+    container-type: inline-size;
+  }
+
+  .viewer__title {
+    font-size: min(max(2.6rem, var(--fs-h1)), calc(100cqi / 4.75));
+  }
 }
 
 @media (min-width: 1024px) {
   .viewer__grid {
-    grid-template-columns: minmax(0, 5.25fr) minmax(0, 6.75fr);
+    grid-template-columns: minmax(0, 4.3fr) minmax(0, 7.7fr);
     align-items: center;
     gap: clamp(32px, 4vw, 72px);
     min-height: calc(100svh - var(--header-h) - clamp(48px, 7vw, 112px));
@@ -38,17 +56,24 @@ export const viewerCss = /* css */ `
 }
 
 /*
- * En dos columnas, el H1 solo se reduce si la columna no da para tres líneas:
- * "ferias y eventos", la línea más larga, mide unas 6,45 em.
+ * Sin 3D, la lista de puntos de interés va bajo la caja, en una segunda fila
+ * (subgrid): el texto se centra con la caja y no con la caja más la lista,
+ * y el botón queda a la vista en portátiles bajos. Con 3D no hay lista y la
+ * segunda fila mide cero.
  */
-@supports (width: 1cqi) {
+@supports (grid-template-rows: subgrid) {
   @media (min-width: 1024px) {
-    .viewer__copy {
-      container-type: inline-size;
+    .viewer__grid {
+      grid-template-rows: auto auto;
+      align-content: center;
+      row-gap: 0;
     }
 
-    .viewer__title {
-      font-size: min(var(--fs-h1), calc(100cqi / 6.6));
+    .viewer__media {
+      display: grid;
+      grid-row: span 2;
+      grid-template-rows: subgrid;
+      align-items: center;
     }
   }
 }
@@ -93,8 +118,9 @@ export const viewerCss = /* css */ `
   color: var(--color-cream);
 }
 
-/* Caja del visor */
+/* Caja del visor (contenedor: la pista se coloca según su alto) */
 .viewer__box {
+  container: visor / size;
   position: relative;
   overflow: hidden;
   aspect-ratio: 1 / 1;
@@ -123,17 +149,23 @@ export const viewerCss = /* css */ `
 }
 
 /*
- * El poster corta la sombra en su borde derecho. En la caja apaisada del
- * móvil en horizontal ese borde queda dentro de la caja: se funde.
+ * El poster corta la sombra en su borde derecho y, en la caja apaisada del
+ * móvil en horizontal, ese borde queda dentro de la caja. La máscara deja
+ * entera la parte alta (caseta, viseras y mostradores) y, por debajo, funde
+ * la sombra hacia la derecha desde el 80 %, ya fuera de la pared lateral:
+ * la sombra se desvanece en lugar de terminar en un corte.
  */
 .viewer__visual .caseta-poster img {
-  -webkit-mask-image: linear-gradient(to right, #000 95%, transparent);
-  mask-image: linear-gradient(to right, #000 95%, transparent);
+  --fade:
+    linear-gradient(#000 63%, transparent 63%),
+    linear-gradient(to right, #000 80%, rgb(0 0 0 / 0.45) 90%, transparent 99%);
+  -webkit-mask-image: var(--fade);
+  mask-image: var(--fade);
 }
 
 /*
- * Proporción de la caja según el encuadre (VIEWER_WIDE en ViewerStage y el
- * poster con media="wide"): cuadrada en móvil vertical, 5:4 en tableta
+ * Proporción de la caja según el encuadre (WIDE de media.ts en ViewerStage
+ * y el poster con media="wide"): cuadrada en móvil vertical, 5:4 en tableta
  * vertical (encuadre por ancho en los dos casos) y apaisada en móvil
  * horizontal y escritorio (encuadre por alto), siempre dentro de la pantalla.
  */
@@ -354,6 +386,28 @@ html.js-motion .hotspot__panel:not([hidden]) {
 
 .viewer__hint[data-hidden] {
   opacity: 0;
+}
+
+/*
+ * Si la base de la caseta llega cerca del borde inferior, la pista taparía
+ * su punto de interés: pasa arriba a la izquierda, donde siempre hay aire.
+ * Ocurre con el encuadre por ancho (móvil y tableta en vertical) y en cajas
+ * bajas (móvil en horizontal). En escritorio sigue abajo, centrada.
+ */
+.viewer__box[data-fit='w'] .viewer__hint {
+  top: 12px;
+  bottom: auto;
+  left: 12px;
+  transform: none;
+}
+
+@container visor (max-height: 440px) {
+  .viewer__hint {
+    top: 12px;
+    bottom: auto;
+    left: 12px;
+    transform: none;
+  }
 }
 
 .viewer__grid[data-night] .viewer__hint {

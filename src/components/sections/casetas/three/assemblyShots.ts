@@ -1,9 +1,6 @@
 import type { CameraShot, FrameFit } from '@/components/three/state';
 
-/** Planos del montaje despiezado (sin three). */
-export const ASSEMBLY_WIDE =
-  '(min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4)';
-
+/** Planos del montaje despiezado (sin three). Escritorio: con la consulta WIDE de media.ts. */
 export interface AssemblyShots {
   fit: FrameFit;
   start: CameraShot;

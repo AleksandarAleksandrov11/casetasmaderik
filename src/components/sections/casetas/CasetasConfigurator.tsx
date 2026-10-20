@@ -63,7 +63,7 @@ export function CasetasConfigurator() {
       </div>
       {/* En móvil, la ilustración va encima de las opciones: se ve el cambio sin que lo tape el dedo */}
       <div className="order-first lg:order-none lg:col-span-6 lg:col-start-7">
-        <CasetaLineup count={option.draw} max={12} zoom tone="dark" className="mx-auto max-w-[40rem]" />
+        <CasetaLineup count={option.value} max={12} zoom tone="dark" className="mx-auto max-w-[40rem]" />
       </div>
     </div>
   );
