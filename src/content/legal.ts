@@ -1,5 +1,5 @@
 import { GA_ID } from './cookies';
-import { site } from './site';
+import { emailHref, phoneHref, site } from './site';
 
 /**
  * Textos legales (LSSI-CE, RGPD y LOPDGDD). Todos los datos del titular salen
@@ -7,9 +7,15 @@ import { site } from './site';
  * registrales de la asociación.
  */
 
+/** Enlace dentro del texto: ruta interna (/...), mailto:, tel: o web externa (https://...). */
+export type LegalLink = { text: string; href: string };
+
+/** Fragmento de texto: cadena normal o enlace. Un párrafo es una secuencia de fragmentos. */
+export type LegalInline = string | LegalLink;
+
 export type LegalBlock =
-  | { type: 'p'; text: string }
-  | { type: 'ul'; items: string[] }
+  | { type: 'p'; text: LegalInline[] }
+  | { type: 'ul'; items: LegalInline[][] }
   | { type: 'h3'; text: string }
   | { type: 'cookie-table' }
   | { type: 'cookie-button' };
@@ -23,6 +29,8 @@ export type LegalPage = {
   description: string;
   intro: string;
   sections: LegalSection[];
+  /** CTA final propio: la última idea de la página sigue de su contenido. */
+  cta: { title: string; text: string };
 };
 
 const domicilio = site.address
@@ -31,9 +39,19 @@ const domicilio = site.address
 
 const registro = site.registry ?? 'Pendiente de publicar'; // PENDIENTE: datos registrales
 
-const p = (text: string): LegalBlock => ({ type: 'p', text });
-const ul = (...items: string[]): LegalBlock => ({ type: 'ul', items });
+const p = (...text: LegalInline[]): LegalBlock => ({ type: 'p', text });
+const ul = (...items: (LegalInline | LegalInline[])[]): LegalBlock => ({
+  type: 'ul',
+  items: items.map((i) => (Array.isArray(i) ? i : [i])),
+});
 const h3 = (text: string): LegalBlock => ({ type: 'h3', text });
+const a = (text: string, href: string): LegalLink => ({ text, href });
+
+// Enlaces que se repiten en los textos
+const email = a(site.email, emailHref);
+const telefono = a(site.phone.display, phoneHref);
+const privacidad = a('política de privacidad', '/politica-de-privacidad');
+const cookies = a('política de cookies', '/politica-de-cookies');
 
 export const avisoLegal: LegalPage = {
   path: '/aviso-legal',
@@ -52,10 +70,10 @@ export const avisoLegal: LegalPage = {
           `NIF: ${site.taxId}`,
           `Domicilio social: ${domicilio}`,
           `Datos registrales: ${registro}`,
-          `Email: ${site.email}`,
-          `Teléfono: ${site.phone.display}`,
+          ['Email: ', email],
+          ['Teléfono: ', telefono],
           `Nombre comercial: ${site.name}`,
-          `Sitio web: ${site.url}`,
+          ['Sitio web: ', a(site.url, '/')],
         ),
       ],
     },
@@ -128,7 +146,11 @@ export const avisoLegal: LegalPage = {
       title: 'Protección de datos y cookies',
       blocks: [
         p(
-          'El tratamiento de tus datos personales se explica en la política de privacidad. El uso de cookies se explica en la política de cookies.',
+          'El tratamiento de tus datos personales se explica en la ',
+          privacidad,
+          '. El uso de cookies se explica en la ',
+          cookies,
+          '.',
         ),
       ],
     },
@@ -142,6 +164,10 @@ export const avisoLegal: LegalPage = {
       ],
     },
   ],
+  cta: {
+    title: '¿Tienes alguna duda sobre estas condiciones?',
+    text: `Llámanos o escríbenos por WhatsApp. Te respondemos en ${site.responseTime}.`,
+  },
 };
 
 export const politicaPrivacidad: LegalPage = {
@@ -161,8 +187,8 @@ export const politicaPrivacidad: LegalPage = {
           `Responsable: ${site.legalName}`,
           `NIF: ${site.taxId}`,
           `Domicilio: ${domicilio}`,
-          `Email de contacto: ${site.email}`,
-          `Teléfono: ${site.phone.display}`,
+          ['Email de contacto: ', email],
+          ['Teléfono: ', telefono],
         ),
       ],
     },
@@ -179,7 +205,9 @@ export const politicaPrivacidad: LegalPage = {
         ),
         h3('Analítica, solo con tu consentimiento'),
         p(
-          'Si aceptas las cookies analíticas, recogemos datos de navegación agregados (páginas vistas, rendimiento de la web y procedencia de las visitas). Más detalle en la política de cookies.',
+          'Si aceptas las cookies analíticas, recogemos datos de navegación agregados (páginas vistas, rendimiento de la web y procedencia de las visitas). Más detalle en la ',
+          cookies,
+          '.',
         ),
       ],
     },
@@ -249,10 +277,14 @@ export const politicaPrivacidad: LegalPage = {
           'Puedes ejercer los derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad, y retirar tu consentimiento en cualquier momento.',
         ),
         p(
-          `Escríbenos a ${site.email} indicando el derecho que quieres ejercer. Si es necesario para identificarte, te pediremos información adicional.`,
+          'Escríbenos a ',
+          email,
+          ' indicando el derecho que quieres ejercer. Si es necesario para identificarte, te pediremos información adicional.',
         ),
         p(
-          'Si consideras que no hemos atendido correctamente tu solicitud, puedes presentar una reclamación ante la Agencia Española de Protección de Datos (www.aepd.es).',
+          'Si consideras que no hemos atendido correctamente tu solicitud, puedes presentar una reclamación ante la Agencia Española de Protección de Datos (',
+          a('www.aepd.es', 'https://www.aepd.es'),
+          ').',
         ),
       ],
     },
@@ -276,6 +308,10 @@ export const politicaPrivacidad: LegalPage = {
       ],
     },
   ],
+  cta: {
+    title: '¿Tienes alguna duda sobre tus datos?',
+    text: `Llámanos o escríbenos por WhatsApp y te explicamos cómo los tratamos. Te respondemos en ${site.responseTime}.`,
+  },
 };
 
 export const politicaCookies: LegalPage = {
@@ -342,12 +378,10 @@ export const politicaCookies: LegalPage = {
       ],
     },
   ],
+  cta: {
+    title: '¿Tienes alguna duda sobre las cookies?',
+    text: 'Puedes cambiar tu elección cuando quieras desde el pie de página. Para cualquier otra pregunta, llámanos o escríbenos por WhatsApp.',
+  },
 };
 
 export const legalPages = [avisoLegal, politicaPrivacidad, politicaCookies] as const;
-
-/** CTA final de las páginas legales. */
-export const legalCta = {
-  title: '¿Tienes alguna duda sobre tus datos?',
-  text: `Escríbenos a ${site.email} o llámanos. Te respondemos en ${site.responseTime}.`,
-};
