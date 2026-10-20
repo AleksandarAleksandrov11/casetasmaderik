@@ -146,7 +146,8 @@ export const cookieCategories: CategoryInfo[] = [
 export const consentTexts = {
   consentModal: {
     title: 'Cookies',
-    // Dos bloques: así el aviso, que aparece tarde, no compite como elemento LCP
+    // La segunda frase repite lo que dicen los botones: en pantallas estrechas
+    // solo la leen los lectores de pantalla (ver consent.css)
     description:
       '<span class="cc-line">Usamos cookies propias y de terceros para analizar el uso de la web y mejorar tu experiencia.</span> <span class="cc-line">Puedes aceptarlas, rechazarlas o configurarlas.</span>',
     acceptAllBtn: 'Aceptar',

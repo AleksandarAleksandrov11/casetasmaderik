@@ -5,6 +5,7 @@ import type { CookieConsentConfig } from 'vanilla-cookieconsent';
 import { CONSENT_COOKIE, CONSENT_DAYS, CONSENT_REVISION, consentTexts, cookieCategories } from '@/content/cookies';
 import { captureEntry, forgetAttribution, rememberAttribution } from '@/lib/utm';
 import { EVT } from '@/lib/events';
+import { BOT_UA, CONSENT_PENDING_CLASS } from './pending';
 import { setConsentState } from './trackEvent';
 import 'vanilla-cookieconsent/dist/cookieconsent.css';
 import './consent.css';
@@ -29,10 +30,35 @@ export function useConsent(): ConsentContextValue {
 
 type CC = typeof import('vanilla-cookieconsent');
 
-/** Altura del aviso, para reservar ese espacio al final de la página. */
+/**
+ * Publica en --consent-h la franja inferior que ocupa el aviso: del borde
+ * superior del aviso al borde inferior de la ventana. Sustituye a la
+ * estimación de globals.css. offsetTop no incluye la transformación de entrada.
+ */
 function measureBanner() {
+  const root = document.documentElement;
   const banner = document.querySelector<HTMLElement>('#cc-main .cm');
-  if (banner) document.documentElement.style.setProperty('--cc-banner-h', `${banner.offsetHeight}px`);
+  if (!banner || !root.classList.contains(CONSENT_PENDING_CLASS)) return;
+  const band = Math.max(0, Math.ceil(window.innerHeight - banner.offsetTop));
+  root.style.setProperty('--consent-h', `${band}px`);
+}
+
+/** El aviso ya no está: la página recupera todo su alto. */
+function releaseBanner() {
+  const root = document.documentElement;
+  root.classList.remove(CONSENT_PENDING_CLASS);
+  root.style.removeProperty('--consent-h');
+}
+
+let bannerObserver: ResizeObserver | null = null;
+
+function watchBanner(on: boolean) {
+  bannerObserver?.disconnect();
+  bannerObserver = null;
+  const banner = document.querySelector<HTMLElement>('#cc-main .cm');
+  if (!on || !banner || typeof ResizeObserver === 'undefined') return;
+  bannerObserver = new ResizeObserver(measureBanner);
+  bannerObserver.observe(banner);
 }
 
 /**
@@ -74,7 +100,8 @@ function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
     disablePageInteraction: false,
     cookie: { name: CONSENT_COOKIE, expiresAfterDays: CONSENT_DAYS, sameSite: 'Lax' },
     guiOptions: {
-      consentModal: { layout: 'box', position: 'bottom left', equalWeightButtons: true, flipButtons: false },
+      // Barra inferior; consent.css la convierte en hoja (móvil) o tarjeta (móvil en horizontal)
+      consentModal: { layout: 'bar', position: 'bottom', equalWeightButtons: true, flipButtons: false },
       preferencesModal: { layout: 'box', equalWeightButtons: true, flipButtons: false },
     },
     categories,
@@ -83,10 +110,14 @@ function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
       if (modalName !== 'consentModal') return;
       // El aviso no es modal: no bloquea la página ni retiene el foco
       document.querySelector('#cc-main .cm')?.setAttribute('aria-modal', 'false');
+      document.documentElement.classList.add(CONSENT_PENDING_CLASS);
       measureBanner();
+      watchBanner(true);
     },
     onModalHide: ({ modalName }) => {
-      if (modalName === 'consentModal') document.documentElement.style.removeProperty('--cc-banner-h');
+      if (modalName !== 'consentModal') return;
+      watchBanner(false);
+      releaseBanner();
     },
     onChange: ({ changedCategories }) => {
       update();
@@ -162,7 +193,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     captureEntry();
     window.addEventListener('keydown', releaseBannerFocus, true);
     window.addEventListener('resize', measureBanner);
-    const isBot = /bot|crawl|spider|slurp|teoma/i.test(navigator.userAgent);
+    const isBot = BOT_UA.test(navigator.userAgent);
     import('vanilla-cookieconsent').then((mod) => {
       if (cancelled) return;
       const lib = mod as CC;
@@ -181,15 +212,19 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         window.dispatchEvent(new CustomEvent(EVT.consent, { detail: next }));
       };
       if (isBot) {
+        releaseBanner();
         setState((s) => ({ ...s, ready: true }));
         return;
       }
       lib.run(buildConfig(lib, update)).then(() => {
-        if (!lib.validConsent()) setState((s) => ({ ...s, ready: true }));
+        // Con un consentimiento válido el aviso no llega a mostrarse
+        if (lib.validConsent()) releaseBanner();
+        else setState((s) => ({ ...s, ready: true }));
       });
-    });
+    }, releaseBanner);
     return () => {
       cancelled = true;
+      watchBanner(false);
       window.removeEventListener('keydown', releaseBannerFocus, true);
       window.removeEventListener('resize', measureBanner);
     };

@@ -18,13 +18,13 @@ export function WhatsAppIcon({ className }: { className?: string }) {
 
 /**
  * Botón flotante de WhatsApp. Aparece tras el hero (o el primer pantallazo), se oculta en /contacto y
- * cuando el footer está a la vista, y sube por encima del aviso de cookies.
+ * cuando el footer está a la vista, y sube por encima del aviso de cookies: --consent-h es la franja
+ * inferior que ocupa el aviso mientras está abierto (0 si no hay aviso).
  */
 export function WhatsAppFloat() {
   const pathname = usePathname();
   const [pastHero, setPastHero] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
-  const [offset, setOffset] = useState(0);
 
   // Con hero ([data-hero], Inicio): visible cuando el hero ha salido por
   // arriba. En el resto de páginas, tras el primer pantallazo.
@@ -52,29 +52,6 @@ export function WhatsAppFloat() {
     return () => io.disconnect();
   }, [pathname]);
 
-  // Si el aviso de cookies está abierto y ocupa la parte inferior, se sube
-  useEffect(() => {
-    const root = document.documentElement;
-    const measure = () => {
-      const banner = document.querySelector<HTMLElement>('#cc-main .cm');
-      if (!root.classList.contains('show--consent') || !banner) {
-        setOffset(0);
-        return;
-      }
-      // offsetTop y offsetLeft no incluyen la transformación de entrada del aviso
-      const overlapsRight = banner.offsetLeft + banner.offsetWidth > window.innerWidth - 100;
-      setOffset(overlapsRight ? Math.max(0, window.innerHeight - banner.offsetTop) : 0);
-    };
-    measure();
-    const mo = new MutationObserver(measure);
-    mo.observe(root, { attributes: true, attributeFilter: ['class'] });
-    window.addEventListener('resize', measure);
-    return () => {
-      mo.disconnect();
-      window.removeEventListener('resize', measure);
-    };
-  }, []);
-
   const visible = pastHero && !footerVisible && pathname !== '/contacto';
 
   return (
@@ -87,10 +64,10 @@ export function WhatsAppFloat() {
       tabIndex={visible ? undefined : -1}
       aria-hidden={visible ? undefined : true}
       onClick={() => trackEvent('click_whatsapp', { ubicacion: 'flotante' })}
-      style={{ bottom: `calc(max(20px, var(--safe-bottom) + 12px) + ${offset}px)` }}
       className={[
-        'fixed right-[max(16px,var(--safe-right))] z-30 flex size-[52px] items-center justify-center rounded-full bg-wood text-cream',
-        'transition-[opacity,transform,bottom,background-color] duration-500 ease-brand hover:bg-wood-dark',
+        'fixed right-[max(16px,var(--safe-right))] bottom-[max(20px,calc(var(--safe-bottom)+12px))] z-30 flex size-[52px] items-center justify-center rounded-full bg-wood text-cream',
+        '[transform:translateY(calc(var(--consent-h)*-1))]',
+        'transition-[opacity,transform,translate,background-color] duration-500 ease-brand hover:bg-wood-dark',
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0',
       ].join(' ')}
     >

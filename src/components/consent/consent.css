@@ -1,4 +1,11 @@
-/* Aviso de cookies con estilos de marca (vanilla-cookieconsent v3) */
+/* ------------------------------------------------------------------ */
+/* Aviso de cookies con estilos de marca (vanilla-cookieconsent v3)    */
+/* Primera capa: barra fina a todo el ancho en escritorio y tableta,   */
+/* hoja compacta en móvil vertical y tarjeta lateral en móvil          */
+/* horizontal (sobre la imagen, lejos de los CTA). Su franja inferior  */
+/* se publica en --consent-h para que la página le deje sitio (ver     */
+/* ConsentProvider y globals.css).                                     */
+/* ------------------------------------------------------------------ */
 #cc-main {
   --cc-font-family: var(--font-manrope), 'Manrope', system-ui, sans-serif;
   --cc-modal-border-radius: 4px;
@@ -7,200 +14,483 @@
   --cc-z-index: 60;
   --cc-bg: #fbf8f3;
   --cc-primary-color: #0e1615;
-  --cc-secondary-color: #4a504d;
-  --cc-link-color: #6e4329;
-  --cc-btn-primary-bg: #0e1615;
+  --cc-secondary-color: #5e6461;
+  --cc-link-color: #98603e;
+  /* Primario de marca: madera con texto crema; el relleno tinta barre al pasar */
+  --cc-btn-primary-bg: #98603e;
   --cc-btn-primary-color: #fbf8f3;
-  --cc-btn-primary-border-color: #0e1615;
+  --cc-btn-primary-border-color: #98603e;
   --cc-btn-primary-hover-bg: #98603e;
   --cc-btn-primary-hover-color: #fbf8f3;
   --cc-btn-primary-hover-border-color: #98603e;
-  --cc-btn-secondary-bg: #f3ede4;
+  /* Secundario: contorno tinta, como el botón "Llamar" de la web */
+  --cc-btn-secondary-bg: transparent;
   --cc-btn-secondary-color: #0e1615;
-  --cc-btn-secondary-border-color: #e6dccf;
-  --cc-btn-secondary-hover-bg: #e6dccf;
-  --cc-btn-secondary-hover-color: #0e1615;
-  --cc-btn-secondary-hover-border-color: #e6dccf;
+  --cc-btn-secondary-border-color: rgb(14 22 21 / 0.25);
+  --cc-btn-secondary-hover-bg: transparent;
+  --cc-btn-secondary-hover-color: #fbf8f3;
+  --cc-btn-secondary-hover-border-color: #0e1615;
   --cc-separator-border-color: #e6dccf;
+  /* Interruptores: madera activo, piedra apagado (3:1 sobre crema y papel) */
   --cc-toggle-on-bg: #98603e;
-  --cc-toggle-off-bg: #8e9390;
+  --cc-toggle-off-bg: #5e6461;
   --cc-toggle-on-knob-bg: #fbf8f3;
   --cc-toggle-off-knob-bg: #fbf8f3;
   --cc-toggle-enabled-icon-color: #98603e;
   --cc-toggle-disabled-icon-color: #5e6461;
-  --cc-toggle-readonly-bg: #c9bfb2;
+  --cc-toggle-readonly-bg: #c49a76;
   --cc-toggle-readonly-knob-bg: #fbf8f3;
   --cc-toggle-readonly-knob-icon-color: #6e4329;
   --cc-section-category-border: #e6dccf;
   --cc-cookie-category-block-bg: #f3ede4;
   --cc-cookie-category-block-border: #e6dccf;
-  --cc-cookie-category-block-hover-bg: #ede5d9;
+  --cc-cookie-category-block-hover-bg: #e6dccf;
   --cc-cookie-category-block-hover-border: #e6dccf;
   --cc-cookie-category-expanded-block-bg: #f3ede4;
-  --cc-cookie-category-expanded-block-hover-bg: #ede5d9;
+  --cc-cookie-category-expanded-block-hover-bg: #e6dccf;
   --cc-overlay-bg: rgb(14 22 21 / 0.55);
   --cc-footer-bg: #f3ede4;
-  --cc-footer-color: #4a504d;
+  --cc-footer-color: #5e6461;
   --cc-footer-border-color: #e6dccf;
-  --cc-modal-transition-duration: 0.35s;
+  --cc-modal-transition-duration: 0.6s;
 }
 
-#cc-main .cm {
-  max-width: 420px;
-  border: 1px solid #e6dccf;
-  box-shadow: none;
-}
-
-#cc-main .cm__title,
-#cc-main .pm__title {
-  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
-  font-weight: 400;
-  font-size: 1.25rem;
-  letter-spacing: -0.01em;
-}
-
-#cc-main .cm__desc {
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-#cc-main .cm__desc .cc-line {
-  display: block;
-}
-
-#cc-main .cm__btn,
-#cc-main .pm__btn {
-  min-height: 44px;
-  font-weight: 600;
-  font-size: 0.9375rem;
-}
-
-/* Aceptar y Rechazar con el mismo peso visual */
-#cc-main .cm__btn[data-role='all'],
-#cc-main .cm__btn[data-role='necessary'] {
-  background: var(--cc-btn-primary-bg);
-  color: var(--cc-btn-primary-color);
-  border-color: var(--cc-btn-primary-border-color);
-}
-
-#cc-main .cm__btn[data-role='all']:hover,
-#cc-main .cm__btn[data-role='necessary']:hover {
-  background: var(--cc-btn-primary-hover-bg);
-  border-color: var(--cc-btn-primary-hover-border-color);
-}
-
-/* "Configurar" como enlace */
-#cc-main .cm__btn[data-role='show'] {
-  background: transparent;
-  border-color: transparent;
-  color: #6e4329;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-#cc-main .cm__btn[data-role='show']:hover {
-  background: transparent;
-  color: #0e1615;
-}
-
-#cc-main .cm__footer a,
-#cc-main .pm a {
-  color: #6e4329;
+/* Entrada y salida con la curva de la marca */
+#cc-main .cc--anim .cm,
+#cc-main .cc--anim .pm,
+#cc-main .cc--anim.pm-wrapper .pm-overlay {
+  transition-timing-function: var(--ease-brand);
 }
 
 #cc-main :focus-visible {
   outline: 2px solid #98603e;
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-#cc-main .pm {
+/* ------------------------------------------------------------------ */
+/* Botones: el mismo sistema que el resto de la web                    */
+/* ------------------------------------------------------------------ */
+#cc-main .cm__btn,
+#cc-main .pm__btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0 24px;
+  overflow: hidden;
   border-radius: 4px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#cc-main .cc--anim .cm__btn,
+#cc-main .cc--anim .pm__btn {
+  transition:
+    color 0.5s var(--ease-brand),
+    border-color 0.5s var(--ease-brand);
+}
+
+#cc-main .cm__btn::before,
+#cc-main .pm__btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #0e1615;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.5s var(--ease-brand);
+}
+
+#cc-main .cm__btn:hover::before,
+#cc-main .cm__btn:focus-visible::before,
+#cc-main .pm__btn:hover::before,
+#cc-main .pm__btn:focus-visible::before {
+  transform: scaleX(1);
+}
+
+/* Aceptar y Rechazar: idénticos (mismo peso visual) */
+#cc-main .cm__btn[data-role='all'],
+#cc-main .cm__btn[data-role='necessary'],
+#cc-main .pm__btn[data-role='all'],
+#cc-main .pm__btn[data-role='necessary'] {
+  background-color: var(--cc-btn-primary-bg);
+  border-color: var(--cc-btn-primary-border-color);
+  color: var(--cc-btn-primary-color);
+}
+
+/* "Configurar" y "Política de cookies": enlaces con subrayado animado */
+#cc-main .cm .cm__btn[data-role='show'],
+#cc-main .cm .cm__link-group a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 calc(50% + 0.8em);
+  background-size: 100% 1px;
+  color: #98603e;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-size 0.6s var(--ease-brand),
+    color 0.3s var(--ease-brand);
+}
+
+#cc-main .cm .cm__btn[data-role='show']::before {
+  display: none;
+}
+
+/* En táctil :hover se queda pegado tras tocar: nunca texto crema sobre crema */
+#cc-main .cm .cm__btn[data-role='show']:hover,
+#cc-main .cm .cm__link-group a:hover {
+  background-color: transparent;
+  color: #6e4329;
+}
+
+@media (hover: hover) {
+  #cc-main .cm .cm__btn[data-role='show']:hover,
+  #cc-main .cm .cm__link-group a:hover {
+    background-position: 100% calc(50% + 0.8em);
+    background-size: 0% 1px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Primera capa: barra inferior. Los contenedores de la librería se    */
+/* disuelven (display: contents) y la rejilla coloca texto, botones y  */
+/* enlaces en el orden del DOM, que es también el orden del foco.      */
+/* ------------------------------------------------------------------ */
+#cc-main .cm.cm--bar {
+  /* El 100vw de la librería incluye la barra de desplazamiento */
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-areas: 'texts btns show policy';
+  align-items: center;
+  column-gap: clamp(20px, 2.4vw, 40px);
+  /* Mismo ancho útil que .container-site */
+  padding-block: 12px calc(12px + var(--safe-bottom));
+  padding-inline: max(var(--gutter), var(--safe-left), calc((100% - var(--container)) / 2))
+    max(var(--gutter), var(--safe-right), calc((100% - var(--container)) / 2));
+  overflow: visible;
+  border-top: 1px solid #e6dccf;
+  border-radius: 0;
+  box-shadow: none;
+  color: #0e1615;
+}
+
+/* Centinela de foco de la librería: vacío y fuera de la rejilla */
+#cc-main .cm > div[tabindex='-1'] {
+  position: absolute;
+}
+
+#cc-main .cm--bar .cm__body,
+#cc-main .cm--bar .cm__btns,
+#cc-main .cm--bar .cm__footer,
+#cc-main .cm--bar .cm__links,
+#cc-main .cm--bar .cm__link-group {
+  display: contents;
+}
+
+#cc-main .cm--bar .cm__texts {
+  grid-area: texts;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 28px;
+  padding: 0;
+}
+
+/* Título como etiqueta de sección: mayúsculas con su línea de 24 px */
+#cc-main .cm--bar .cm__title {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 14px;
+  padding: 0 !important;
+  font-family: var(--cc-font-family);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: #98603e;
+}
+
+#cc-main .cm--bar .cm__title::before {
+  content: '';
+  display: block;
+  flex: none;
+  width: 24px;
+  height: 1px;
+  background-color: currentColor;
+}
+
+#cc-main .cm--bar .cm__desc {
+  max-height: none;
+  margin: 0;
+  padding: 0 !important;
+  overflow: visible;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #5e6461;
+}
+
+#cc-main .cm--bar .cm__desc .cc-line {
+  display: inline;
+}
+
+/* La segunda frase repite lo que dicen los botones: solo se ve si cabe */
+#cc-main .cm--bar .cm__title,
+#cc-main .cm--bar .cm__desc .cc-line + .cc-line {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media screen and (min-width: 85rem) and (min-height: 501px) {
+  #cc-main .cm--bar .cm__title,
+  #cc-main .cm--bar .cm__desc .cc-line + .cc-line {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  #cc-main .cm--bar .cm__title {
+    white-space: nowrap;
+  }
+}
+
+#cc-main .cm--bar .cm__btn-group {
+  margin: 0 !important;
+}
+
+#cc-main .cm--bar .cm__btn-group:first-child {
+  grid-area: btns;
+  display: grid !important;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 8px;
+}
+
+/* La librería apila los grupos en columna en móvil y el enlace se estiraría */
+#cc-main .cm--bar .cm__btn-group + .cm__btn-group {
+  grid-area: show;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-self: start;
+}
+
+#cc-main .cm--bar .cm__link-group > a {
+  grid-area: policy;
+}
+
+#cc-main .cm--bar .cm__btn {
+  flex: none !important;
+  min-width: 124px;
+  margin: 0 !important;
+}
+
+#cc-main .cm--bar .cm__btn[data-role='show'] {
+  min-width: 0;
+}
+
+/* Tableta: texto y enlaces a la izquierda, botones a la derecha */
+@media screen and (min-width: 641px) and (max-width: 1023px) {
+  #cc-main .cm.cm--bar {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'texts texts texts btns'
+      'show policy . btns';
+    row-gap: 2px;
+    padding-top: 14px;
+    padding-bottom: calc(4px + var(--safe-bottom));
+  }
+}
+
+/* Móvil vertical: hoja compacta. Aceptar y Rechazar, uno al lado del otro */
+@media screen and (max-width: 640px) {
+  #cc-main .cm.cm--bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'texts texts'
+      'btns btns'
+      'show policy';
+    row-gap: 12px;
+    padding: 14px max(var(--gutter), var(--safe-right)) max(2px, var(--safe-bottom))
+      max(var(--gutter), var(--safe-left));
+  }
+
+  #cc-main .cm--bar .cm__btn-group:first-child {
+    display: grid !important;
+  }
+
+  #cc-main .cm--bar .cm__btn {
+    min-height: 48px;
+    padding: 0 16px;
+  }
+
+  #cc-main .cm--bar .cm__btn-group + .cm__btn-group,
+  #cc-main .cm--bar .cm__link-group > a {
+    margin-top: -6px !important;
+  }
+
+  #cc-main .cm--bar .cm__link-group > a {
+    justify-self: end;
+  }
+}
+
+/* Móvil horizontal: poca altura, así que el aviso toma ancho y no alto. */
+/* Tarjeta abajo a la derecha, sobre la imagen y lejos de los CTA.       */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  #cc-main .cm.cm--bar {
+    right: max(12px, var(--safe-right));
+    bottom: max(12px, var(--safe-bottom));
+    left: auto;
+    /* !important: la librería fuerza width: auto por debajo de 640 px */
+    width: min(320px, 46vw) !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'texts texts'
+      'btns btns'
+      'show policy';
+    row-gap: 10px;
+    padding: 14px 16px 2px;
+    border: 1px solid #e6dccf;
+    border-radius: 4px;
+  }
+
+  #cc-main .cm--bar.cm--bottom {
+    transform: translateY(calc(100% + 24px));
+  }
+
+  #cc-main .cm--bar .cm__btn {
+    min-width: 0;
+    min-height: 48px;
+    padding: 0 16px;
+  }
+
+  #cc-main .cm--bar .cm__btn-group + .cm__btn-group,
+  #cc-main .cm--bar .cm__link-group > a {
+    margin-top: -6px !important;
+  }
+
+  #cc-main .cm--bar .cm__link-group > a {
+    justify-self: end;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Segunda capa: panel de configuración                                */
+/* ------------------------------------------------------------------ */
+#cc-main .pm {
+  border: 1px solid #e6dccf;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+#cc-main .pm__title {
+  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1.375rem;
+  letter-spacing: -0.01em;
+}
+
+#cc-main .pm__close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(14 22 21 / 0.25);
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+#cc-main .pm__close-btn svg {
+  stroke: #0e1615;
+}
+
+#cc-main .pm__close-btn:hover {
+  border-color: #0e1615;
+  background-color: transparent;
+}
+
+#cc-main .pm__close-btn:hover svg {
+  stroke: #0e1615;
 }
 
 #cc-main .pm__section-title {
   font-weight: 600;
 }
 
+#cc-main .pm__section-desc,
+#cc-main .pm__section-desc-wrapper p {
+  color: #5e6461;
+}
+
+#cc-main .pm a {
+  color: #6e4329;
+}
+
+#cc-main .pm__footer {
+  gap: 8px;
+}
+
+/* Aceptar todas y Rechazar todas, del mismo ancho */
+@media screen and (min-width: 641px) {
+  #cc-main .pm__footer .pm__btn-group:first-child {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 8px;
+  }
+
+  #cc-main .pm__footer .pm__btn-group:first-child .pm__btn {
+    margin: 0;
+  }
+}
+
+/* "Guardar preferencias": contorno tinta con barrido tinta */
+#cc-main .pm__btn.pm__btn--secondary {
+  border: 1px solid var(--cc-btn-secondary-border-color);
+  background-color: transparent;
+  color: var(--cc-btn-secondary-color);
+}
+
+#cc-main .pm__btn.pm__btn--secondary:hover,
+#cc-main .pm__btn.pm__btn--secondary:focus-visible {
+  border-color: #0e1615;
+  background-color: transparent;
+  color: #fbf8f3;
+}
+
 #cc-main table th,
 #cc-main table td {
   font-size: 0.8125rem;
-}
-
-/* Con el aviso abierto, el final de la página queda por encima de él */
-html.show--consent body {
-  padding-bottom: var(--cc-banner-h, 0px);
-}
-
-@media screen and (min-width: 641px) {
-  html.show--consent body {
-    padding-bottom: 0;
-  }
-}
-
-/* Móvil: hoja inferior compacta que respeta el área segura */
-@media screen and (max-width: 640px) {
-  #cc-main .cm {
-    max-width: none;
-    border-radius: 4px 4px 0 0;
-    border-width: 1px 0 0;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  #cc-main .cm__texts {
-    padding-top: 0.875rem;
-  }
-
-  #cc-main .cm__title,
-  #cc-main .cm__desc {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  #cc-main .cm__title {
-    font-size: 1.0625rem;
-  }
-
-  #cc-main .cm__title + .cm__desc {
-    margin-top: 0.375rem;
-  }
-
-  #cc-main .cm__desc {
-    font-size: 0.8125rem;
-    line-height: 1.45;
-    padding-bottom: 0.75rem;
-  }
-
-  #cc-main .cm__btns {
-    padding: 0.75rem 1rem 0.5rem;
-  }
-
-  /* Aceptar y Rechazar, uno al lado del otro */
-  #cc-main .cm__btn-group:first-child {
-    grid-auto-flow: column;
-    gap: 0.5rem;
-  }
-
-  #cc-main .cm__btn-group:first-child .cm__btn + .cm__btn {
-    margin-top: 0;
-  }
-
-  #cc-main .cm__btn-group + .cm__btn-group {
-    margin-top: 0.125rem;
-  }
-
-  #cc-main .cm__btn[data-role='show'] {
-    min-height: 40px;
-  }
-
-  #cc-main .cm__footer {
-    padding: 0.25em 0 0.35em;
-  }
-
-  #cc-main .cm--box {
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-  }
 }

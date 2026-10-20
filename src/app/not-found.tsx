@@ -22,8 +22,11 @@ export default function NotFound() {
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
           <ButtonLink href="/contacto">Pedir presupuesto</ButtonLink>
-          <TextLink href="/casetas">Ver la caseta</TextLink>
-          <TextLink href="/">Volver al inicio</TextLink>
+          {/* Los dos enlaces secundarios bajan juntos cuando no caben al lado del botón */}
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
+            <TextLink href="/casetas">Ver la caseta</TextLink>
+            <TextLink href="/">Volver al inicio</TextLink>
+          </div>
         </div>
       </div>
     </section>

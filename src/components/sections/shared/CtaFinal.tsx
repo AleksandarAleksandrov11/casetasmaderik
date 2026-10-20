@@ -1,15 +1,15 @@
 import Image from 'next/image';
 import { blurFor } from '@/content/image-blur';
-import { Phone } from 'lucide-react';
+import { ArrowRight, Mail, Phone } from 'lucide-react';
 import { ButtonLink, buttonClasses } from '@/components/ui/Button';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { ContactLink } from '@/components/layout/ContactLink';
-import { phoneHref, site, whatsappHref } from '@/content/site';
+import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
 
-type Action = 'presupuesto' | 'llamar' | 'whatsapp';
+type Action = 'presupuesto' | 'email' | 'llamar' | 'whatsapp';
 
 type CtaFinalProps = {
   variant: 'temporada' | 'general' | 'dudas';
@@ -21,11 +21,23 @@ type CtaFinalProps = {
   note?: string;
 };
 
+function Arrow() {
+  return (
+    <ArrowRight
+      aria-hidden="true"
+      strokeWidth={1.5}
+      className="size-[18px] transition-transform duration-500 ease-brand group-hover/btn:translate-x-1"
+    />
+  );
+}
+
 /**
  * CTA final reutilizable. La última sección de cada página es siempre un CTA.
  * - temporada: foto nocturna a todo el ancho con overlay tinta.
  * - general: fondo tinta.
  * - dudas: fondo papel.
+ * La primera acción es siempre el botón primario con flecha (madera sobre
+ * claro, crema sobre oscuro), también cuando solo hay llamada o WhatsApp.
  */
 export function CtaFinal({
   variant,
@@ -38,8 +50,12 @@ export function CtaFinal({
 }: CtaFinalProps) {
   const dark = variant !== 'dudas';
   const surface = variant === 'temporada' ? 'photo' : variant === 'general' ? 'dark' : 'paper';
+  const place = `cta-${variant}`;
+  const primary = buttonClasses({ variant: dark ? 'light' : 'primary', size: 'lg' });
+  const secondaryLink = `link-underline gap-2 ${dark ? '!text-cream' : ''}`;
 
-  const buttons = actions.map((a) => {
+  const buttons = actions.map((a, i) => {
+    const lead = i === 0;
     if (a === 'presupuesto') {
       return (
         <ButtonLink key={a} href="/contacto" variant={dark ? 'light' : 'primary'} size="lg">
@@ -48,12 +64,25 @@ export function CtaFinal({
       );
     }
     if (a === 'llamar') {
-      return (
+      return lead ? (
         <ContactLink
           key={a}
           href={phoneHref}
           event="click_phone"
-          place={`cta-${variant}`}
+          place={place}
+          magnetic
+          ariaLabel={`Llamar al ${site.phone.display}`}
+          className={primary}
+        >
+          <span>Llamar</span>
+          <Arrow />
+        </ContactLink>
+      ) : (
+        <ContactLink
+          key={a}
+          href={phoneHref}
+          event="click_phone"
+          place={place}
           magnetic
           ariaLabel={`Llamar al ${site.phone.display}`}
           className={buttonClasses({ variant: dark ? 'outline-light' : 'outline', size: 'lg' })}
@@ -65,14 +94,40 @@ export function CtaFinal({
         </ContactLink>
       );
     }
-    return (
+    if (a === 'email') {
+      return lead ? (
+        <ContactLink key={a} href={emailHref} event="click_email" place={place} magnetic className={primary}>
+          <span>Escribir un email</span>
+          <Arrow />
+        </ContactLink>
+      ) : (
+        <ContactLink key={a} href={emailHref} event="click_email" place={place} className={secondaryLink}>
+          <Mail aria-hidden="true" strokeWidth={1.5} className="size-5" />
+          Escribir un email
+        </ContactLink>
+      );
+    }
+    return lead ? (
       <ContactLink
         key={a}
         href={whatsappHref()}
         event="click_whatsapp"
-        place={`cta-${variant}`}
+        place={place}
         external
-        className={`link-underline gap-2 ${dark ? '!text-cream' : ''}`}
+        magnetic
+        className={primary}
+      >
+        <span>Escribir por WhatsApp</span>
+        <Arrow />
+      </ContactLink>
+    ) : (
+      <ContactLink
+        key={a}
+        href={whatsappHref()}
+        event="click_whatsapp"
+        place={place}
+        external
+        className={secondaryLink}
       >
         <WhatsAppIcon className="size-5" />
         Escribir por WhatsApp

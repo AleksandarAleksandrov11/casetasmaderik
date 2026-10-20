@@ -196,11 +196,13 @@ export function Header({ logo }: { logo: ReactNode }) {
 
           <div className="flex items-center gap-2">
             <div className="hidden lg:block">
+              {/* El primario de la web (52 px, texto y flecha). Al cambiar de tono, fondo y texto cambian
+                  a la vez y sin transición: con transición se cruzan y el texto se pierde un instante.
+                  header-cta: tono previo a hidratar en globals.css */}
               <ButtonLink
                 href="/contacto"
                 variant={dark ? 'light' : 'primary'}
-                arrow={false}
-                className="!min-h-[46px] !px-5 !text-[0.875rem]"
+                className="header-cta transition-[transform]!"
               >
                 Pedir presupuesto
               </ButtonLink>
