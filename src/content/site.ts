@@ -33,7 +33,6 @@ export const site = {
   googleSiteVerification: 'l2LKSlg4IhbfzGAdQjzdPHE0UjYSLac48nWuEMNIhek',
   privacyPolicyVersion: '2026-10',
   legalUpdated: '20 de octubre de 2026',
-  credit: { label: 'Web: AAS Marketing', url: 'https://aasmarketing.com' }, // PENDIENTE: confirmar crédito
   features: {
     reviews: false, // PENDIENTE: activar cuando haya reseñas reales
     metaPixel: false, // Solo se carga si además existe NEXT_PUBLIC_META_PIXEL_ID

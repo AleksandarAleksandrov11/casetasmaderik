@@ -43,7 +43,3 @@ Datos y decisiones que necesitamos del cliente. Todos los datos de negocio está
 22. **Tras el despliegue**: comprobar las redirecciones de las URLs antiguas con `curl` (comandos en el README), validar el JSON-LD en Rich Results Test y en validator.schema.org, enviar el sitemap en Search Console y Bing Webmaster Tools.
 23. **Navegadores**: en el entorno de desarrollo solo había Chromium. Las capturas y pruebas en WebKit (Safari) y Firefox están configuradas (`PW_ALL_BROWSERS=1`) y deben ejecutarse en un equipo con esos navegadores instalados.
 24. **Límite de envíos del formulario**: ahora es en memoria (5 cada 10 minutos por IP y por instancia). Si hay abuso, se puede pasar a Upstash Redis (indicado en el código).
-
-## Créditos
-
-25. **Confirmar el crédito "Web: AAS Marketing"** del pie (`site.credit`).

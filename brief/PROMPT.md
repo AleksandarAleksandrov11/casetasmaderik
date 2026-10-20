@@ -4,6 +4,7 @@
 > Instrucción de arranque: "Lee `brief/PROMPT.md` completo y ejecútalo de principio a fin."
 
 > **Añadido por el cliente al arrancar:** "Lee el prompt, ejecuta todo paso a paso con todo lo necesario y añade una animación inicial rápida y limpia."
+> **Indicación posterior del cliente:** la web no lleva crédito de autoría en el pie ni ninguna mención a la agencia, y no se envía ningún correo ni mensaje durante el desarrollo. Si hiciera falta una prueba de envío, solo a la dirección de pruebas indicada por el cliente (configurada en `apps-script/Code.gs`), nunca a direcciones del cliente final.
 > Se implementa como una intro de carga breve (isotipo que se dibuja con trazo, nombre que sube desde una máscara y cortina que se retira), solo una vez por sesión, desactivada con `prefers-reduced-motion` y sin JavaScript, y sin bloquear el LCP.
 
 ---

@@ -121,9 +121,6 @@ export function Footer() {
             © {year} {site.name}. {site.legalName}, NIF {site.taxId}.
           </p>
           <div className="flex items-center gap-6">
-            <a href={site.credit.url} target="_blank" rel="noopener" className="inline-flex min-h-[44px] items-center hover:text-cream">
-              {site.credit.label}
-            </a>
             <a href="#arriba" className="group/top inline-flex min-h-[44px] items-center gap-2 hover:text-cream">
               Volver arriba
               <svg viewBox="0 0 16 16" className="size-4 transition-transform duration-500 ease-brand group-hover/top:-translate-y-0.5" aria-hidden="true">
