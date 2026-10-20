@@ -41,8 +41,9 @@ test('header transparente, compacto y sobre oscuro', async ({ page }) => {
   await page.goto('/casetas');
   await dismissCookies(page);
   await shot(page, 'header-inicial-casetas');
+  // Lenis suaviza también los saltos programáticos: se espera a que termine
   await page.evaluate(() => window.scrollTo(0, 700));
-  await page.waitForTimeout(400);
+  await page.waitForTimeout(1500);
   await page.evaluate(() => window.scrollTo(0, 650));
   await page.waitForTimeout(900);
   await shot(page, 'header-compacto-casetas');
