@@ -62,12 +62,12 @@ export async function scrollThrough(page: Page): Promise<void> {
   for (let i = 0; i < 300; i++) {
     const height = await page.evaluate(() => document.documentElement.scrollHeight);
     if (y > height) break;
-    await page.evaluate((yy) => window.scrollTo(0, yy), y);
+    await page.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'instant' }), y);
     await page.waitForTimeout(110);
     y += Math.round(vh * 0.6);
   }
   await page.waitForTimeout(1200);
-  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await page.waitForTimeout(600);
 }
 
