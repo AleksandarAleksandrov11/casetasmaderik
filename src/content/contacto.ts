@@ -13,7 +13,8 @@ export const contactoHero = {
 };
 
 export const contactoChannels = {
-  label: 'Otras formas de contacto',
+  // Corta para que la etiqueta quepa en una línea también a 320 px
+  label: 'Otros canales',
   title: 'Si lo prefieres, hablamos',
   channels: [
     { id: 'phone', title: 'Llamar', note: site.hours },
@@ -37,7 +38,12 @@ export const contactoFaqIntro = {
   title: 'Sobre el presupuesto',
 };
 
+/*
+ * Cierre con foto (variante temporada de CtaFinal): una sección propia antes del
+ * footer tinta. El horario ya está en la tarjeta Llamar, aquí no se repite.
+ */
 export const contactoCta = {
   title: '¿Prefieres hablarlo?',
-  text: `Llámanos o escríbenos por WhatsApp. ${site.hours}.`,
+  text: 'Para fechas cercanas o dudas rápidas, lo más directo es una llamada o un WhatsApp.',
+  image: { src: '/images/stock/jardin-celebracion-luces.jpg', alt: '' },
 };

@@ -29,7 +29,7 @@ function Summary({ onEdit }: { onEdit: (step: number) => void }) {
   ].filter((p) => p.text);
 
   return (
-    <div className="clear-both rounded-sm border border-sand bg-paper/50 px-4 py-3 sm:px-5">
+    <div className="clear-both rounded-sm border border-sand bg-cream px-4 py-3 sm:px-5">
       <p className="text-[0.8125rem] font-semibold tracking-[0.14em] text-wood-dark uppercase">
         {FORM_COPY.summaryLabel}
       </p>

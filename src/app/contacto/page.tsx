@@ -43,7 +43,14 @@ export default function ContactoPage() {
         title={contactoFaqIntro.title}
         faqs={contactoFaqs}
       />
-      <CtaFinal variant="general" title={contactoCta.title} text={contactoCta.text} actions={['llamar', 'whatsapp']} />
+      {/* Con foto, para que el cierre no se funda con el footer tinta */}
+      <CtaFinal
+        variant="temporada"
+        title={contactoCta.title}
+        text={contactoCta.text}
+        image={contactoCta.image}
+        actions={['llamar', 'whatsapp']}
+      />
     </>
   );
 }

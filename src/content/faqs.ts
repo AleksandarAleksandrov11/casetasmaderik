@@ -2,6 +2,8 @@ import { site } from './site';
 
 export type Faq = { q: string; a: string };
 
+// Medidas y cifras con su unidad llevan espacios de no separación (\u00A0) para no partirse entre líneas
+
 const zona = site.serviceArea.regions.length > 0 ? site.serviceArea.regions.join(', ') : site.serviceArea.label;
 const respuesta = site.responseTime.charAt(0).toUpperCase() + site.responseTime.slice(1);
 
@@ -14,7 +16,7 @@ export const homeFaqs: Faq[] = [
   {
     q: '¿Con cuánta antelación debo reservar?',
     // PENDIENTE: confirmar antelación recomendada
-    a: 'Cuanto antes, mejor. Para Navidad y temporada de ferias recomendamos reservar con 4 a 6 semanas, porque la disponibilidad se agota.',
+    a: 'Cuanto antes, mejor. Para Navidad y temporada de ferias recomendamos reservar con 4 a 6\u00A0semanas, porque la disponibilidad se agota.',
   },
   {
     q: '¿Cuánto cuesta alquilar una caseta de madera?',
@@ -34,7 +36,7 @@ export const homeFaqs: Faq[] = [
 export const casetasFaqs: Faq[] = [
   {
     q: '¿Cuáles son las medidas exactas?',
-    a: '2,90 m de largo, 2,00 m de ancho y 2,47 m de alto. Ocupa unos 5,8 m².',
+    a: '2,90\u00A0m de largo, 2,00\u00A0m de ancho y 2,47\u00A0m de alto. Ocupa unos 5,8\u00A0m².',
   },
   {
     q: '¿De qué material está hecha?',
@@ -58,7 +60,7 @@ export const casetasFaqs: Faq[] = [
   {
     q: '¿Qué espacio necesito?',
     // PENDIENTE: confirmar espacio mínimo
-    a: 'Un suelo firme y nivelado de al menos 3,20 × 2,30 m por caseta, con margen para abrir las ventanas.',
+    a: 'Un suelo firme y nivelado de al menos 3,20\u00A0×\u00A02,30\u00A0m por caseta, con margen para abrir las ventanas.',
   },
   {
     q: '¿Cuánto se tarda en montar?',

@@ -7,7 +7,22 @@ import { Section } from '@/components/ui/Section';
 import { contactoChannels } from '@/content/contacto';
 import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
 
-/** S2. Otras formas de contacto en tres columnas. */
+/** El email solo puede partirse tras la arroba ("info@" / "casetasmaderik.es"), nunca a mitad de palabra. */
+function EmailValue() {
+  const [user, domain] = site.email.split('@');
+  return (
+    <>
+      {user}@<wbr />
+      {domain}
+    </>
+  );
+}
+
+/**
+ * S2. Otras formas de contacto: tres columnas en escritorio. En tablet, Llamar
+ * ocupa la fila entera y WhatsApp y Email comparten la segunda, para que cada
+ * dato quepa en una línea.
+ */
 export function ContactoChannels() {
   const c = contactoChannels;
   const data = {
@@ -27,7 +42,7 @@ export function ContactoChannels() {
     },
     email: {
       href: emailHref,
-      value: site.email,
+      value: <EmailValue />,
       icon: <Mail aria-hidden="true" strokeWidth={1.5} className="size-7" />,
       event: 'click_email' as const,
       external: false,
@@ -40,11 +55,16 @@ export function ContactoChannels() {
         <Heading id="canales-titulo" className="mt-6">
           {c.title}
         </Heading>
-        <ul className="mt-14 grid gap-px overflow-hidden rounded-sm border border-sand bg-sand md:grid-cols-3">
+        <ul className="mt-14 grid gap-px overflow-hidden rounded-sm border border-sand bg-sand md:grid-cols-2 lg:grid-cols-3">
           {c.channels.map((ch, i) => {
             const d = data[ch.id as keyof typeof data];
             return (
-              <li key={ch.id} className="bg-paper" data-reveal style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}>
+              <li
+                key={ch.id}
+                className={`bg-paper ${i === 0 ? 'md:col-span-2 lg:col-span-1' : ''}`}
+                data-reveal
+                style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}
+              >
                 <ContactLink
                   href={d.href}
                   event={d.event}

@@ -125,6 +125,7 @@ export function QuoteForm() {
   const busy = useRef(false);
   const sending = useRef(false);
   const pendingFocus = useRef(false);
+  const focusSubmit = useRef(false);
   const advanceTimer = useRef<number | undefined>(undefined);
   const inset = useBottomInset(rootRef);
 
@@ -197,6 +198,7 @@ export function QuoteForm() {
     setDirection(target > stepRef.current ? 1 : -1);
     stepRef.current = target;
     pendingFocus.current = true;
+    focusSubmit.current = false;
     setStep(target);
     setNotice(null);
     setStatus((s) => (s === 'error' ? 'idle' : s));
@@ -356,6 +358,21 @@ export function QuoteForm() {
     target?.focus({ preventScroll: true });
   }, []);
 
+  /*
+   * Tras un fallo de red solo hay una acción principal: Reintentar, en el aviso.
+   * El botón de enviar se retira mientras tanto; si tenía el foco, el foco pasa
+   * a Reintentar y, al reintentar, vuelve al botón de enviar ("Enviando").
+   */
+  const onRetryMount = useCallback((el: HTMLButtonElement | null) => {
+    if (el && (!document.activeElement || document.activeElement === document.body)) el.focus({ preventScroll: true });
+  }, []);
+
+  const onSubmitMount = useCallback((el: HTMLButtonElement | null) => {
+    if (!el || !focusSubmit.current) return;
+    focusSubmit.current = false;
+    el.focus({ preventScroll: true });
+  }, []);
+
   const onSuccessHeading = useCallback((el: HTMLHeadingElement | null) => {
     if (!el || !pendingFocus.current) return;
     pendingFocus.current = false;
@@ -366,6 +383,7 @@ export function QuoteForm() {
   }, []);
 
   const isSending = status === 'sending';
+  const canRetry = notice?.retry === true;
   const isLast = step === STEP_COUNT - 1;
   const showErrors = attempted[step] ?? false;
   const rootStyle = { '--quote-inset': `${inset}px` } as CSSProperties;
@@ -413,7 +431,7 @@ export function QuoteForm() {
                   </div>
 
                   {notice ? (
-                    <div role="alert" className="mt-8 rounded-sm border border-error/25 bg-white px-4 py-4 sm:px-5">
+                    <div role="alert" className="mt-8 rounded-sm border border-error/25 bg-cream px-4 py-4 sm:px-5">
                       <p className="flex items-start gap-3 text-[0.9375rem] leading-snug text-ink">
                         <TriangleAlert
                           aria-hidden="true"
@@ -425,10 +443,12 @@ export function QuoteForm() {
                       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:pl-8">
                         {notice.retry ? (
                           <Button
-                            size="md"
-                            variant="primary"
-                            onClick={() => void submit()}
-                            aria-disabled={isSending || undefined}
+                            ref={onRetryMount}
+                            arrow
+                            onClick={() => {
+                              focusSubmit.current = true;
+                              void submit();
+                            }}
                             className="max-sm:w-full"
                           >
                             {FORM_COPY.retry}
@@ -464,24 +484,25 @@ export function QuoteForm() {
                         />
                         {FORM_COPY.back}
                       </button>
-                    ) : (
-                      <span aria-hidden="true" />
+                    ) : null}
+                    {canRetry ? null : (
+                      <Button
+                        ref={onSubmitMount}
+                        type="submit"
+                        arrow={!isSending}
+                        aria-disabled={isSending || undefined}
+                        aria-busy={isSending || undefined}
+                        icon={
+                          isSending ? (
+                            <LoaderCircle aria-hidden="true" strokeWidth={1.75} className="size-5 animate-spin" />
+                          ) : undefined
+                        }
+                        className={NEXT_BUTTON_CLASS}
+                        onFocus={inset > 0 ? revealActions : undefined}
+                      >
+                        {isLast ? (isSending ? FORM_COPY.sending : FORM_COPY.submit) : FORM_COPY.next}
+                      </Button>
                     )}
-                    <Button
-                      type="submit"
-                      arrow={!isSending}
-                      aria-disabled={isSending || undefined}
-                      aria-busy={isSending || undefined}
-                      icon={
-                        isSending ? (
-                          <LoaderCircle aria-hidden="true" strokeWidth={1.75} className="size-5 animate-spin" />
-                        ) : undefined
-                      }
-                      className={NEXT_BUTTON_CLASS}
-                      onFocus={inset > 0 ? revealActions : undefined}
-                    >
-                      {isLast ? (isSending ? FORM_COPY.sending : FORM_COPY.submit) : FORM_COPY.next}
-                    </Button>
                   </div>
 
                   <div aria-hidden="true" className="sr-only">

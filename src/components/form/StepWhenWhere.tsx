@@ -94,10 +94,11 @@ export function StepWhenWhere({ idPrefix, showErrors }: { idPrefix: string; show
               />
             )}
           </Field>
+          {/* Siempre montado para el aviso en vivo; con el error visible no reserva hueco */}
           <p
             id={`${ids.fin}-hint`}
             aria-live="polite"
-            className="mt-2 min-h-[1.25rem] text-[0.875rem] leading-snug text-stone"
+            className={`text-[0.875rem] leading-snug text-stone ${!unDia && err('fechaFin') ? 'sr-only' : 'mt-2 min-h-[1.25rem]'}`}
           >
             {days}
           </p>
