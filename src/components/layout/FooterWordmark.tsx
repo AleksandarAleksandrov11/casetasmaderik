@@ -7,7 +7,8 @@ const PAD_BOTTOM = 8;
 /**
  * "CASETAS MADERIK" a todo el ancho: las letras suben desde una máscara de
  * forma escalonada, el isotipo se dibuja con trazo y, con ratón, cada letra se
- * eleva al pasar por encima.
+ * eleva al pasar por encima. Es la única marca del pie: el bloque de la marca
+ * no repite el isotipo.
  */
 export function FooterWordmark() {
   const [vx, , vw] = brand.wordmark.viewBox;
