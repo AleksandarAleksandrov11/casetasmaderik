@@ -445,18 +445,21 @@ html.js-motion [data-reveal='fade']:not(.is-in) {
   transform: none;
 }
 
-/* Revelado de imágenes con clip-path y escala interior */
-html.js-motion [data-reveal-image] {
+/* Revelado de imágenes con clip-path y escala interior. El clip va en los
+   hijos: IntersectionObserver ignora los elementos recortados por completo. */
+html.js-motion [data-reveal-image] > * {
   clip-path: inset(0 0 0 0);
   transition: clip-path 1.2s var(--ease-brand);
 }
 
-html.js-motion [data-reveal-image]:not(.is-in) {
+html.js-motion [data-reveal-image]:not(.is-in) > * {
   clip-path: inset(100% 0 0 0);
 }
 
 html.js-motion [data-reveal-image] img {
-  transition: transform 1.4s var(--ease-brand);
+  transition:
+    transform 1.4s var(--ease-brand),
+    clip-path 1.2s var(--ease-brand);
 }
 
 html.js-motion [data-reveal-image]:not(.is-in) img {
@@ -465,7 +468,7 @@ html.js-motion [data-reveal-image]:not(.is-in) img {
 
 /* Si el script de revelado no llega a ejecutarse, se muestra todo */
 html.js-motion:not(.reveal-ready) [data-reveal],
-html.js-motion:not(.reveal-ready) [data-reveal-image] {
+html.js-motion:not(.reveal-ready) [data-reveal-image] > * {
   animation: cm-reveal-fallback 0.01s linear 3.5s forwards;
 }
 
@@ -675,4 +678,127 @@ html.js-motion .page-enter {
 
 .skip-link:focus-visible {
   transform: translateY(0);
+}
+
+/* ------------------------------------------------------------------ */
+/* Planos técnicos                                                     */
+/* ------------------------------------------------------------------ */
+.plan-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  color: var(--color-ink);
+}
+
+.plan-svg .plan-ground {
+  stroke: var(--color-ink);
+  stroke-width: 1.2;
+}
+
+.plan-svg .plan-base {
+  fill: var(--color-sand);
+  stroke: var(--color-ink);
+  stroke-width: 0.8;
+}
+
+.plan-svg .plan-wall {
+  fill: var(--color-cream);
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-roof {
+  fill: var(--color-charcoal);
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-opening {
+  fill: var(--color-paper);
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-solid {
+  fill: var(--color-ink);
+}
+
+.plan-svg .plan-walls {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 6;
+  stroke-linecap: square;
+}
+
+.plan-svg .plan-window {
+  stroke: var(--color-ink);
+  stroke-width: 1.2;
+}
+
+.plan-svg .plan-counter {
+  fill: var(--color-sand);
+  stroke: var(--color-ink);
+  stroke-width: 0.8;
+}
+
+.plan-svg .plan-door,
+.plan-svg .plan-door-arc {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-door-arc {
+  stroke-dasharray: 3 3;
+}
+
+.plan-svg .plan-dashed {
+  fill: none;
+  stroke: var(--color-stone);
+  stroke-width: 0.8;
+  stroke-dasharray: 6 4;
+}
+
+.plan-svg .plan-area {
+  font-family: var(--font-display);
+  font-size: 22px;
+  fill: var(--color-stone);
+}
+
+.plan-svg .plan-dim__tick {
+  stroke: var(--color-wood);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-dim__line {
+  stroke: var(--color-wood);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.plan-svg .plan-dim__label {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  fill: var(--color-wood-dark);
+  letter-spacing: 0.02em;
+}
+
+html.js-motion .plan:not(.is-in) .plan-dim__line {
+  stroke-dashoffset: 1;
+}
+
+html.js-motion .plan:not(.is-in) .plan-dim__label,
+html.js-motion .plan:not(.is-in) .plan-dim__tick {
+  opacity: 0;
+}
+
+html.js-motion .plan .plan-dim__line {
+  transition: stroke-dashoffset 1.2s var(--ease-brand) 0.3s;
+}
+
+html.js-motion .plan .plan-dim__label,
+html.js-motion .plan .plan-dim__tick {
+  transition: opacity 0.6s var(--ease-brand) 1s;
 }
