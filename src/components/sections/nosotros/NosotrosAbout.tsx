@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { blurFor } from '@/content/image-blur';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
@@ -27,6 +28,7 @@ export function NosotrosAbout() {
           <div data-reveal-image className="relative aspect-[4/5] overflow-hidden rounded-sm bg-paper">
             <Image
               src={a.image.src}
+              {...blurFor(a.image.src)}
               alt={a.image.alt}
               fill
               sizes="(min-width: 1024px) 50vw, 92vw"

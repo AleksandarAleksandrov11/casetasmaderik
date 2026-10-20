@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { blurFor } from '@/content/image-blur';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
@@ -37,6 +38,7 @@ export function CasetasGallery() {
             >
               <Image
                 src={img.src}
+                {...blurFor(img.src)}
                 alt={img.alt}
                 width={img.width}
                 height={img.height}

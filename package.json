@@ -18,7 +18,10 @@
     "qa:links": "node tests/qa/links.mjs",
     "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build:qa && pnpm e2e && pnpm qa:screens && pnpm qa:links && pnpm qa:lighthouse && pnpm build",
     "build:qa": "VERCEL_JSON_LOCAL=1 NEXT_PUBLIC_GA_ID=G-QATEST0000 NEXT_PUBLIC_ANALYTICS_LOCAL=1 next build",
-    "start:qa": "VERCEL_JSON_LOCAL=1 LEADS_MOCK=1 next start -p 3300"
+    "start:qa": "VERCEL_JSON_LOCAL=1 LEADS_MOCK=1 next start -p 3300",
+    "assets:brand": "node scripts/brand/build-brand.mjs",
+    "assets:blur": "node scripts/images/build-blur.mjs",
+    "size": "node scripts/bundle-size.mjs"
   },
   "packageManager": "pnpm@10.28.0",
   "engines": {

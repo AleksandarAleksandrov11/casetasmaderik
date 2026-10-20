@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { blurFor } from '@/content/image-blur';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Label } from '@/components/ui/Label';
 import { nosotrosHero } from '@/content/nosotros';
@@ -12,6 +13,7 @@ export function NosotrosHero() {
         <div data-parallax className="absolute inset-x-0 -top-[10%] -bottom-[10%]">
           <Image
             src={h.image.src}
+            {...blurFor(h.image.src)}
             alt=""
             fill
             preload

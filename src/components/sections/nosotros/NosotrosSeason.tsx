@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { blurFor } from '@/content/image-blur';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
@@ -11,7 +12,7 @@ export function NosotrosSeason() {
     <Section surface="photo" spacing={false} className="overflow-hidden" aria-labelledby="temporada-titulo">
       <div className="absolute inset-0" aria-hidden="true">
         <div data-parallax className="absolute inset-x-0 -top-[12%] -bottom-[12%]">
-          <Image src={s.image.src} alt="" fill sizes="100vw" quality={70} className="object-cover object-[50%_70%]" />
+          <Image src={s.image.src} {...blurFor(s.image.src)} alt="" fill sizes="100vw" quality={70} className="object-cover object-[50%_70%]" />
         </div>
         <div className="absolute inset-0 bg-ink/78" />
       </div>

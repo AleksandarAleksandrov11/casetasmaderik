@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { blurFor } from '@/content/image-blur';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Heading } from '@/components/ui/Heading';
@@ -33,6 +34,7 @@ export function HomeEvents() {
               <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-paper">
                 <Image
                   src={card.image}
+                  {...blurFor(card.image)}
                   alt={card.alt}
                   fill
                   sizes="(min-width: 1024px) 440px, (min-width: 640px) 44vw, 78vw"

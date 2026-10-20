@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { blurFor } from '@/content/image-blur';
 import { DoorOpen, FoldHorizontal, TreePine, Umbrella } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { Heading } from '@/components/ui/Heading';
@@ -72,6 +73,7 @@ export function HomeCaseta() {
             <div data-reveal-image className="relative aspect-square overflow-hidden rounded-sm bg-charcoal">
               <Image
                 src={c.image.src}
+                {...blurFor(c.image.src)}
                 alt={c.image.alt}
                 width={682}
                 height={682}

@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { blurFor } from '@/content/image-blur';
 import { Phone } from 'lucide-react';
 import { ButtonAnchor, ButtonLink } from '@/components/ui/Button';
 import { Heading } from '@/components/ui/Heading';
@@ -82,6 +83,7 @@ export function CtaFinal({
           <div data-parallax className="absolute inset-x-0 -top-[12%] -bottom-[12%]">
             <Image
               src={image.src}
+              {...blurFor(image.src)}
               alt=""
               fill
               sizes="100vw"
