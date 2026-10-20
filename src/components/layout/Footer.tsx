@@ -52,27 +52,39 @@ export function Footer() {
       data-surface="dark"
       className="surface-dark relative overflow-hidden bg-ink text-cream"
     >
-      <div className="container-site pt-[clamp(72px,9vw,128px)]">
+      <div className="container-site @container pt-[clamp(72px,9vw,128px)]">
         {/*
-         * Rejilla del pie. Hasta 1279 px la marca va en su propia banda y los
-         * cuatro grupos debajo: uno por fila en móvil, 2 × 2 desde 480 px y
-         * una fila de cuatro desde 768 px, con columnas al ancho de su
-         * contenido y el mismo aire entre ellas. Desde 1280 px todo cabe en
-         * una fila: la marca ocupa el espacio libre y los grupos se alinean
-         * a la derecha con el mismo canto que el wordmark.
+         * Rejilla del pie. Los escalones dependen del sitio real del contenedor
+         * y se miden en rem (consultas de contenedor), no en px de viewport:
+         * con el texto del navegador ampliado los grupos piden más sitio y la
+         * rejilla baja sola de escalón, sin partir enlaces ni desbordar.
+         *  · Por debajo de 26rem: una columna.
+         *  · Desde 26rem: los grupos en 2 × 2, con el email entero en su columna.
+         *  · Desde 43rem: una fila de cuatro grupos al ancho de su contenido y
+         *    con el mismo aire entre ellos.
+         *  · Desde 70.5rem: la rejilla de 12 columnas de la web (grid-site), con
+         *    la marca en las columnas 1 a 4 y los grupos en las 5 a 12, al mismo
+         *    canto derecho que el wordmark.
+         * Cada umbral es la suma del contenido más su aire mínimo, con margen.
          */}
-        <div className="grid gap-y-12 md:gap-y-16 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-x-16">
-          <div>
-            {/* En la fila única, el -mt compensa el interlineado: la frase cuelga de la misma línea que los títulos */}
-            <p className="text-lead max-w-[32ch] text-cream xl:-mt-2">
+        <div className="grid-site gap-y-12 @min-[43rem]:gap-y-16">
+          {/*
+           * Frase y botón en una banda: comparten fila (frase a la izquierda,
+           * botón al canto derecho) cuando caben, y si no, el botón baja solo.
+           * content-start: en la columna de la marca las dos líneas quedan
+           * arriba y no se reparten el alto de la fila.
+           */}
+          <div className="col-span-full flex flex-wrap content-start items-end justify-between gap-8 @min-[70.5rem]:col-span-4">
+            {/* En la rejilla de 12, el -mt compensa el interlineado: la frase cuelga de la misma línea que los títulos */}
+            <p className="text-lead max-w-[32ch] text-cream @min-[70.5rem]:-mt-2">
               Alquiler de casetas de madera para ferias, mercados y eventos.
             </p>
-            <ButtonLink href="/contacto" variant="light" className="mt-8">
+            <ButtonLink href="/contacto" variant="light">
               Pedir presupuesto
             </ButtonLink>
           </div>
 
-          <div className="grid gap-x-8 gap-y-12 min-[30rem]:grid-cols-2 md:grid-cols-[repeat(4,auto)] md:justify-between xl:gap-x-16">
+          <div className="col-span-full grid gap-x-8 gap-y-12 @min-[26rem]:grid-cols-2 @min-[43rem]:grid-cols-[repeat(4,auto)] @min-[43rem]:justify-between @min-[70.5rem]:col-span-8">
             <Block title="Navegación">
               <ul>
                 {nav.map((item) => (
