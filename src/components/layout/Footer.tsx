@@ -1,13 +1,20 @@
+import { Fragment } from 'react';
 import Link from 'next/link';
-import { Isotipo } from '@/components/brand/Isotipo';
 import { ButtonLink } from '@/components/ui/Button';
 import { CookieSettingsButton } from '@/components/consent/CookieSettingsButton';
 import { ContactLink } from './ContactLink';
 import { FooterWordmark } from './FooterWordmark';
 import { emailHref, legalNav, nav, phoneHref, serviceAreaText, site, whatsappHref } from '@/content/site';
 
+/*
+ * Objetivo táctil de 44 px. Interlineado corto y relleno vertical: si un enlace
+ * llega a partirse, sus dos líneas quedan juntas y separadas del siguiente.
+ */
 const linkClass =
-  'inline-flex min-h-[44px] min-w-[44px] items-center text-cream/90 transition-colors duration-300 hover:text-wood-light';
+  'inline-flex min-h-[44px] min-w-[44px] items-center py-2 leading-snug text-cream/90 transition-colors duration-300 hover:text-wood-light';
+
+// Con tope de medida: una zona de servicio larga se parte en líneas y no ensancha la columna
+const noteClass = 'max-w-[30ch] text-[0.9375rem] text-mist';
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -15,6 +22,23 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
       <h2 className="mb-4 font-sans text-[0.8125rem] font-semibold tracking-[0.18em] text-mist uppercase">{title}</h2>
       {children}
     </div>
+  );
+}
+
+/**
+ * El horario se parte por la coma: si no cabe en una línea salta ahí
+ * ("Lunes a viernes," / "de 9:00 a 19:00") y nunca dentro del tramo horario.
+ */
+function Hours({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(?<=,)\s+/).map((part, i) => (
+        <Fragment key={part}>
+          {i > 0 ? ' ' : null}
+          <span className="inline-block">{part}</span>
+        </Fragment>
+      ))}
+    </>
   );
 }
 
@@ -28,19 +52,39 @@ export function Footer() {
       data-surface="dark"
       className="surface-dark relative overflow-hidden bg-ink text-cream"
     >
-      <div className="container-site pt-[clamp(72px,9vw,128px)]">
-        <div className="grid gap-x-8 gap-y-12 md:grid-cols-6 lg:grid-cols-12">
-          <div className="md:col-span-6 lg:col-span-3">
-            <Isotipo className="h-12 w-auto text-wood-light" />
-            <p className="text-lead mt-6 max-w-[32ch] text-cream">
+      <div className="container-site @container pt-[clamp(72px,9vw,128px)]">
+        {/*
+         * Rejilla del pie. Los escalones dependen del sitio real del contenedor
+         * y se miden en rem (consultas de contenedor), no en px de viewport:
+         * con el texto del navegador ampliado los grupos piden más sitio y la
+         * rejilla baja sola de escalón, sin partir enlaces ni desbordar.
+         *  · Por debajo de 26rem: una columna.
+         *  · Desde 26rem: los grupos en 2 × 2, con el email entero en su columna.
+         *  · Desde 43rem: una fila de cuatro grupos al ancho de su contenido y
+         *    con el mismo aire entre ellos.
+         *  · Desde 70.5rem: la rejilla de 12 columnas de la web (grid-site), con
+         *    la marca en las columnas 1 a 4 y los grupos en las 5 a 12, al mismo
+         *    canto derecho que el wordmark.
+         * Cada umbral es la suma del contenido más su aire mínimo, con margen.
+         */}
+        <div className="grid-site gap-y-12 @min-[43rem]:gap-y-16">
+          {/*
+           * Frase y botón en una banda: comparten fila (frase a la izquierda,
+           * botón al canto derecho) cuando caben, y si no, el botón baja solo.
+           * content-start: en la columna de la marca las dos líneas quedan
+           * arriba y no se reparten el alto de la fila.
+           */}
+          <div className="col-span-full flex flex-wrap content-start items-end justify-between gap-8 @min-[70.5rem]:col-span-4">
+            {/* En la rejilla de 12, el -mt compensa el interlineado: la frase cuelga de la misma línea que los títulos */}
+            <p className="text-lead max-w-[32ch] text-cream @min-[70.5rem]:-mt-2">
               Alquiler de casetas de madera para ferias, mercados y eventos.
             </p>
-            <ButtonLink href="/contacto" variant="light" className="mt-8">
+            <ButtonLink href="/contacto" variant="light">
               Pedir presupuesto
             </ButtonLink>
           </div>
 
-          <div className="md:col-span-2 lg:col-span-2">
+          <div className="col-span-full grid gap-x-8 gap-y-12 @min-[26rem]:grid-cols-2 @min-[43rem]:grid-cols-[repeat(4,auto)] @min-[43rem]:justify-between @min-[70.5rem]:col-span-8">
             <Block title="Navegación">
               <ul>
                 {nav.map((item) => (
@@ -52,9 +96,7 @@ export function Footer() {
                 ))}
               </ul>
             </Block>
-          </div>
 
-          <div className="md:col-span-4 lg:col-span-3">
             <Block title="Contacto">
               <ul>
                 <li>
@@ -79,12 +121,12 @@ export function Footer() {
                   </ContactLink>
                 </li>
               </ul>
-              <p className="mt-4 text-[0.9375rem] text-mist">{site.hours}</p>
-              <p className="mt-1 text-[0.9375rem] text-mist">{serviceAreaText}</p>
+              <p className={`mt-4 ${noteClass}`}>
+                <Hours text={site.hours} />
+              </p>
+              <p className={`mt-1 ${noteClass}`}>{serviceAreaText}</p>
             </Block>
-          </div>
 
-          <div className="md:col-span-3 lg:col-span-2">
             <Block title="Legal">
               <ul>
                 {legalNav.map((item) => (
@@ -99,9 +141,7 @@ export function Footer() {
                 </li>
               </ul>
             </Block>
-          </div>
 
-          <div className="md:col-span-3 lg:col-span-2">
             <Block title="Síguenos">
               <ul>
                 {socials.map(([network, url]) => (
@@ -121,7 +161,7 @@ export function Footer() {
       <FooterWordmark />
 
       <div className="container-site">
-        <div className="flex flex-col gap-3 border-t border-mist/20 py-6 pb-[max(24px,var(--safe-bottom))] text-[0.875rem] text-mist md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 border-t border-mist/20 py-6 pb-[max(24px,var(--safe-bottom))] text-[0.875rem] text-mist sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {year} {site.name}. {site.legalName}, NIF {site.taxId}.
           </p>
