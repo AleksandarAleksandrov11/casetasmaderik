@@ -119,7 +119,9 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
       >
         {current ? (
           <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between px-[max(16px,var(--safe-left))] pt-[max(12px,var(--safe-top))]">
+            {/* Alineada con el contenedor de la web, como el header: el contador empieza en el
+                margen y la X (12 px de aire dentro de su botón de 48 px) acaba en él */}
+            <div className="container-site flex items-center justify-between pt-[max(12px,var(--safe-top))] pr-[max(calc(var(--gutter)_-_12px),var(--safe-right))]">
               <p className="tabular text-[0.9375rem] text-mist" aria-live="polite">
                 Imagen {index! + 1} de {images.length}
               </p>
@@ -132,13 +134,18 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
                 <X strokeWidth={1.5} className="size-6" aria-hidden="true" />
               </button>
             </div>
-            <figure className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-4 pb-4">
-              {/* Sin ampliar más de 1,5 veces el tamaño original de la foto */}
+            {/* La figura mide su hueco (container-type: size): la caja de la foto toma la
+                proporción de la foto y el pie queda siempre 16 px por debajo de la imagen */}
+            <figure className="[container-type:size] relative flex min-h-0 flex-1 flex-col items-center justify-center gap-4 pr-[max(var(--gutter),var(--safe-right))] pb-4 pl-[max(var(--gutter),var(--safe-left))]">
+              {/* Sin ampliar más de 1,5 veces el tamaño original. Sitio para el pie: dos líneas
+                  (5rem), o una en pantallas bajas (20 % del alto) */}
               <div
-                className="relative h-full w-full"
+                className="relative shrink-0"
                 style={{
-                  maxWidth: `min(92vw, 1000px, ${Math.round(current.width * 1.5)}px)`,
-                  maxHeight: `min(78dvh, ${Math.round(current.height * 1.5)}px)`,
+                  aspectRatio: `${current.width} / ${current.height}`,
+                  width: `min(100cqw, 1000px, ${Math.round(current.width * 1.5)}px, calc((100cqh - min(5rem, 20cqh)) * ${(
+                    current.width / current.height
+                  ).toFixed(4)}))`,
                 }}
               >
                 <Image

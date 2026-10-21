@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 @import './caseta-lineup.css';
 
+/* Móvil en horizontal: poca altura, todo se reparte a lo ancho */
+@custom-variant short-landscape (@media (orientation: landscape) and (max-height: 500px));
+
 /* ------------------------------------------------------------------ */
 /* Tokens de marca                                                     */
 /* ------------------------------------------------------------------ */
@@ -62,6 +65,9 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+  /* Franja inferior que tapa el aviso de cookies mientras está abierto */
+  --consent-h: 0px;
+  --consent-lift: 0px;
 }
 
 /* ------------------------------------------------------------------ */
@@ -76,7 +82,17 @@
     scroll-padding-top: calc(var(--header-h-compact) + 16px);
   }
 
+  /* Desplazamiento suave nativo sin JS y donde Lenis no entra (táctil). Con    */
+  /* puntero fino lo hace Lenis: una animación nativa lanzada antes de que     */
+  /* arranque se quedaba a medias al recalcular ScrollTrigger tras la carga.  */
   @media (prefers-reduced-motion: no-preference) {
+    html:not(.js) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (hover: none),
+    (prefers-reduced-motion: no-preference) and (pointer: coarse) {
     html:not(.lenis) {
       scroll-behavior: smooth;
     }
@@ -883,22 +899,79 @@ html.js-motion .q-draw--late {
   }
 }
 
-/* Antes de hidratar (o sin JS) el header toma el tono de la primera sección */
+/* Antes de hidratar (o sin JS) el header toma el tono de la primera sección. */
+/* first-of-type: el JSON-LD de la página va antes, como <script>.            */
 html:not(.js) header:not([data-ready]) {
   background-color: var(--color-cream);
   border-bottom-color: var(--color-sand);
 }
 
-html.js body:has(#contenido > div > section:first-child[data-header='dark']) header:not([data-ready]) {
+html.js body:has(#contenido > div > section:first-of-type[data-header='dark']) header:not([data-ready]) {
   color: var(--color-cream);
 }
 
 html.js
-  body:has(#contenido > div > section:first-child[data-header='dark'])
+  body:has(#contenido > div > section:first-of-type[data-header='dark'])
   header:not([data-ready])
   svg
   > g:first-child {
   color: var(--color-wood-light);
+}
+
+/* El CTA ya en su versión sobre oscuro (crema con texto tinta) */
+html.js body:has(#contenido > div > section:first-of-type[data-header='dark']) header:not([data-ready]) .header-cta {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+}
+
+html.js
+  body:has(#contenido > div > section:first-of-type[data-header='dark'])
+  header:not([data-ready])
+  .header-cta::before {
+  background-color: var(--color-wood-light);
+}
+
+/* ------------------------------------------------------------------ */
+/* Aviso de cookies pendiente (html.cc-pending, ver consent/pending.ts) */
+/* La página reserva la franja del aviso desde el primer pintado: sin  */
+/* saltos al aparecer y con el final de la página siempre libre.       */
+/* ConsentProvider sustituye la estimación por la medida real en       */
+/* --consent-h y, en pantallas bajas, no muestra el aviso mientras     */
+/* tape un CTA o el título.                                            */
+/* ------------------------------------------------------------------ */
+html.cc-pending {
+  --consent-h: calc(77px + var(--safe-bottom));
+  /* El foco del teclado nunca queda debajo del aviso (WCAG 2.4.11) */
+  scroll-padding-bottom: calc(var(--consent-h) + 16px);
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  html.cc-pending {
+    --consent-h: calc(107px + var(--safe-bottom));
+  }
+}
+
+@media (max-width: 640px) {
+  html.cc-pending {
+    --consent-h: calc(173px + var(--safe-bottom));
+  }
+}
+
+/* Móvil en horizontal: tarjeta de unos 191 px apoyada en el borde inferior */
+@media (orientation: landscape) and (max-height: 500px) {
+  html.cc-pending {
+    --consent-h: calc(191px + var(--safe-bottom));
+  }
+}
+
+/* El final de cada página queda por encima del aviso */
+html.cc-pending body {
+  padding-bottom: var(--consent-h);
+}
+
+/* Lo que sube el botón flotante de WhatsApp: solo con el aviso a la vista */
+html.cc-pending.show--consent {
+  --consent-lift: var(--consent-h);
 }
 
 /* Enlace "Saltar al contenido" */

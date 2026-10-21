@@ -10,6 +10,7 @@ import { MotionRoot } from '@/components/layout/MotionRoot';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 import { ConsentProvider } from '@/components/consent/ConsentProvider';
 import { AnalyticsGate } from '@/components/consent/AnalyticsGate';
+import { consentBootSnippet } from '@/components/consent/pending';
 import '@/styles/globals.css';
 
 const outfit = Outfit({
@@ -54,10 +55,11 @@ export const viewport: Viewport = {
 
 /**
  * Se ejecuta antes del primer pintado: activa las animaciones solo con
- * JavaScript, respeta el movimiento reducido y muestra la intro una vez por
- * sesión.
+ * JavaScript, marca el aviso de cookies como pendiente si falta el
+ * consentimiento (la página le reserva sitio), respeta el movimiento reducido
+ * y muestra la intro una vez por sesión.
  */
-const bootScript = `(function(){var d=document.documentElement;d.classList.add('js');try{var r=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(r)return;d.classList.add('js-motion');var s=window.sessionStorage;if(!s.getItem('cm:intro')&&!/[?&]nointro/.test(location.search)){d.classList.add('js-intro');s.setItem('cm:intro','1');}}catch(e){}})();`;
+const bootScript = `(function(){var d=document.documentElement;d.classList.add('js');${consentBootSnippet}try{var r=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(r)return;d.classList.add('js-motion');var s=window.sessionStorage;if(!s.getItem('cm:intro')&&!/[?&]nointro/.test(location.search)){d.classList.add('js-intro');s.setItem('cm:intro','1');}}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

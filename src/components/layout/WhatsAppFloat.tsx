@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { whatsappHref } from '@/content/site';
 import { trackEvent } from '@/components/consent/trackEvent';
 
@@ -16,15 +16,21 @@ export function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+/** Margen alrededor del botón: empieza a apartarse antes de tocar la lista */
+const AIR = 24;
+
 /**
- * Botón flotante de WhatsApp. Aparece tras el hero (o el primer pantallazo), se oculta en /contacto y
- * cuando el footer está a la vista, y sube por encima del aviso de cookies.
+ * Botón flotante de WhatsApp. Aparece tras el hero (o el primer pantallazo), se oculta en /contacto,
+ * cuando el footer está a la vista y mientras pasa sobre elementos marcados con data-wa-avoid (los "+"
+ * del acordeón de preguntas), y sube por encima del aviso de cookies: --consent-lift es la franja
+ * inferior que ocupa el aviso mientras se ve (0 si no hay aviso).
  */
 export function WhatsAppFloat() {
   const pathname = usePathname();
+  const ref = useRef<HTMLAnchorElement>(null);
   const [pastHero, setPastHero] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
-  const [offset, setOffset] = useState(0);
+  const [overContent, setOverContent] = useState(false);
 
   // Con hero ([data-hero], Inicio): visible cuando el hero ha salido por
   // arriba. En el resto de páginas, tras el primer pantallazo.
@@ -52,33 +58,47 @@ export function WhatsAppFloat() {
     return () => io.disconnect();
   }, [pathname]);
 
-  // Si el aviso de cookies está abierto y ocupa la parte inferior, se sube
+  // Caja del botón en reposo (sin el desplazamiento de entrada y salida, que va en translate, pero con
+  // la subida sobre el aviso, que va en transform): así ocultarlo no cambia el resultado y no parpadea.
   useEffect(() => {
-    const root = document.documentElement;
-    const measure = () => {
-      const banner = document.querySelector<HTMLElement>('#cc-main .cm');
-      if (!root.classList.contains('show--consent') || !banner) {
-        setOffset(0);
-        return;
-      }
-      // offsetTop y offsetLeft no incluyen la transformación de entrada del aviso
-      const overlapsRight = banner.offsetLeft + banner.offsetWidth > window.innerWidth - 100;
-      setOffset(overlapsRight ? Math.max(0, window.innerHeight - banner.offsetTop) : 0);
+    const el = ref.current;
+    const items = [...document.querySelectorAll<HTMLElement>('[data-wa-avoid]')];
+    if (!el || items.length === 0) return;
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      const box = el.getBoundingClientRect();
+      const shift = parseFloat(getComputedStyle(el).translate.split(' ')[1] ?? '') || 0;
+      const top = box.top - shift - AIR;
+      const bottom = box.bottom - shift + AIR;
+      const left = box.left - AIR;
+      const right = box.right + AIR;
+      setOverContent(
+        items.some((item) => {
+          const r = item.getBoundingClientRect();
+          return r.top < bottom && r.bottom > top && r.left < right && r.right > left;
+        }),
+      );
     };
-    measure();
-    const mo = new MutationObserver(measure);
-    mo.observe(root, { attributes: true, attributeFilter: ['class'] });
-    window.addEventListener('resize', measure);
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    schedule();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
     return () => {
-      mo.disconnect();
-      window.removeEventListener('resize', measure);
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      setOverContent(false);
     };
-  }, []);
+  }, [pathname]);
 
-  const visible = pastHero && !footerVisible && pathname !== '/contacto';
+  const visible = pastHero && !footerVisible && !overContent && pathname !== '/contacto';
 
   return (
     <a
+      ref={ref}
       id="whatsapp-flotante"
       href={whatsappHref()}
       target="_blank"
@@ -87,10 +107,10 @@ export function WhatsAppFloat() {
       tabIndex={visible ? undefined : -1}
       aria-hidden={visible ? undefined : true}
       onClick={() => trackEvent('click_whatsapp', { ubicacion: 'flotante' })}
-      style={{ bottom: `calc(max(20px, var(--safe-bottom) + 12px) + ${offset}px)` }}
       className={[
-        'fixed right-[max(16px,var(--safe-right))] z-30 flex size-[52px] items-center justify-center rounded-full bg-wood text-cream',
-        'transition-[opacity,transform,bottom,background-color] duration-500 ease-brand hover:bg-wood-dark',
+        'fixed right-[max(16px,var(--safe-right))] bottom-[max(20px,calc(var(--safe-bottom)+12px))] z-30 flex size-[52px] items-center justify-center rounded-full bg-wood text-cream',
+        '[transform:translateY(calc(var(--consent-lift)*-1))]',
+        'transition-[opacity,transform,translate,background-color] duration-500 ease-brand hover:bg-wood-dark',
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0',
       ].join(' ')}
     >

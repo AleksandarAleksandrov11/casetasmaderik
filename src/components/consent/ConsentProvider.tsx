@@ -5,6 +5,7 @@ import type { CookieConsentConfig } from 'vanilla-cookieconsent';
 import { CONSENT_COOKIE, CONSENT_DAYS, CONSENT_REVISION, consentTexts, cookieCategories } from '@/content/cookies';
 import { captureEntry, forgetAttribution, rememberAttribution } from '@/lib/utm';
 import { EVT } from '@/lib/events';
+import { BOT_UA, CONSENT_PENDING_CLASS } from './pending';
 import { setConsentState } from './trackEvent';
 import 'vanilla-cookieconsent/dist/cookieconsent.css';
 import './consent.css';
@@ -29,10 +30,138 @@ export function useConsent(): ConsentContextValue {
 
 type CC = typeof import('vanilla-cookieconsent');
 
-/** Altura del aviso, para reservar ese espacio al final de la página. */
+/**
+ * Publica en --consent-h la franja inferior que ocupa el aviso: del borde
+ * superior del aviso al borde inferior de la ventana. Sustituye a la
+ * estimación de globals.css. offsetTop no incluye la transformación de entrada.
+ */
 function measureBanner() {
+  const root = document.documentElement;
   const banner = document.querySelector<HTMLElement>('#cc-main .cm');
-  if (banner) document.documentElement.style.setProperty('--cc-banner-h', `${banner.offsetHeight}px`);
+  if (!banner || !root.classList.contains(CONSENT_PENDING_CLASS)) return;
+  const band = Math.max(0, Math.ceil(window.innerHeight - banner.offsetTop));
+  root.style.setProperty('--consent-h', `${band}px`);
+}
+
+/** El aviso ya no está: la página recupera todo su alto. */
+function releaseBanner() {
+  const root = document.documentElement;
+  root.classList.remove(CONSENT_PENDING_CLASS);
+  root.style.removeProperty('--consent-h');
+}
+
+let bannerObserver: ResizeObserver | null = null;
+
+/**
+ * En pantallas bajas el aviso ocupa una cuarta parte del alto o más y el
+ * hero, que llena la pantalla, no tiene sitio para dejarle: ahí el aviso
+ * espera a no tapar ningún CTA ni el título de la página.
+ */
+const SHORT_SCREEN_SHARE = 0.25;
+
+const INTERACTIVE =
+  'a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex]:not([tabindex="-1"])';
+
+/** ¿Taparía el aviso el título de la página o algún enlace, botón o campo visible? */
+function coversKeyContent(banner: HTMLElement): boolean {
+  // Caja del aviso ya colocado (offsetTop no incluye la transformación de entrada)
+  const top = banner.offsetTop;
+  const bottom = top + banner.offsetHeight;
+  const left = banner.offsetLeft;
+  const right = left + banner.offsetWidth;
+  const hits = (r: DOMRect) =>
+    r.width >= 2 && r.height >= 2 && r.bottom > top && r.top < bottom && r.right > left && r.left < right;
+  // Del título cuenta el texto de cada línea, no la caja del bloque
+  const range = document.createRange();
+  for (const h1 of document.querySelectorAll('main h1')) {
+    range.selectNodeContents(h1);
+    if ([...range.getClientRects()].some(hits)) return true;
+  }
+  for (const el of document.querySelectorAll<HTMLElement>(INTERACTIVE)) {
+    if (!hits(el.getBoundingClientRect())) continue;
+    // El botón de WhatsApp sube por encima del aviso
+    if (el.closest('#cc-main, #whatsapp-flotante, [aria-hidden="true"], [inert]')) continue;
+    if (
+      typeof el.checkVisibility === 'function' &&
+      !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+    )
+      continue;
+    return true;
+  }
+  return false;
+}
+
+let stopWaiting: (() => void) | null = null;
+
+/**
+ * La librería enfoca el aviso al mostrarlo. Si aparece después, mientras se
+ * usa la página, el foco se queda donde estaba (por ejemplo, en un campo).
+ */
+function showKeepingFocus(lib: CC, banner: HTMLElement) {
+  const prev = document.activeElement;
+  if (prev instanceof HTMLElement && prev !== document.body) {
+    banner.addEventListener(
+      'focusin',
+      (e) => {
+        // Solo el centinela de la librería (tabindex -1), nunca un Tab del usuario
+        if (e.target instanceof HTMLElement && e.target.matches('[tabindex="-1"]')) prev.focus({ preventScroll: true });
+      },
+      { once: true },
+    );
+  }
+  lib.show();
+}
+
+/**
+ * Muestra el aviso sin tapar nunca un CTA. Si en una pantalla baja el primer
+ * pantallazo no le deja sitio (el hero ocupa todo el alto), espera al primer
+ * desplazamiento que deje libre su franja. Al final de la página siempre la
+ * hay: el body reserva ese hueco (globals.css).
+ */
+function showWhenClear(lib: CC) {
+  stopWaiting?.();
+  const banner = document.querySelector<HTMLElement>('#cc-main .cm');
+  if (!banner) return;
+  document.documentElement.classList.add(CONSENT_PENDING_CLASS);
+  measureBanner();
+  let frame = 0;
+  const stop = () => {
+    cancelAnimationFrame(frame);
+    window.removeEventListener('scroll', schedule);
+    window.removeEventListener('resize', schedule);
+    stopWaiting = null;
+  };
+  const check = () => {
+    frame = 0;
+    // Ya decidió (desde "Configurar cookies" del pie, por ejemplo)
+    if (lib.validConsent()) {
+      stop();
+      return;
+    }
+    const share = (window.innerHeight - banner.offsetTop) / window.innerHeight;
+    const root = document.documentElement;
+    const atEnd = window.scrollY + window.innerHeight >= root.scrollHeight - 2;
+    if (share < SHORT_SCREEN_SHARE || atEnd || !coversKeyContent(banner)) {
+      stop();
+      showKeepingFocus(lib, banner);
+    }
+  };
+  function schedule() {
+    if (!frame) frame = requestAnimationFrame(check);
+  }
+  stopWaiting = stop;
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  check();
+}
+
+function watchBanner(on: boolean) {
+  bannerObserver?.disconnect();
+  bannerObserver = null;
+  const banner = document.querySelector<HTMLElement>('#cc-main .cm');
+  if (!on || !banner || typeof ResizeObserver === 'undefined') return;
+  bannerObserver = new ResizeObserver(measureBanner);
+  bannerObserver.observe(banner);
 }
 
 /**
@@ -68,25 +197,36 @@ function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
   return {
     revision: CONSENT_REVISION,
     mode: 'opt-in',
-    autoShow: true,
+    // Lo muestra showWhenClear, cuando no tapa ningún CTA
+    autoShow: false,
     // La detección propia de bots de la librería oculta el aviso con navigator.webdriver
     hideFromBots: false,
     disablePageInteraction: false,
     cookie: { name: CONSENT_COOKIE, expiresAfterDays: CONSENT_DAYS, sameSite: 'Lax' },
     guiOptions: {
-      consentModal: { layout: 'box', position: 'bottom left', equalWeightButtons: true, flipButtons: false },
+      // Barra inferior; consent.css la convierte en hoja (móvil) o tarjeta (móvil en horizontal)
+      consentModal: { layout: 'bar', position: 'bottom', equalWeightButtons: true, flipButtons: false },
       preferencesModal: { layout: 'box', equalWeightButtons: true, flipButtons: false },
     },
     categories,
-    onConsent: update,
+    onConsent: () => {
+      // También si decide desde "Configurar cookies" mientras el aviso espera
+      stopWaiting?.();
+      releaseBanner();
+      update();
+    },
     onModalShow: ({ modalName }) => {
       if (modalName !== 'consentModal') return;
       // El aviso no es modal: no bloquea la página ni retiene el foco
       document.querySelector('#cc-main .cm')?.setAttribute('aria-modal', 'false');
+      document.documentElement.classList.add(CONSENT_PENDING_CLASS);
       measureBanner();
+      watchBanner(true);
     },
     onModalHide: ({ modalName }) => {
-      if (modalName === 'consentModal') document.documentElement.style.removeProperty('--cc-banner-h');
+      if (modalName !== 'consentModal') return;
+      watchBanner(false);
+      releaseBanner();
     },
     onChange: ({ changedCategories }) => {
       update();
@@ -162,7 +302,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     captureEntry();
     window.addEventListener('keydown', releaseBannerFocus, true);
     window.addEventListener('resize', measureBanner);
-    const isBot = /bot|crawl|spider|slurp|teoma/i.test(navigator.userAgent);
+    const isBot = BOT_UA.test(navigator.userAgent);
     import('vanilla-cookieconsent').then((mod) => {
       if (cancelled) return;
       const lib = mod as CC;
@@ -181,15 +321,24 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         window.dispatchEvent(new CustomEvent(EVT.consent, { detail: next }));
       };
       if (isBot) {
+        releaseBanner();
         setState((s) => ({ ...s, ready: true }));
         return;
       }
       lib.run(buildConfig(lib, update)).then(() => {
-        if (!lib.validConsent()) setState((s) => ({ ...s, ready: true }));
+        if (cancelled) return;
+        // Con un consentimiento válido el aviso no llega a mostrarse
+        if (lib.validConsent()) releaseBanner();
+        else {
+          setState((s) => ({ ...s, ready: true }));
+          showWhenClear(lib);
+        }
       });
-    });
+    }, releaseBanner);
     return () => {
       cancelled = true;
+      stopWaiting?.();
+      watchBanner(false);
       window.removeEventListener('keydown', releaseBannerFocus, true);
       window.removeEventListener('resize', measureBanner);
     };
