@@ -10,10 +10,24 @@ import { FORM_COPY, STEPS } from './copy';
  */
 
 export const ROOT_CLASS = 'relative scroll-mt-[calc(var(--header-h-compact)+16px)] [html:not(.js)_&]:hidden';
-export const PANEL_CLASS = 'rounded-sm border border-sand bg-paper/55 px-5 py-7 sm:px-9 sm:py-10 lg:px-11 lg:py-11';
-export const ACTIONS_CLASS = 'mt-10 flex items-center justify-between gap-3 border-t border-sand pt-6';
-export const EVENT_GRID_CLASS = 'clear-both grid grid-cols-2 gap-3 sm:grid-cols-3';
-export const NEXT_BUTTON_CLASS = 'min-w-[10.5rem] max-sm:flex-1';
+/*
+ * Panel papel con campos crema: los dos tonos de la paleta, sin blancos puros
+ * ni mezclas. surface-paper oscurece los enlaces (madera oscura) para el AA.
+ */
+export const PANEL_CLASS =
+  'surface-paper rounded-sm border border-sand bg-paper px-5 py-7 sm:px-9 sm:py-10 lg:px-11 lg:py-11';
+export const ACTIONS_CLASS = 'mt-10 flex items-center gap-3 border-t border-sand pt-6';
+/*
+ * Las tarjetas se reparten según el ancho real de la rejilla (container
+ * queries), no según la pantalla: el formulario vive en columnas muy distintas
+ * (móvil, tablet, media columna en escritorio). Sobre 6 columnas cada tarjeta
+ * ocupa 3 (dos por fila) y 2 desde 32rem (tres por fila). Por debajo de 17rem
+ * (móviles de 320 px) pasan a filas compactas de una línea, con la marca de
+ * selección en el sitio del icono. Así "gastronómico" cabe siempre entero.
+ */
+export const EVENT_GRID_CLASS = '@container clear-both grid grid-cols-6 gap-3';
+// ml-auto lo deja a la derecha aunque no haya botón Atrás; en móvil ocupa toda la fila
+export const NEXT_BUTTON_CLASS = 'ml-auto min-w-[10.5rem] max-sm:flex-1';
 
 const EVENT_ICONS: Record<TipoEvento, LucideIcon> = {
   'Mercado navideño': TreePine,
@@ -26,29 +40,58 @@ const EVENT_ICONS: Record<TipoEvento, LucideIcon> = {
 
 export function eventCardClass(checked: boolean): string {
   return [
-    'group relative flex min-h-[116px] cursor-pointer flex-col justify-between gap-5 rounded-sm border bg-white p-4 sm:min-h-[128px] sm:p-5',
+    'group relative col-span-3 flex min-h-[116px] cursor-pointer flex-col justify-between gap-5 rounded-sm border p-4 sm:min-h-[128px] sm:p-5',
+    '@lg:col-span-2',
+    // Dos por fila en móviles de 360 a 380 px: algo menos de relleno (la letra baja en EventCardContent)
+    '@min-[17rem]:@max-[18.5rem]:p-3.5',
+    /*
+     * Filas a todo el ancho por debajo de 17rem: icono y nombre en una línea,
+     * todas de 56 px. Sin hueco a la derecha para la marca (va sobre el icono),
+     * así el paso mide casi lo mismo que con dos tarjetas por fila.
+     */
+    '@max-[17rem]:col-span-6 @max-[17rem]:min-h-14 @max-[17rem]:flex-row @max-[17rem]:items-center @max-[17rem]:justify-start @max-[17rem]:gap-3 @max-[17rem]:px-3.5 @max-[17rem]:py-3',
     'transition-[border-color,background-color] duration-300 ease-brand',
     'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-3 has-[:focus-visible]:outline-wood has-[:focus-visible]:outline-solid',
-    checked ? 'border-wood bg-wood/[0.06]' : 'border-sand hover:border-ink/35',
+    checked ? 'border-wood bg-wood/[0.06]' : 'border-sand bg-cream hover:border-ink/35',
   ].join(' ');
 }
 
 /** Icono, nombre y marca de selección de una tarjeta de tipo de evento. */
 export function EventCardContent({ value, checked }: { value: TipoEvento; checked: boolean }) {
   const Icon = EVENT_ICONS[value];
+  /*
+   * En las tarjetas el nombre se compone siempre en dos líneas, cortado tras la
+   * primera palabra ("Feria / o bazar", nunca una "o" a final de línea): todas
+   * las tarjetas leen igual, quepa o no el nombre entero. En filas, una línea.
+   */
+  const cut = value.indexOf(' ');
+  const first = cut === -1 ? value : value.slice(0, cut);
+  const rest = cut === -1 ? '' : value.slice(cut + 1);
   return (
     <>
       <Icon
         aria-hidden="true"
         strokeWidth={1.5}
-        className="size-7 text-wood transition-transform duration-500 ease-brand group-hover:-translate-y-0.5"
+        className={`size-7 flex-none text-wood transition-[translate,opacity] duration-500 ease-brand group-hover:-translate-y-0.5 ${checked ? '@max-[17rem]:opacity-0' : ''}`}
       />
-      <span className="pr-1 font-display text-[1.0625rem] leading-[1.2] text-ink sm:text-[1.125rem]">{value}</span>
+      <span className="min-w-0 pr-1 font-display text-[1.0625rem] leading-[1.2] break-words text-ink sm:text-[1.125rem] @max-[17rem]:text-base @min-[17rem]:@max-[18.5rem]:text-base">
+        {first}
+        {rest ? (
+          <>
+            {' '}
+            <span className="block @max-[17rem]:inline">{rest}</span>
+          </>
+        ) : null}
+      </span>
       <span
         aria-hidden="true"
         className={[
           'absolute top-4 right-4 flex size-[22px] items-center justify-center rounded-full border transition-[background-color,border-color,opacity] duration-300 ease-brand sm:top-5 sm:right-5',
-          checked ? 'border-wood bg-wood opacity-100' : 'border-sand bg-white opacity-0 group-hover:opacity-100',
+          // En filas, la marca ocupa el sitio del icono (centrada sobre sus 28 px) y solo aparece al elegir
+          '@max-[17rem]:top-[calc(50%-11px)] @max-[17rem]:right-auto @max-[17rem]:left-[calc(0.875rem+3px)]',
+          checked
+            ? 'border-wood bg-wood opacity-100'
+            : 'border-sand bg-cream opacity-0 @min-[17rem]:group-hover:opacity-100',
         ].join(' ')}
       >
         <Check strokeWidth={2.5} className={`size-3 text-cream ${checked ? '' : 'opacity-0'}`} />
@@ -79,7 +122,7 @@ export function FormProgress({ step }: { step: number }) {
 export function NoScriptContact() {
   return (
     <noscript>
-      <div className="rounded-sm border border-sand bg-paper/55 px-5 py-7 sm:px-9 sm:py-10">
+      <div className="surface-paper rounded-sm border border-sand bg-paper px-5 py-7 sm:px-9 sm:py-10">
         <p className="font-display text-[1.5rem] leading-tight text-ink">{FORM_COPY.noscriptTitle}</p>
         <p className="mt-3 text-stone">{FORM_COPY.noscriptText}</p>
         <ul className="mt-6 space-y-1 text-[1.0625rem]">

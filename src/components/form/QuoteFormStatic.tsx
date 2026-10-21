@@ -41,7 +41,6 @@ export function QuoteFormStatic() {
               </fieldset>
             </div>
             <div className={ACTIONS_CLASS}>
-              <span aria-hidden="true" />
               <Button type="submit" arrow className={NEXT_BUTTON_CLASS}>
                 {FORM_COPY.next}
               </Button>

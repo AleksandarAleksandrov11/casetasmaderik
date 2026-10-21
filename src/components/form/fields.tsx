@@ -10,13 +10,18 @@ export function describedBy(id: string, error?: string, hint?: boolean): string 
   return ids.length > 0 ? ids.join(' ') : undefined;
 }
 
+/*
+ * Un campo con error se queda rojo también al pasar el ratón y con el foco: los
+ * estados neutros (hover tinta, foco madera) solo existen para campos válidos.
+ * Desactivado va en arena maciza: más hundido que el panel papel y sin hover,
+ * para que se lea como campo y no se confunda con el fondo.
+ */
 export const inputClass = (invalid: boolean, full = true) =>
   [
-    `block ${full ? 'w-full' : ''} min-h-14 rounded-sm border bg-white px-4 text-base text-ink`,
+    `block ${full ? 'w-full' : ''} min-h-14 rounded-sm border bg-cream px-4 text-base text-ink`,
     'placeholder:text-stone/75 transition-[border-color,background-color] duration-300 ease-brand',
-    'hover:border-ink/35 focus:border-wood',
-    'disabled:cursor-not-allowed disabled:bg-paper/60 disabled:text-stone',
-    invalid ? 'border-error hover:border-error' : 'border-sand',
+    'disabled:cursor-not-allowed disabled:border-sand disabled:bg-sand disabled:text-stone',
+    invalid ? 'border-error' : 'border-sand hover:border-ink/35 focus:border-wood',
   ].join(' ');
 
 export function FieldError({ id, message }: { id: string; message?: string }) {
@@ -74,7 +79,7 @@ export function CheckboxMark() {
 
 export const checkboxClass = (invalid: boolean) =>
   [
-    'peer size-[22px] flex-none appearance-none rounded-xs border bg-white transition-colors duration-200',
-    'checked:border-wood checked:bg-wood hover:border-wood',
-    invalid ? 'border-error' : 'border-ink/40',
+    'peer size-[22px] flex-none appearance-none rounded-xs border bg-cream transition-colors duration-200',
+    'checked:border-wood checked:bg-wood',
+    invalid ? 'border-error' : 'border-ink/40 hover:border-wood',
   ].join(' ');

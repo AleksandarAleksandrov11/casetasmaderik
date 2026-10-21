@@ -25,8 +25,9 @@ export const site = {
   }, // PENDIENTE: domicilio social (obligatorio en el aviso legal)
   registry: null as null | string, // PENDIENTE: datos registrales de la asociación
   serviceArea: { label: 'España', regions: [] as string[] }, // PENDIENTE: provincias o ciudades
-  hours: 'Lunes a viernes, de 9:00 a 19:00', // PENDIENTE: horario real
-  responseTime: 'menos de 24 horas laborables', // PENDIENTE: tiempo de respuesta real
+  // Espacios de no separación (\u00A0): el horario y la cifra con su unidad no se parten entre líneas
+  hours: 'Lunes a viernes, de\u00A09:00\u00A0a\u00A019:00', // PENDIENTE: horario real
+  responseTime: 'menos de 24\u00A0horas laborables', // PENDIENTE: tiempo de respuesta real
   social: {
     instagram: 'https://www.instagram.com/casetasmaderik/', // PENDIENTE: confirmar URL
   } as Record<string, string>,
