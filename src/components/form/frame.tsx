@@ -16,7 +16,8 @@ export const ROOT_CLASS = 'relative scroll-mt-[calc(var(--header-h-compact)+16px
  */
 export const PANEL_CLASS =
   'surface-paper rounded-sm border border-sand bg-paper px-5 py-7 sm:px-9 sm:py-10 lg:px-11 lg:py-11';
-export const ACTIONS_CLASS = 'mt-10 flex flex-wrap-reverse items-center gap-3 border-t border-sand pt-6';
+// flex-wrap (no reverse): si el botón principal baja de fila, el orden visual sigue al del teclado
+export const ACTIONS_CLASS = 'mt-10 flex flex-wrap items-center gap-3 border-t border-sand pt-6';
 /*
  * Las tarjetas se reparten según el ancho real de la rejilla (container
  * queries), no según la pantalla: el formulario vive en columnas muy distintas

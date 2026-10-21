@@ -63,6 +63,9 @@ const INTERACTIVE =
   'a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex]:not([tabindex="-1"])';
 
 /** ¿Taparía el aviso el título de la página o algún enlace, botón o campo visible? */
+/** Aire mínimo, en px, entre el aviso y las líneas del H1. */
+const TITLE_CLEARANCE = 24;
+
 function coversKeyContent(banner: HTMLElement): boolean {
   // Caja del aviso ya colocado (offsetTop no incluye la transformación de entrada)
   const top = banner.offsetTop;
@@ -71,11 +74,19 @@ function coversKeyContent(banner: HTMLElement): boolean {
   const right = left + banner.offsetWidth;
   const hits = (r: DOMRect) =>
     r.width >= 2 && r.height >= 2 && r.bottom > top && r.top < bottom && r.right > left && r.left < right;
-  // Del título cuenta el texto de cada línea, no la caja del bloque
+  // Del título cuenta el texto de cada línea, no la caja del bloque, con aire: un aviso
+  // a 9 px del final de una línea no la tapa, pero parece pegado a ella
+  const nearTitle = (r: DOMRect) =>
+    r.width >= 2 &&
+    r.height >= 2 &&
+    r.bottom > top - TITLE_CLEARANCE &&
+    r.top < bottom &&
+    r.right > left - TITLE_CLEARANCE &&
+    r.left < right;
   const range = document.createRange();
   for (const h1 of document.querySelectorAll('main h1')) {
     range.selectNodeContents(h1);
-    if ([...range.getClientRects()].some(hits)) return true;
+    if ([...range.getClientRects()].some(nearTitle)) return true;
   }
   for (const el of document.querySelectorAll<HTMLElement>(INTERACTIVE)) {
     if (!hits(el.getBoundingClientRect())) continue;
@@ -141,9 +152,12 @@ function showWhenClear(lib: CC) {
   };
   banner.addEventListener('keydown', onKey);
   banner.addEventListener('focusout', onFocusOut);
-  const setTucked = (tucked: boolean) => {
-    root.classList.toggle(TUCKED_CLASS, tucked);
-    banner.toggleAttribute('inert', tucked);
+  let tucked = false;
+  let lastY = window.scrollY;
+  const setTucked = (value: boolean) => {
+    tucked = value;
+    root.classList.toggle(TUCKED_CLASS, value);
+    banner.toggleAttribute('inert', value);
   };
   const stop = () => {
     cancelAnimationFrame(frame);
@@ -164,6 +178,9 @@ function showWhenClear(lib: CC) {
     const share = (window.innerHeight - banner.offsetTop) / window.innerHeight;
     const short = share >= SHORT_SCREEN_SHARE;
     const atEnd = window.scrollY + window.innerHeight >= root.scrollHeight - 2;
+    const y = window.scrollY;
+    const goingUp = y < lastY;
+    lastY = y;
     if (!shown) {
       if (!short || atEnd || !coversKeyContent(banner)) {
         shown = true;
@@ -171,13 +188,10 @@ function showWhenClear(lib: CC) {
       }
       return;
     }
-    const tuck =
-      short &&
-      !atEnd &&
-      window.scrollY < window.innerHeight * 0.5 &&
-      !usingKeyboard &&
-      coversKeyContent(banner);
-    setTucked(tuck);
+    const want = short && !atEnd && y < window.innerHeight * 0.5 && !usingKeyboard && coversKeyContent(banner);
+    // Solo se recoge al volver hacia arriba; al bajar únicamente se suelta (si no, en la primera
+    // bajada aparecería, se iría y volvería)
+    setTucked(tucked ? want : want && goingUp);
   };
   function schedule() {
     if (!frame) frame = requestAnimationFrame(check);

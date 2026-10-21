@@ -92,6 +92,14 @@
   --consent-lift: 0px;
 }
 
+/* Móviles en horizontal: el H2 se limita por el alto, para que nunca supere al
+   título del hero ni a los H1 en una pantalla de 360 a 430 px de alto */
+@media (max-height: 520px) and (min-aspect-ratio: 5/4) {
+  :root {
+    --fs-h2: clamp(2rem, 9svh, 4.5rem);
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Base                                                                */
 /* ------------------------------------------------------------------ */
@@ -394,8 +402,14 @@
      es mucho mayor que el carácter medio y 70ch daban casi 100 caracteres por
      línea; por eso la medida va en em. El listado de cookies comparte la
      misma medida: un solo borde derecho para toda la columna. */
-  .prose-legal :is(h2, h3, p, ul, .cookie-table) {
+  .prose-legal :is(p, ul, .cookie-table) {
     max-width: 32em;
+  }
+
+  /* Los títulos, con la medida del texto: en em contarían su propio tamaño
+     (casi el doble) y el H2 largo pasaría del borde derecho de la columna */
+  .prose-legal :is(h2, h3) {
+    max-width: calc(32 * var(--fs-body));
   }
 
   .prose-legal h2 {
@@ -413,7 +427,7 @@
 
   .prose-legal p,
   .prose-legal li {
-    color: #2a3230;
+    color: var(--color-ink);
   }
 
   /* Como en el resto de la web (brief 5.2): sin palabras sueltas al final */
@@ -459,7 +473,7 @@
      dónde se ve cada celda.
      Estrecho: una ficha por cookie con nombre, finalidad y pares etiqueta y
      valor; la cabecera queda solo para los lectores de pantalla.
-     Desde 35.5rem: tabla con una sola fila de cabecera. Nombre, proveedor,
+     Desde 32.5rem: tabla con una sola fila de cabecera. Nombre, proveedor,
      duración y tipo en columnas y la finalidad debajo, a todo el ancho. La
      cabecera "Finalidad" solo la oyen los lectores de pantalla: a la vista
      se leía como continuación de "Nombre". */
@@ -531,7 +545,7 @@
   }
 
   .prose-legal .cookie-table td {
-    color: #2a3230;
+    color: var(--color-ink);
   }
 
   .prose-legal .cookie-purpose {
@@ -559,10 +573,10 @@
      alinean. Los mínimos evitan cortes absurdos ("Casetas Maderik", "No
      instala cookies" y "De terceros" en una línea, la duración de sesión en
      dos) y el sobrante va sobre todo al nombre. */
-  @container (min-width: 35.5rem) {
+  @container (min-width: 32.5rem) {
     .prose-legal .cookie-table tr {
       grid-template-columns:
-        minmax(11rem, 1.5fr) minmax(7.5rem, 1fr) minmax(8rem, 1fr)
+        minmax(8.5rem, 1.5fr) minmax(7.5rem, 1fr) minmax(8rem, 1fr)
         minmax(5.25rem, 0.6fr);
       grid-template-areas:
         'nombre proveedor duracion tipo'

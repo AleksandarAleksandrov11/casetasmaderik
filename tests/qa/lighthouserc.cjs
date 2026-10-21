@@ -14,9 +14,15 @@ const common = {
 module.exports = {
   ci: {
     collect: {
-      url: ['/', '/casetas', '/nosotros', '/contacto', '/aviso-legal', '/politica-de-privacidad', '/politica-de-cookies'].map(
-        (p) => base + p,
-      ),
+      url: [
+        '/',
+        '/casetas',
+        '/nosotros',
+        '/contacto',
+        '/aviso-legal',
+        '/politica-de-privacidad',
+        '/politica-de-cookies',
+      ].map((p) => base + p),
       numberOfRuns: Number(process.env.LHCI_RUNS || 3),
       chromePath,
       settings: {

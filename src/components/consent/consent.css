@@ -420,6 +420,23 @@
   html.cc-pending #formulario [data-quote-actions] > button[type='submit'] {
     margin-left: 0;
   }
+
+  /* Y el texto y las acciones del CTA final se quedan en la columna que deja
+     libre la tarjeta (su ancho, el de arriba, y un margen entre las dos) */
+  html.cc-pending {
+    --consent-free-w: calc(
+      100vw - var(--gutter) - max(var(--gutter), var(--safe-left)) - max(var(--gutter), var(--safe-right)) -
+        min(320px, max(264px, calc(46vw - var(--gutter))))
+    );
+  }
+
+  html.cc-pending [data-cta-lead] {
+    max-width: min(44ch, var(--consent-free-w));
+  }
+
+  html.cc-pending [data-cta-actions] {
+    max-width: min(100%, var(--consent-free-w));
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -495,8 +512,14 @@
   color: #5e6461;
 }
 
+/* Subrayados en reposo, como el resto de enlaces de texto de la web; sin el
+   subrayado animado de la librería, que solo aparecía al pasar el ratón */
 #cc-main .pm a {
   color: #6e4329;
+  background-image: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 #cc-main .pm__footer {

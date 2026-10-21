@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
-import Link from 'next/link';
 import { homeHero } from '@/content/home';
 import { ButtonLink } from '@/components/ui/Button';
+import { TextLink } from '@/components/ui/TextLink';
 import { Poster } from '@/components/three/Poster';
 import { posters } from '@/components/three/posters';
 import { InlineStyle } from '@/components/three/InlineStyle';
@@ -62,9 +62,9 @@ export function HomeHero() {
               <ButtonLink href={h.primary.href} className="hero__primary">
                 {h.primary.label}
               </ButtonLink>
-              <Link href={h.secondary.href} className="link-underline hero__secondary">
+              <TextLink href={h.secondary.href} className="hero__secondary">
                 {h.secondary.label}
-              </Link>
+              </TextLink>
             </div>
           </div>
         </div>

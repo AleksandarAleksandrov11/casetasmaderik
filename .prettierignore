@@ -10,3 +10,7 @@ test-results
 .claude
 src/components/brand/brand-data.ts
 src/components/sections/nosotros/spain-provinces.ts
+# Lo reescribe Next (next typegen) con su propio formato
+tsconfig.json
+# Apps Script: el editor de Google tiene su propio formato
+apps-script/Code.gs

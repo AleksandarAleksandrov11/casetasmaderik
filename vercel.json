@@ -3,7 +3,12 @@
   "framework": "nextjs",
   "regions": ["cdg1"],
   "redirects": [
-    { "source": "/:path*", "has": [{ "type": "host", "value": "www.casetasmaderik.es" }], "destination": "https://casetasmaderik.es/:path*", "statusCode": 301 },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.casetasmaderik.es" }],
+      "destination": "https://casetasmaderik.es/:path*",
+      "statusCode": 301
+    },
     { "source": "/product-category/:path*", "destination": "/casetas", "statusCode": 301 },
     { "source": "/product/:path*", "destination": "/casetas", "statusCode": 301 },
     { "source": "/tienda/:path*", "destination": "/casetas", "statusCode": 301 },
@@ -27,7 +32,10 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" },
         { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com; font-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests" }
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com; font-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
+        }
       ]
     },
     {

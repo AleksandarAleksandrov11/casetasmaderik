@@ -186,13 +186,20 @@ export function CtaFinal({
         <div className="max-w-[56rem]">
           {label ? <Label>{label}</Label> : null}
           <Heading className={label ? 'mt-6' : ''}>{title}</Heading>
-          <p data-reveal className={`text-lead mt-6 max-w-[44ch] ${dark ? 'text-cream/85' : 'text-stone'}`}>
+          {/* data-cta-lead y data-cta-actions: en móvil horizontal, con el aviso de cookies pendiente,
+              se quedan a la izquierda de su tarjeta (consent.css) */}
+          <p
+            data-reveal
+            data-cta-lead
+            className={`text-lead mt-6 max-w-[44ch] ${dark ? 'text-cream/85' : 'text-stone'}`}
+          >
             {actions.includes('email') ? text : withEmailLink(text, place)}
           </p>
           {/* data-wa-avoid: el botón flotante de WhatsApp no tapa estas acciones */}
           <div
             data-reveal
             data-wa-avoid
+            data-cta-actions
             style={{ ['--reveal-delay' as string]: '0.1s' }}
             className="mt-10 flex w-fit max-w-full flex-wrap items-center gap-x-6 gap-y-4"
           >

@@ -20,6 +20,11 @@ interface DimDef {
   /** Desplazamiento de la etiqueta en px de pantalla y alineación (a la izquierda del punto o centrada). */
   shift?: [number, number];
   align?: 'center' | 'left';
+  /**
+   * Aire mínimo en px entre la línea de cota y la caja de la etiqueta, que va debajo. Con la cámara
+   * baja del hero, la línea del largo sube en perspectiva y su mitad izquierda pisaba la etiqueta.
+   */
+  below?: number;
   range: [number, number];
 }
 
@@ -43,6 +48,7 @@ export const DIMENSIONS: DimDef[] = [
       ],
     ],
     labelAt: [0, Y, HALF_W + OFF + 0.24],
+    below: 2,
     range: [0, 0.5],
   },
   {
@@ -91,6 +97,8 @@ export interface DimensionsProps {
 }
 
 const _v = new THREE.Vector3();
+const _a = new THREE.Vector3();
+const _b = new THREE.Vector3();
 
 /**
  * Cotas animadas: la línea se dibuja desde un extremo y la etiqueta aparece al
@@ -135,7 +143,21 @@ export function Dimensions({ stateRef, color = '#F3EDE4' }: DimensionsProps) {
       }
       _v.set(...d.labelAt).project(state.camera);
       const x = ((_v.x + 1) / 2) * width;
-      const y = ((1 - _v.y) / 2) * height + (1 - lt) * 8;
+      let y = ((1 - _v.y) / 2) * height;
+      if (d.below != null) {
+        // Altura de la línea proyectada bajo los dos bordes de la etiqueta: la etiqueta baja lo justo
+        _a.set(...d.from).project(state.camera);
+        _b.set(...d.to).project(state.camera);
+        const ax = ((_a.x + 1) / 2) * width;
+        const ay = ((1 - _a.y) / 2) * height;
+        const bx = ((_b.x + 1) / 2) * width;
+        const by = ((1 - _b.y) / 2) * height;
+        const lineY = (px: number) => ay + ((by - ay) * (px - ax)) / (bx - ax || 1);
+        const hw = el.offsetWidth / 2;
+        const hh = el.offsetHeight / 2;
+        y = Math.max(y, Math.max(lineY(x - hw), lineY(x + hw)) + d.below + hh);
+      }
+      y += (1 - lt) * 8;
       el.style.opacity = String(lt);
       const [sx, sy] = d.shift ?? [0, 0];
       const tx = d.align === 'left' ? '-100%' : '-50%';

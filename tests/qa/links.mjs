@@ -21,7 +21,9 @@ const result = await checker.check({
 });
 
 console.log(`Enlaces internos comprobados: ${result.links.filter((l) => l.url.startsWith(base)).length}`);
-console.log(`Enlaces externos (no comprobados): ${[...external].filter((u) => !u.startsWith('mailto:') && !u.startsWith('tel:')).length}`);
+console.log(
+  `Enlaces externos (no comprobados): ${[...external].filter((u) => !u.startsWith('mailto:') && !u.startsWith('tel:')).length}`,
+);
 if (broken.length) {
   console.error('Enlaces rotos:\n' + broken.join('\n'));
   process.exit(1);

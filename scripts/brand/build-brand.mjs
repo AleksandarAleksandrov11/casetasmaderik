@@ -127,8 +127,14 @@ const hWidth = isoW + gapH + hLay.width;
 const hVB = `${ISO.viewBox.x} ${ISO.viewBox.y} ${hWidth.toFixed(2)} ${isoH}`;
 const horizontal = (isoColor, textColor) =>
   isoGroup({ color: isoColor }) + textGroup(hLay, { color: textColor, dx: hTextX, dy: hTextY });
-writeFileSync(out('public/brand/logo-horizontal.svg'), svgDoc(hVB, horizontal(COLORS.wood, COLORS.ink), 'Casetas Maderik'));
-writeFileSync(out('public/brand/logo-cream.svg'), svgDoc(hVB, horizontal(COLORS.woodLight, COLORS.cream), 'Casetas Maderik'));
+writeFileSync(
+  out('public/brand/logo-horizontal.svg'),
+  svgDoc(hVB, horizontal(COLORS.wood, COLORS.ink), 'Casetas Maderik'),
+);
+writeFileSync(
+  out('public/brand/logo-cream.svg'),
+  svgDoc(hVB, horizontal(COLORS.woodLight, COLORS.cream), 'Casetas Maderik'),
+);
 
 // Apilado: isotipo arriba y nombre en dos líneas centradas
 const S_CAP = 30;
@@ -144,10 +150,16 @@ const sLine1Y = sIsoH + 26;
 const sLine2Y = sLine1Y + S_CAP + 16;
 const sH = sLine2Y + S_CAP + 2;
 const stacked =
-  isoGroup({ color: COLORS.wood, transform: `translate(${sIsoX.toFixed(2)} ${sIsoY.toFixed(2)}) scale(${sIsoScale})` }) +
+  isoGroup({
+    color: COLORS.wood,
+    transform: `translate(${sIsoX.toFixed(2)} ${sIsoY.toFixed(2)}) scale(${sIsoScale})`,
+  }) +
   textGroup(sTop, { color: COLORS.ink, dx: (sW - sTop.width) / 2, dy: sLine1Y }) +
   textGroup(sBottom, { color: COLORS.ink, dx: (sW - sBottom.width) / 2, dy: sLine2Y });
-writeFileSync(out('public/brand/logo-stacked.svg'), svgDoc(`0 0 ${sW.toFixed(2)} ${sH.toFixed(2)}`, stacked, 'Casetas Maderik'));
+writeFileSync(
+  out('public/brand/logo-stacked.svg'),
+  svgDoc(`0 0 ${sW.toFixed(2)} ${sH.toFixed(2)}`, stacked, 'Casetas Maderik'),
+);
 
 // Datos para los componentes React (isotipo, logo horizontal y wordmark del footer)
 const footerLay = layout('CASETAS MADERIK', { capHeight: 100, tracking: 0.015 });
@@ -176,21 +188,29 @@ function iconSvg(size, { padding, background, radius = 0, stroke = 6.5 }) {
   const tx = (size - isoW * scale) / 2 - ISO.viewBox.x * scale;
   const ty = (size - isoH * scale) / 2 - ISO.viewBox.y * scale;
   const bg = background ? `<rect width="${size}" height="${size}" rx="${radius}" fill="${background}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${bg}${isoGroup({
-    color: COLORS.wood,
-    stroke,
-    transform: `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${scale.toFixed(4)})`,
-  })}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${bg}${isoGroup(
+    {
+      color: COLORS.wood,
+      stroke,
+      transform: `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${scale.toFixed(4)})`,
+    },
+  )}</svg>`;
 }
 
-writeFileSync(out('src/app/icon.svg'), iconSvg(64, { padding: 0.1, background: COLORS.cream, radius: 12, stroke: 8 }) + '\n');
+writeFileSync(
+  out('src/app/icon.svg'),
+  iconSvg(64, { padding: 0.1, background: COLORS.cream, radius: 12, stroke: 8 }) + '\n',
+);
 
 const png = (svg) => sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
 writeFileSync(out('src/app/apple-icon.png'), await png(iconSvg(180, { padding: 0.16, background: COLORS.cream })));
 writeFileSync(out('public/icons/icon-192.png'), await png(iconSvg(192, { padding: 0.14, background: COLORS.cream })));
 writeFileSync(out('public/icons/icon-512.png'), await png(iconSvg(512, { padding: 0.14, background: COLORS.cream })));
 // Maskable: el contenido debe caber en el círculo central del 80 %
-writeFileSync(out('public/icons/icon-maskable-512.png'), await png(iconSvg(512, { padding: 0.24, background: COLORS.cream })));
+writeFileSync(
+  out('public/icons/icon-maskable-512.png'),
+  await png(iconSvg(512, { padding: 0.24, background: COLORS.cream })),
+);
 
 // favicon.ico con entradas PNG de 16 y 32 px
 const ico16 = await png(iconSvg(16, { padding: 0.04, background: COLORS.cream, radius: 3, stroke: 9 }));
@@ -217,7 +237,13 @@ function buildIco(images) {
   }
   return Buffer.concat([header, ...entries, ...images.map((i) => i.data)]);
 }
-writeFileSync(out('src/app/favicon.ico'), buildIco([{ size: 16, data: ico16 }, { size: 32, data: ico32 }]));
+writeFileSync(
+  out('src/app/favicon.ico'),
+  buildIco([
+    { size: 16, data: ico16 },
+    { size: 32, data: ico32 },
+  ]),
+);
 
 // Vista previa para revisión visual (no se publica)
 if (process.argv.includes('--preview')) {
@@ -227,14 +253,22 @@ if (process.argv.includes('--preview')) {
   const comps = [];
   let y = 20;
   for (const p of items) {
-    const img = await sharp(read(p), { density: 300 }).resize({ height: p.includes('stacked') ? 360 : 140 }).png().toBuffer();
+    const img = await sharp(read(p), { density: 300 })
+      .resize({ height: p.includes('stacked') ? 360 : 140 })
+      .png()
+      .toBuffer();
     const meta = await sharp(img).metadata();
     comps.push({ input: img, left: 30, top: y });
     y += meta.height + 30;
   }
-  const dark = await sharp(read('public/brand/logo-cream.svg'), { density: 300 }).resize({ height: 140 }).png().toBuffer();
+  const dark = await sharp(read('public/brand/logo-cream.svg'), { density: 300 })
+    .resize({ height: 140 })
+    .png()
+    .toBuffer();
   const darkMeta = await sharp(dark).metadata();
-  const darkBox = await sharp({ create: { width: darkMeta.width + 60, height: 200, channels: 4, background: COLORS.ink } })
+  const darkBox = await sharp({
+    create: { width: darkMeta.width + 60, height: 200, channels: 4, background: COLORS.ink },
+  })
     .composite([{ input: dark, left: 30, top: 30 }])
     .png()
     .toBuffer();
@@ -242,7 +276,11 @@ if (process.argv.includes('--preview')) {
   y += 230;
   const ap = await sharp(read('src/app/apple-icon.png')).toBuffer();
   comps.push({ input: ap, left: 30, top: y });
-  comps.push({ input: await sharp(read('public/icons/icon-maskable-512.png')).resize(180).toBuffer(), left: 240, top: y });
+  comps.push({
+    input: await sharp(read('public/icons/icon-maskable-512.png')).resize(180).toBuffer(),
+    left: 240,
+    top: y,
+  });
   comps.push({ input: await sharp(ico32).resize(64, 64, { kernel: 'nearest' }).toBuffer(), left: 450, top: y });
   y += 200;
   await sharp({ create: { width: 1400, height: y, channels: 4, background: COLORS.cream } })
@@ -251,4 +289,8 @@ if (process.argv.includes('--preview')) {
     .toFile(prev);
 }
 
-console.log('Marca generada.', { horizontal: hVB, stacked: `0 0 ${sW.toFixed(1)} ${sH.toFixed(1)}`, wordmark: data.wordmark.viewBox });
+console.log('Marca generada.', {
+  horizontal: hVB,
+  stacked: `0 0 ${sW.toFixed(1)} ${sH.toFixed(1)}`,
+  wordmark: data.wordmark.viewBox,
+});

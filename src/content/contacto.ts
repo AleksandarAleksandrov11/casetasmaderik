@@ -27,7 +27,7 @@ export const contactoNext = {
   label: 'Qué pasa después',
   title: 'Tres pasos hasta tus casetas',
   steps: [
-    { n: '01', title: 'Revisamos tu solicitud', text: 'Comprobamos fechas, lugar y disponibilidad.' },
+    { n: '01', title: 'Revisamos tu solicitud', text: 'Comprobamos fechas, lugar y\u00a0disponibilidad.' },
     { n: '02', title: 'Te llamamos o escribimos', text: 'Resolvemos dudas y te enviamos el presupuesto.' },
     { n: '03', title: 'Reservamos tus fechas', text: 'Con tu confirmación, dejamos tus casetas reservadas.' },
   ],
@@ -44,6 +44,7 @@ export const contactoFaqIntro = {
  */
 export const contactoCta = {
   title: '¿Prefieres hablarlo?',
-  text: 'Para fechas cercanas o dudas rápidas, lo más directo es una llamada o un WhatsApp.',
+  // \u00a0: sin una "o" suelta al final de línea
+  text: 'Para fechas cercanas o\u00a0dudas rápidas, lo más directo es una llamada o\u00a0un WhatsApp.',
   image: { src: '/images/stock/jardin-celebracion-luces.jpg', alt: '' },
 };

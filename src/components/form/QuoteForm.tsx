@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, ty
 import { FormProvider, useForm, type FieldError, type Resolver } from 'react-hook-form';
 import { ArrowLeft, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { Button, ButtonAnchor } from '@/components/ui/Button';
+import { getLenis } from '@/components/layout/MotionRoot';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { getConsentState, trackEvent } from '@/components/consent/trackEvent';
 import { whatsappHref } from '@/content/site';
@@ -92,6 +93,18 @@ async function postLead(body: unknown): Promise<{ status: number; data: LeadResp
   } finally {
     window.clearTimeout(timer);
   }
+}
+
+/**
+ * Lleva el formulario arriba al cambiar de paso o al enviar. En escritorio con ratón, Lenis ignora el
+ * scroll nativo mientras anima la rueda y lo deshace en el siguiente frame (el paso nuevo quedaba
+ * encima de la pantalla): con Lenis activo, el desplazamiento pasa por él. Respeta el scroll-margin
+ * del formulario y el scroll-padding del documento, como scrollIntoView.
+ */
+function scrollFormIntoView(el: HTMLElement) {
+  const lenis = getLenis();
+  if (lenis) lenis.scrollTo(el, { force: true });
+  else el.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
 /**
@@ -189,7 +202,7 @@ export function QuoteForm() {
   const revealTop = () => {
     const el = rootRef.current;
     if (!el || el.getBoundingClientRect().top >= 80) return;
-    el.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    scrollFormIntoView(el);
   };
 
   const goTo = (target: number) => {
@@ -220,7 +233,10 @@ export function QuoteForm() {
       if (overlap === 0) return;
       const limit = window.innerHeight - overlap - 16;
       const bottom = actions.getBoundingClientRect().bottom;
-      if (bottom > limit) window.scrollBy({ top: bottom - limit, behavior });
+      if (bottom <= limit) return;
+      const lenis = getLenis();
+      if (lenis) lenis.scrollTo(window.scrollY + bottom - limit, { immediate: behavior === 'auto', force: true });
+      else window.scrollBy({ top: bottom - limit, behavior });
     };
     place(prefersReducedMotion() ? 'auto' : 'smooth');
     // Si otro desplazamiento interrumpe el suave, se corrige al terminar
@@ -378,8 +394,7 @@ export function QuoteForm() {
     pendingFocus.current = false;
     el.focus({ preventScroll: true });
     const top = rootRef.current?.getBoundingClientRect().top ?? 0;
-    if (top < 80)
-      rootRef.current?.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    if (top < 80 && rootRef.current) scrollFormIntoView(rootRef.current);
   }, []);
 
   const isSending = status === 'sending';
@@ -497,7 +512,9 @@ export function QuoteForm() {
                             <LoaderCircle aria-hidden="true" strokeWidth={1.75} className="size-5 animate-spin" />
                           ) : undefined
                         }
-                        className={NEXT_BUTTON_CLASS}
+                        // Por debajo de 352 px "Enviar solicitud" va en su propia fila: así no sube a la de
+                        // "Atrás" al pasar a "Enviando" (más corto) y un segundo toque no cae en "Atrás"
+                        className={isLast ? `${NEXT_BUTTON_CLASS} max-[22rem]:min-w-full` : NEXT_BUTTON_CLASS}
                         onFocus={inset > 0 ? revealActions : undefined}
                       >
                         {isLast ? (isSending ? FORM_COPY.sending : FORM_COPY.submit) : FORM_COPY.next}

@@ -42,6 +42,28 @@ function fits(pinEl: HTMLElement): boolean {
 }
 
 /**
+ * En pantallas altas el bloque encajado mide una pantalla y centra su contenido: el hueco que sobra
+ * arriba y abajo ya es aire, así que se descuenta del relleno exterior de la sección (HomeEvents,
+ * `--rail-free`). Devuelve true si el valor cambia.
+ */
+function measureFree(pinEl: HTMLElement): boolean {
+  const section = pinEl.closest('section');
+  if (!section) return false;
+  const cs = getComputedStyle(pinEl);
+  let used = 0;
+  for (const child of Array.from(pinEl.children) as HTMLElement[]) {
+    const ccs = getComputedStyle(child);
+    if (ccs.display === 'none') continue;
+    used += child.offsetHeight + parseFloat(ccs.marginTop) + parseFloat(ccs.marginBottom);
+  }
+  const inner = pinEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const free = `${Math.round(Math.max(0, (inner - used) / 2))}px`;
+  if (section.style.getPropertyValue('--rail-free') === free) return false;
+  section.style.setProperty('--rail-free', free);
+  return true;
+}
+
+/**
  * Escritorio con movimiento: sección fijada y pista que se desplaza en horizontal con el scroll.
  * Móvil, ventana baja, texto muy grande, movimiento reducido o sin JS: carrusel nativo con scroll-snap.
  */
@@ -117,11 +139,12 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
           delete viewport.dataset.pinned;
         };
 
-        // Decide si se fija; devuelve true si cambia la decisión
+        // Decide si se fija; devuelve true si cambia la decisión o el aire exterior
         const update = () => {
           const ok = fits(pinEl);
           pinEl.toggleAttribute('data-unfit', !ok);
-          if (ok === !!tween) return false;
+          const freeChanged = measureFree(pinEl);
+          if (ok === !!tween) return freeChanged;
           if (ok) pin();
           else unpin();
           return true;
@@ -159,6 +182,7 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
           ro.disconnect();
           unpin();
           pinEl.removeAttribute('data-unfit');
+          pinEl.closest('section')?.style.removeProperty('--rail-free');
         };
       });
     });
@@ -175,7 +199,7 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
     <div
       ref={pinRef}
       data-rail
-      className="flex flex-col justify-center py-[var(--section-y)] lg:min-h-svh lg:pt-[clamp(56px,9svh,128px)] lg:pb-[clamp(32px,6svh,96px)] rail-fit-self:h-svh"
+      className="flex flex-col justify-center py-[var(--section-y)] lg:pt-[clamp(56px,9svh,128px)] lg:pb-[clamp(32px,6svh,96px)] rail-fit-self:h-svh"
     >
       <div ref={headerRef}>{header}</div>
       {/* Encajado: la ventana del carril ocupa el alto que deja el resto (como mucho, el de una tarjeta

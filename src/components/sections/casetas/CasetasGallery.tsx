@@ -21,7 +21,7 @@ export function CasetasGallery() {
               {g.title}
             </Heading>
           </div>
-          <p className="max-w-[32ch] text-stone" data-reveal>
+          <p className="text-lead max-w-[34ch] text-stone" data-reveal>
             Fotos de nuestra caseta. Pulsa en cualquiera para verla en grande.
           </p>
         </div>

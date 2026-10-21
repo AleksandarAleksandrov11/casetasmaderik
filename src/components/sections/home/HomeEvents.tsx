@@ -15,8 +15,9 @@ export function HomeEvents() {
     <Section
       surface="cream"
       spacing={false}
-      // Fuera de la sección fijada: el aire que le falta hasta --section-y (el pin no cambia)
-      className="overflow-clip lg:pt-[max(0px,calc(var(--section-y)-clamp(56px,9svh,128px)))] lg:pb-[max(0px,calc(var(--section-y)-clamp(32px,6svh,96px)))]"
+      // Fuera de la sección fijada: el aire que le falta hasta --section-y (el pin no cambia), menos el
+      // hueco que ya deja el centrado en pantallas altas (--rail-free, lo mide HorizontalRail)
+      className="overflow-clip lg:pt-[max(0px,calc(var(--section-y)-clamp(56px,9svh,128px)-var(--rail-free,0px)))] lg:pb-[max(0px,calc(var(--section-y)-clamp(32px,6svh,96px)-var(--rail-free,0px)))]"
       aria-labelledby="eventos-titulo"
     >
       <HorizontalRail
@@ -75,7 +76,7 @@ export function HomeEvents() {
                   el pie más alto marca la fila de todos y así las fotos no pierden alto */}
               <div className="@container mt-5">
                 <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-h3 lg:text-[length:clamp(1.25rem,calc(8.4cqw-3.5px),var(--fs-h3))]">
+                  <h3 className="text-h3 lg:text-[length:clamp(1.125rem,calc(8.4cqw-3.5px),var(--fs-h3))]">
                     {card.title}
                   </h3>
                   <ArrowUpRight

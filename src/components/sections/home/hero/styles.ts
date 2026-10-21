@@ -166,7 +166,8 @@ export const heroCss = /* css */ `
 }
 
 /* Teléfonos estrechos y en horizontal (columna de texto junto a la      */
-/* caseta): los dos CTA caben en una fila                                */
+/* caseta): los dos CTA caben en una fila. El enlace secundario deja su  */
+/* flecha, que sí lleva en el resto de anchos como todos los del sitio   */
 @media (max-width: 419.98px), (max-width: 699.98px) and (min-aspect-ratio: 5/4) {
   .hero__ctas {
     column-gap: 1rem;
@@ -174,6 +175,10 @@ export const heroCss = /* css */ `
 
   .hero .hero__primary {
     padding-inline: 1rem;
+  }
+
+  .hero .hero__secondary svg {
+    display: none;
   }
 }
 
@@ -312,6 +317,30 @@ html.js-motion .hero__scroll-line::after {
 
   .hero__col {
     max-width: min(50%, 50rem);
+  }
+
+  /* En esa columna el enlace secundario va sin flecha: con ella, de 760 a
+     810 px la fila se partiría y el escenario cortaría el enlace */
+  .hero .hero__secondary svg {
+    display: none;
+  }
+}
+
+/* Con esa columna al 50 %, en los horizontales de 600 a 759 px los dos CTA
+   solo caben en una fila sin flechas, como por debajo de 360 px. Si la fila
+   se partiera, el escenario (100svh, sin desbordar) cortaría "Ver la caseta" */
+@media (max-height: 520px) and (min-aspect-ratio: 5/4) and (min-width: 600px) and (max-width: 759.98px) {
+  .hero__ctas {
+    flex-wrap: nowrap;
+    column-gap: 1rem;
+  }
+
+  .hero .hero__primary {
+    padding-inline: 1rem;
+  }
+
+  .hero .hero__primary svg {
+    display: none;
   }
 }
 
