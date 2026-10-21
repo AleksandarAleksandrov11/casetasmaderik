@@ -23,13 +23,13 @@ pnpm dev                     # http://localhost:3000
 
 ## Variables de entorno
 
-| Variable | Obligatoria | Para qué sirve |
-|---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | No | URL pública (por defecto `https://casetasmaderik.es`). |
-| `APPS_SCRIPT_URL` | Sí, en producción | URL `/exec` de la aplicación web de Google Apps Script que guarda las solicitudes. |
-| `APPS_SCRIPT_SECRET` | Sí, en producción | Secreto compartido con el Apps Script (se ve en la hoja: menú Casetas Maderik > Ver secreto de conexión). |
-| `NEXT_PUBLIC_GA_ID` | No | ID de Google Analytics 4 (`G-XXXXXXX`). Solo se carga si el usuario acepta las cookies analíticas. |
-| `NEXT_PUBLIC_META_PIXEL_ID` | No | ID del píxel de Meta. Además hay que activar `features.metaPixel` en `src/content/site.ts`. Solo se carga con consentimiento de marketing. |
+| Variable                    | Obligatoria       | Para qué sirve                                                                                                                             |
+| --------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SITE_URL`      | No                | URL pública (por defecto `https://casetasmaderik.es`).                                                                                     |
+| `APPS_SCRIPT_URL`           | Sí, en producción | URL `/exec` de la aplicación web de Google Apps Script que guarda las solicitudes.                                                         |
+| `APPS_SCRIPT_SECRET`        | Sí, en producción | Secreto compartido con el Apps Script (se ve en la hoja: menú Casetas Maderik > Ver secreto de conexión).                                  |
+| `NEXT_PUBLIC_GA_ID`         | No                | ID de Google Analytics 4 (`G-XXXXXXX`). Solo se carga si el usuario acepta las cookies analíticas.                                         |
+| `NEXT_PUBLIC_META_PIXEL_ID` | No                | ID del píxel de Meta. Además hay que activar `features.metaPixel` en `src/content/site.ts`. Solo se carga con consentimiento de marketing. |
 
 Sin `APPS_SCRIPT_URL`, en desarrollo el formulario responde correctamente con el número 0 y no guarda nada (útil para pruebas). En producción devuelve un error y lo registra en los logs. `LEADS_MOCK=1` fuerza esa respuesta simulada también con el servidor de producción (lo usan los tests e2e): nunca se reenvía nada al Apps Script ni se envía ningún email.
 
@@ -37,20 +37,20 @@ Ningún test ni script de este proyecto envía emails. En el Apps Script, la sol
 
 ## Scripts
 
-| Comando | Qué hace |
-|---|---|
-| `pnpm dev` | Servidor de desarrollo |
-| `pnpm build` / `pnpm start` | Build y servidor de producción |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | Genera los tipos de rutas y ejecuta `tsc --noEmit` |
-| `pnpm test` | Tests unitarios (Vitest): validación, temporada, SEO, JSON-LD, redirecciones, API, Apps Script, guiones prohibidos |
-| `pnpm build:qa` | Build de QA: aplica las redirecciones y cabeceras de `vercel.json` en local y simula GA para probar el consentimiento |
-| `pnpm e2e` | Tests end to end con Playwright (formulario, consentimiento, SEO, redirecciones, navegación, 3D, sin JavaScript, movimiento reducido) |
-| `pnpm qa:screens` | Capturas en 18 tamaños por página, desbordamientos, textos cortados, objetivos táctiles, consola, red, CSP y axe |
-| `pnpm qa:links` | Enlaces rotos (linkinator) contra el servidor de QA |
-| `pnpm qa:lighthouse` | Lighthouse CI en móvil y escritorio |
-| `pnpm qa` | Todo lo anterior en orden |
-| `pnpm size` | JavaScript inicial (gzip) de cada página contra el servidor de QA |
+| Comando                     | Qué hace                                                                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                  | Servidor de desarrollo                                                                                                                |
+| `pnpm build` / `pnpm start` | Build y servidor de producción                                                                                                        |
+| `pnpm lint`                 | ESLint                                                                                                                                |
+| `pnpm typecheck`            | Genera los tipos de rutas y ejecuta `tsc --noEmit`                                                                                    |
+| `pnpm test`                 | Tests unitarios (Vitest): validación, temporada, SEO, JSON-LD, redirecciones, API, Apps Script, guiones prohibidos                    |
+| `pnpm build:qa`             | Build de QA: aplica las redirecciones y cabeceras de `vercel.json` en local y simula GA para probar el consentimiento                 |
+| `pnpm e2e`                  | Tests end to end con Playwright (formulario, consentimiento, SEO, redirecciones, navegación, 3D, sin JavaScript, movimiento reducido) |
+| `pnpm qa:screens`           | Capturas en 18 tamaños por página, desbordamientos, textos cortados, objetivos táctiles, consola, red, CSP y axe                      |
+| `pnpm qa:links`             | Enlaces rotos (linkinator) contra el servidor de QA                                                                                   |
+| `pnpm qa:lighthouse`        | Lighthouse CI en móvil y escritorio                                                                                                   |
+| `pnpm qa`                   | Todo lo anterior en orden                                                                                                             |
+| `pnpm size`                 | JavaScript inicial (gzip) de cada página contra el servidor de QA                                                                     |
 
 Los tests e2e y de QA levantan solos `next start` en el puerto 3300 con el último build. Antes de `pnpm e2e` o `pnpm qa:*` ejecuta `pnpm build:qa`.
 
@@ -75,11 +75,11 @@ Para cambiar un dato del negocio (teléfono, horario, zona, redes, tiempo de res
 
 ## Despliegue en Vercel
 
-1. **Proyecto**: en Vercel, *Add New Project* e importa este repositorio de GitHub. Framework: Next.js (se detecta solo). Región: `cdg1` (París), ya fijada en `vercel.json`.
-2. **Variables**: en *Settings > Environment Variables* añade `APPS_SCRIPT_URL` y `APPS_SCRIPT_SECRET` (y, si se usan, `NEXT_PUBLIC_GA_ID` y `NEXT_PUBLIC_META_PIXEL_ID`) para *Production* y *Preview*. Vuelve a desplegar después de añadirlas.
-3. **Dominio**: en *Settings > Domains* añade `casetasmaderik.es` (apex) y `www.casetasmaderik.es`. Marca el apex como principal y deja `www` redirigiendo al apex (además `vercel.json` incluye la redirección 301). En el DNS del dominio crea los registros que indique Vercel (normalmente un `A` a `76.76.21.21` para el apex y un `CNAME` a `cname.vercel-dns.com` para `www`).
+1. **Proyecto**: en Vercel, _Add New Project_ e importa este repositorio de GitHub. Framework: Next.js (se detecta solo). Región: `cdg1` (París), ya fijada en `vercel.json`.
+2. **Variables**: en _Settings > Environment Variables_ añade `APPS_SCRIPT_URL` y `APPS_SCRIPT_SECRET` (y, si se usan, `NEXT_PUBLIC_GA_ID` y `NEXT_PUBLIC_META_PIXEL_ID`) para _Production_ y _Preview_. Vuelve a desplegar después de añadirlas.
+3. **Dominio**: en _Settings > Domains_ añade `casetasmaderik.es` (apex) y `www.casetasmaderik.es`. Marca el apex como principal y deja `www` redirigiendo al apex (además `vercel.json` incluye la redirección 301). En el DNS del dominio crea los registros que indique Vercel (normalmente un `A` a `76.76.21.21` para el apex y un `CNAME` a `cname.vercel-dns.com` para `www`).
 4. **Plan**: se recomienda **Vercel Pro**: el plan Hobby es solo para uso no comercial y los eventos personalizados de Analytics (`lead_submit`, clics en llamar, WhatsApp y email) requieren Pro.
-5. **Analytics y Speed Insights**: en el proyecto, pestañas *Analytics* y *Speed Insights*, pulsa *Enable*. Los scripts solo se cargan si el visitante acepta las cookies analíticas.
+5. **Analytics y Speed Insights**: en el proyecto, pestañas _Analytics_ y _Speed Insights_, pulsa _Enable_. Los scripts solo se cargan si el visitante acepta las cookies analíticas.
 6. **Comprobación tras el despliegue**:
    ```bash
    curl -sI https://www.casetasmaderik.es/ | grep -i location          # 301 a https://casetasmaderik.es/
@@ -92,9 +92,9 @@ Para cambiar un dato del negocio (teléfono, horario, zona, redes, tiempo de res
 
 ## Search Console y Bing
 
-1. **Google Search Console**: la propiedad sigue verificada porque la web conserva la meta `google-site-verification` de la anterior. En *Sitemaps* envía `https://casetasmaderik.es/sitemap.xml`. En *Inspección de URLs* pide la indexación de `/`, `/casetas`, `/nosotros` y `/contacto`. Revisa en *Páginas* que las URLs antiguas aparecen como redirigidas.
+1. **Google Search Console**: la propiedad sigue verificada porque la web conserva la meta `google-site-verification` de la anterior. En _Sitemaps_ envía `https://casetasmaderik.es/sitemap.xml`. En _Inspección de URLs_ pide la indexación de `/`, `/casetas`, `/nosotros` y `/contacto`. Revisa en _Páginas_ que las URLs antiguas aparecen como redirigidas.
 2. **Resultados enriquecidos**: valida cada página en https://search.google.com/test/rich-results y en https://validator.schema.org (JSON-LD de Organization, WebSite, WebPage, Service, Product, FAQPage y BreadcrumbList).
-3. **Bing Webmaster Tools**: importa la propiedad desde Search Console (opción *Import from GSC*) y envía el mismo sitemap.
+3. **Bing Webmaster Tools**: importa la propiedad desde Search Console (opción _Import from GSC_) y envía el mismo sitemap.
 
 ## Decisiones técnicas
 
@@ -105,7 +105,7 @@ Para cambiar un dato del negocio (teléfono, horario, zona, redes, tiempo de res
 - **Posters del 3D**: se regeneran cuando cambian el modelo, las luces o los planos: `pnpm exec next dev -p 3400` y después `node scripts/posters/capture-posters.mjs --base http://localhost:3400` (o `--only hero`). `public/images/posters/og-base.png` es la base de las imágenes Open Graph. Parámetros de depuración: `?debug3d` (llamadas de dibujo y triángulos en `window.__caseta3d`) y, solo en desarrollo, `?hq`, `?poster=` y en el visor `?az=&el=&zoom=&open=0&night=1`.
 - **JavaScript inicial**: menos de 170 KB gzip en todas las páginas sin contar el 3D (`pnpm size`). GSAP, Lenis, el aviso de cookies, la analítica, el menú móvil y three se cargan bajo demanda. El paso 1 del formulario se renderiza en el servidor (`QuoteFormStatic`) y el formulario interactivo se descarga al quedar libre el navegador, al primer toque o enseguida si hay un borrador; las dos versiones comparten las piezas de `form/frame.tsx`, así que miden lo mismo.
 - **Privacidad**: fuentes autoalojadas con `next/font`, ningún script de terceros antes del consentimiento, analítica y píxeles solo tras aceptar su categoría.
-- **Aviso de cookies**: barra inferior en escritorio, hoja compacta en móvil y tarjeta en móvil horizontal, con Aceptar y Rechazar al mismo nivel. Mientras está abierto, la página le reserva su franja (`html.cc-pending` y `--consent-h`): los heroes de pantalla completa se acortan para que ningún CTA quede debajo (brief 18). En pantallas bajas, donde el aviso ocuparía una cuarta parte del alto o más y taparía el título o un CTA del primer pantallazo, aparece con el primer desplazamiento. No se instala ninguna cookie no necesaria hasta aceptar.
+- **Aviso de cookies**: barra inferior en escritorio, hoja compacta en móvil y tarjeta en móvil horizontal, con Aceptar y Rechazar al mismo nivel. Mientras está abierto, la página le reserva su franja (`html.cc-pending` y `--consent-h`): los heroes de pantalla completa se acortan para que ningún CTA quede debajo (brief 18). En pantallas bajas, donde el aviso ocuparía una cuarta parte del alto o más y taparía el título o un CTA del primer pantallazo, aparece con el primer desplazamiento, y si se vuelve arriba se recoge mientras taparía el título o un CTA (vuelve al bajar; con el teclado dentro del aviso no se mueve). No se instala ninguna cookie no necesaria hasta aceptar.
 - **3D según el dispositivo**: sin GPU (WebGL por software) se muestra el poster. Si en un dispositivo real va por debajo de 15 fps tras bajar la calidad, se queda el poster el resto de la sesión (`sessionStorage` `cm:3d-lento`). Las pruebas lo fuerzan con `cm:3d-forzar`.
 - **Accesibilidad y robustez**: toda la web se lee sin JavaScript (las animaciones solo se activan con la clase `js-motion`) y respeta `prefers-reduced-motion`.
 
