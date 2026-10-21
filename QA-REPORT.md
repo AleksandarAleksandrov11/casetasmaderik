@@ -22,7 +22,9 @@ Estado: **QA cerrado**. Las tres pasadas están corregidas y verificadas; lo que
 
 ### Visual
 
-Revisión de **todas** las capturas (144 de páginas y 55 de estados en la pasada 1) por revisores independientes, uno por página o grupo de estados. Cada hallazgo pasó después por un verificador que intentaba refutarlo mirando la captura y midiendo en la página real. Solo se corrigió lo confirmado.
+Revisión de **todas** las capturas de cada pasada (144 de páginas y 55 de estados) por revisores independientes, uno por página o grupo de estados. Cada hallazgo pasó después por un verificador que intentaba refutarlo mirando la captura y midiendo en la página real. Solo se corrigió lo confirmado.
+
+En la pasada 3 el método se endureció: un revisor más compara las 8 páginas entre sí (coherencia de títulos, CTA, botones y fondos), cada hallazgo lo juzgan dos verificadores con lentes distintas (la captura y la página real) y un tercero desempata, y otros cuatro agentes comprueban en la página real que las correcciones de la pasada anterior siguen funcionando y no han roto nada alrededor.
 
 ### Limitaciones del entorno
 
@@ -152,6 +154,54 @@ Los medios:
 - **Formulario a 320 px**: desde el paso 2 el panel crecía y se comía el margen derecho, y la flecha de "Atrás" se aplastaba. Rejilla de una columna, cifras rápidas en 5 celdas y flechas que no encogen.
 
 Los leves: filete de cierre del CTA oscuro de Casetas antes del footer, galería de Casetas en móvil sin huecos (fotos cuadradas primero), aire del bloque de Eventos fuera del pin, lista de características en una columna entre 1024 y 1279, hero a 667 × 375 con aire entre texto y caseta, H2 de "Cómo trabajamos" por frases a 320, mapa de Nosotros limitado en horizontal, foto del CTA de Contacto nítida en móvil (`sizes`), los tres pasos de Contacto alineados entre 930 y 1179, H2 de canales sin repetir el del CTA final, panel de preferencias a pantalla completa en móvil con el margen del sitio, X del menú alineada con el borde, botones del lightbox con radio de 4 px, espacios de no separación en la microcopia del formulario y botón principal del estado de éxito con flecha.
+
+## Pasada 3
+
+Tercera pasada completa sobre la versión con las correcciones de la pasada 2, más una verificación final de sus propias correcciones.
+
+### Resultados automáticos
+
+| Comprobación                        | Resultado                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Capturas y comprobaciones           | 170 de 170                                                                                                                                                                                                                                                                                                                                             |
+| End to end                          | 72 correctos y 2 omitidos (los previstos)                                                                                                                                                                                                                                                                                                              |
+| axe con todas las severidades       | 0 incidencias de cualquier severidad, incluidas las de buenas prácticas, en las 16 combinaciones                                                                                                                                                                                                                                                       |
+| Contraste medido en píxeles (nuevo) | axe deja "sin determinar" los textos sobre fotos. Medidos píxel a píxel, 7 no llegaban a AA: los números "02" y "03" de las tarjetas del carril (2,8:1), la etiqueta "Temporada navideña" del CTA final en móvil (3,7:1) y "Reservas" y "Planificación" en Nosotros (4,1:1). Corregidos con más velo sobre la foto y convertidos en un test permanente |
+
+### Revisión visual
+
+12 revisores (uno por página o grupo de estados y uno de coherencia entre páginas), 199 capturas más 32 vistas comparadas, **22 hallazgos, 17 confirmados** (2 graves, 6 medios y 9 leves) y 5 refutados. Además, de las 30 correcciones de la pasada 2, 24 seguían bien y 6 habían tenido efectos secundarios; también se corrigieron.
+
+Los graves:
+
+1. **CTA del hero cortado en móviles en horizontal** (regresión de la pasada 2): al estrechar la columna del texto para separarlo de la caseta, "Ver la caseta" bajaba a una segunda fila y el escenario lo cortaba (a 667 × 330 desaparecía). Ahora los dos CTA van en una fila compacta de 600 a 811 px.
+2. **Coherencia de los enlaces**: "Ver la caseta" del hero era el único enlace subrayado sin flecha. Ahora lleva flecha como el resto, salvo donde no cabe en una fila.
+
+![Hero de Inicio a 667 × 375, antes y después](docs/qa/pasada3-hero-horizontal-667.webp)
+
+Los medios: el aviso de cookies tapaba "Escribir por WhatsApp" del CTA final en móviles en horizontal (el texto y las acciones se quedan ahora a la izquierda de la tarjeta), el 404 dejaba la acción pegada al footer y con el aviso abierto asomaba una raya del footer, la tabla de la política de cookies solo aparecía desde 1325 px (vuelve a verse desde 600), la cota "2,90 m" del 3D quedaba tachada por su propia línea, el formulario en escritorio no subía al paso nuevo si Lenis seguía animando la rueda (el paso quedaba encima de la pantalla) y el H2 de la siguiente sección superaba al título del hero en horizontal.
+
+![Política de cookies a 1024 px, antes y después](docs/qa/pasada3-tabla-cookies-1024.webp)
+
+Los leves: aire de 24 px entre el aviso y el H1, ancla de preguntas sin franja de la sección anterior, columnas de la FAQ alineadas con la raya de la etiqueta, intro de la galería en tamaño lead, enlaces subrayados en el panel de preferencias, medida de los títulos legales, texto legal en tinta (no en un gris fuera de la paleta) y palabras sueltas al final de línea en Contacto y en el 404. Los efectos secundarios de la pasada 2 corregidos: el aviso aparecía, se iba y volvía en la primera bajada; títulos del carril en dos líneas a 1024; aire de más en pantallas muy altas; y el botón "Enviar solicitud" cambiaba de fila al pasar a "Enviando" a 320 px, de modo que un segundo toque caía en "Atrás".
+
+### Verificación final
+
+Ocho agentes comprobaron en la página real las 24 correcciones de la pasada 3 (todas funcionan y ninguna ha roto nada) y barrieron 129 capturas nuevas de las zonas tocadas. Confirmaron cuatro detalles más, ya corregidos y medidos: el enlace del hero se partía por dentro de 600 a 611 px, el aviso volvía a aparecer antes de llegar arriba al subir despacio, tres velos de foto no llegaban a AA en tablet (el test de contraste mide ahora a 390, 768, 1024 y 1440) y quedaban palabras de una letra al final de línea en CTA y textos legales. Esto último se resolvió de forma general: titulares, CTA finales, preguntas frecuentes y textos legales unen las palabras de una letra a la siguiente.
+
+### Resultados automáticos finales
+
+Sobre el build final (commit e442212):
+
+| Comprobación                         | Resultado                                                                                                     |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Lint, tipos y formato                | Sin errores ni avisos (ESLint, `tsc`, Prettier)                                                               |
+| Tests unitarios                      | 121 de 121                                                                                                    |
+| Capturas, estados, axe y contraste   | 202 de 202 (170 de capturas y estados, 16 de axe y 32 de contraste medido en píxeles a 390, 768, 1024 y 1440) |
+| End to end                           | 72 correctos y 2 omitidos (el de fps, que necesita GPU, y uno solo de móvil en el proyecto de escritorio)     |
+| Enlaces internos                     | 275 comprobados, ninguno roto                                                                                 |
+| Consola, red y CSP                   | Sin errores, sin peticiones fallidas y sin violaciones de CSP en ninguna captura                              |
+| JavaScript inicial (gzip, sin el 3D) | Inicio 160,4 KB · Casetas 164,5 KB · Nosotros 155,1 KB · Contacto 156,5 KB (límite 170 KB)                    |
 
 ## Lighthouse
 

@@ -37,20 +37,20 @@ Ningún test ni script de este proyecto envía emails. En el Apps Script, la sol
 
 ## Scripts
 
-| Comando                     | Qué hace                                                                                                                              |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                  | Servidor de desarrollo                                                                                                                |
-| `pnpm build` / `pnpm start` | Build y servidor de producción                                                                                                        |
-| `pnpm lint`                 | ESLint                                                                                                                                |
-| `pnpm typecheck`            | Genera los tipos de rutas y ejecuta `tsc --noEmit`                                                                                    |
-| `pnpm test`                 | Tests unitarios (Vitest): validación, temporada, SEO, JSON-LD, redirecciones, API, Apps Script, guiones prohibidos                    |
-| `pnpm build:qa`             | Build de QA: aplica las redirecciones y cabeceras de `vercel.json` en local y simula GA para probar el consentimiento                 |
-| `pnpm e2e`                  | Tests end to end con Playwright (formulario, consentimiento, SEO, redirecciones, navegación, 3D, sin JavaScript, movimiento reducido) |
-| `pnpm qa:screens`           | Capturas en 18 tamaños por página, desbordamientos, textos cortados, objetivos táctiles, consola, red, CSP y axe                      |
-| `pnpm qa:links`             | Enlaces rotos (linkinator) contra el servidor de QA                                                                                   |
-| `pnpm qa:lighthouse`        | Lighthouse CI en móvil y escritorio                                                                                                   |
-| `pnpm qa`                   | Todo lo anterior en orden                                                                                                             |
-| `pnpm size`                 | JavaScript inicial (gzip) de cada página contra el servidor de QA                                                                     |
+| Comando                     | Qué hace                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                  | Servidor de desarrollo                                                                                                                                                    |
+| `pnpm build` / `pnpm start` | Build y servidor de producción                                                                                                                                            |
+| `pnpm lint`                 | ESLint                                                                                                                                                                    |
+| `pnpm typecheck`            | Genera los tipos de rutas y ejecuta `tsc --noEmit`                                                                                                                        |
+| `pnpm test`                 | Tests unitarios (Vitest): validación, temporada, SEO, JSON-LD, redirecciones, API, Apps Script, guiones prohibidos                                                        |
+| `pnpm build:qa`             | Build de QA: aplica las redirecciones y cabeceras de `vercel.json` en local y simula GA para probar el consentimiento                                                     |
+| `pnpm e2e`                  | Tests end to end con Playwright (formulario, consentimiento, SEO, redirecciones, navegación, 3D, sin JavaScript, movimiento reducido)                                     |
+| `pnpm qa:screens`           | Capturas en 18 tamaños por página, desbordamientos, textos cortados, objetivos táctiles, consola, red, CSP, axe y contraste de los textos sobre fotos (medido en píxeles) |
+| `pnpm qa:links`             | Enlaces rotos (linkinator) contra el servidor de QA                                                                                                                       |
+| `pnpm qa:lighthouse`        | Lighthouse CI en móvil y escritorio                                                                                                                                       |
+| `pnpm qa`                   | Todo lo anterior en orden                                                                                                                                                 |
+| `pnpm size`                 | JavaScript inicial (gzip) de cada página contra el servidor de QA                                                                                                         |
 
 Los tests e2e y de QA levantan solos `next start` en el puerto 3300 con el último build. Antes de `pnpm e2e` o `pnpm qa:*` ejecuta `pnpm build:qa`.
 
@@ -68,7 +68,7 @@ src/components/     layout, ui, three (3D), sections (por página), form y conse
 src/content/        TODOS los textos y datos del negocio (site.ts es la fuente de verdad)
 src/lib/            SEO, JSON-LD, validación, temporada, UTM, dispositivo, animación
 src/styles/         globals.css con los tokens de Tailwind 4
-tests/              unit (Vitest), e2e (Playwright) y qa (capturas, axe, Lighthouse, enlaces)
+tests/              unit (Vitest), e2e (Playwright) y qa (capturas, axe, contraste, Lighthouse, enlaces)
 ```
 
 Para cambiar un dato del negocio (teléfono, horario, zona, redes, tiempo de respuesta) edita **solo** `src/content/site.ts`: se actualizan la web, los textos legales, el JSON-LD y `llms.txt`.
