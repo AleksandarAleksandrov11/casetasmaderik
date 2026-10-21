@@ -1,9 +1,23 @@
-import Image from 'next/image';
-import { blurFor } from '@/content/image-blur';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
 import { nosotrosSeason } from '@/content/nosotros';
+import { CoverPhoto, photoSizes } from './CoverPhoto';
+
+/**
+ * Ancho al que se dibuja la foto: la banda mide lo que su contenido y la capa del
+ * parallax un 24 % más, así que la foto 3:2 llega a 1,86 veces el alto de la
+ * banda. En móvil son unos 1.500 px sea cual sea el ancho; desde sm crece con el
+ * viewport hasta 1.760 px, y a partir de ahí manda el ancho. Tope de 1x: queda
+ * bajo un overlay del 78 %.
+ */
+const SEASON_SIZES = photoSizes(
+  [
+    ['(max-width: 639px)', '1600px'],
+    [null, 'max(100vw, min(1760px, calc(700px + 68vw)))'],
+  ],
+  1,
+);
 
 /** S4. Temporada alta: oscuro con foto nocturna y línea temporal mínima. */
 export function NosotrosSeason() {
@@ -11,16 +25,8 @@ export function NosotrosSeason() {
   return (
     <Section surface="photo" spacing={false} className="overflow-hidden" aria-labelledby="temporada-titulo">
       <div className="absolute inset-0" aria-hidden="true">
-        <div data-parallax className="absolute inset-x-0 -top-[12%] -bottom-[12%]">
-          <Image
-            src={s.image.src}
-            {...blurFor(s.image.src)}
-            alt=""
-            fill
-            sizes="100vw"
-            quality={70}
-            className="object-cover object-[50%_70%]"
-          />
+        <div data-parallax className="@container-size absolute inset-x-0 -top-[12%] -bottom-[12%]">
+          <CoverPhoto image={s.image} sizes={SEASON_SIZES} quality={70} focus={[50, 70]} />
         </div>
         <div className="absolute inset-0 bg-ink/78" />
       </div>
