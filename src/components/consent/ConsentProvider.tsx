@@ -131,6 +131,16 @@ function showWhenClear(lib: CC) {
   measureBanner();
   let frame = 0;
   let shown = false;
+  // La librería enfoca el aviso al mostrarlo: solo cuenta el uso con teclado
+  let usingKeyboard = false;
+  const onKey = () => {
+    usingKeyboard = true;
+  };
+  const onFocusOut = (e: FocusEvent) => {
+    if (!(e.relatedTarget instanceof Node && banner.contains(e.relatedTarget))) usingKeyboard = false;
+  };
+  banner.addEventListener('keydown', onKey);
+  banner.addEventListener('focusout', onFocusOut);
   const setTucked = (tucked: boolean) => {
     root.classList.toggle(TUCKED_CLASS, tucked);
     banner.toggleAttribute('inert', tucked);
@@ -139,6 +149,8 @@ function showWhenClear(lib: CC) {
     cancelAnimationFrame(frame);
     window.removeEventListener('scroll', schedule);
     window.removeEventListener('resize', schedule);
+    banner.removeEventListener('keydown', onKey);
+    banner.removeEventListener('focusout', onFocusOut);
     setTucked(false);
     stopWaiting = null;
   };
@@ -163,7 +175,7 @@ function showWhenClear(lib: CC) {
       short &&
       !atEnd &&
       window.scrollY < window.innerHeight * 0.5 &&
-      !banner.contains(document.activeElement) &&
+      !usingKeyboard &&
       coversKeyContent(banner);
     setTucked(tuck);
   };
