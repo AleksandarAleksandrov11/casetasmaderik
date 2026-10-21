@@ -21,7 +21,7 @@ export const ACTIONS_CLASS = 'mt-10 flex items-center gap-3 border-t border-sand
  * Las tarjetas se reparten según el ancho real de la rejilla (container
  * queries), no según la pantalla: el formulario vive en columnas muy distintas
  * (móvil, tablet, media columna en escritorio). Sobre 6 columnas cada tarjeta
- * ocupa 3 (dos por fila) y 2 desde 32rem (tres por fila). Por debajo de 17rem
+ * ocupa 3 (dos por fila) y 2 desde 32rem (tres por fila). Por debajo de 17,5rem
  * (móviles de 320 px) pasan a filas compactas de una línea, con la marca de
  * selección en el sitio del icono. Así "gastronómico" cabe siempre entero.
  */
@@ -43,13 +43,13 @@ export function eventCardClass(checked: boolean): string {
     'group relative col-span-3 flex min-h-[116px] cursor-pointer flex-col justify-between gap-5 rounded-sm border p-4 sm:min-h-[128px] sm:p-5',
     '@lg:col-span-2',
     // Dos por fila en móviles de 360 a 380 px: algo menos de relleno (la letra baja en EventCardContent)
-    '@min-[17rem]:@max-[18.5rem]:p-3.5',
+    '@min-[17.5rem]:@max-[18.5rem]:p-3.5',
     /*
-     * Filas a todo el ancho por debajo de 17rem: icono y nombre en una línea,
+     * Filas a todo el ancho por debajo de 17,5rem: icono y nombre en una línea,
      * todas de 56 px. Sin hueco a la derecha para la marca (va sobre el icono),
      * así el paso mide casi lo mismo que con dos tarjetas por fila.
      */
-    '@max-[17rem]:col-span-6 @max-[17rem]:min-h-14 @max-[17rem]:flex-row @max-[17rem]:items-center @max-[17rem]:justify-start @max-[17rem]:gap-3 @max-[17rem]:px-3.5 @max-[17rem]:py-3',
+    '@max-[17.5rem]:col-span-6 @max-[17.5rem]:min-h-14 @max-[17.5rem]:flex-row @max-[17.5rem]:items-center @max-[17.5rem]:justify-start @max-[17.5rem]:gap-3 @max-[17.5rem]:px-3.5 @max-[17.5rem]:py-3',
     'transition-[border-color,background-color] duration-300 ease-brand',
     'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-3 has-[:focus-visible]:outline-wood has-[:focus-visible]:outline-solid',
     checked ? 'border-wood bg-wood/[0.06]' : 'border-sand bg-cream hover:border-ink/35',
@@ -72,14 +72,14 @@ export function EventCardContent({ value, checked }: { value: TipoEvento; checke
       <Icon
         aria-hidden="true"
         strokeWidth={1.5}
-        className={`size-7 flex-none text-wood transition-[translate,opacity] duration-500 ease-brand group-hover:-translate-y-0.5 ${checked ? '@max-[17rem]:opacity-0' : ''}`}
+        className={`size-7 flex-none text-wood transition-[translate,opacity] duration-500 ease-brand group-hover:-translate-y-0.5 ${checked ? '@max-[17.5rem]:opacity-0' : ''}`}
       />
-      <span className="min-w-0 pr-1 font-display text-[1.0625rem] leading-[1.2] break-words text-ink sm:text-[1.125rem] @max-[17rem]:text-base @min-[17rem]:@max-[18.5rem]:text-base">
+      <span className="min-w-0 pr-1 font-display text-[1.0625rem] leading-[1.2] break-words hyphens-auto text-ink sm:text-[1.125rem] @max-[17.5rem]:text-base @min-[17.5rem]:@max-[18.5rem]:text-base">
         {first}
         {rest ? (
           <>
             {' '}
-            <span className="block @max-[17rem]:inline">{rest}</span>
+            <span className="block @max-[17.5rem]:inline">{rest}</span>
           </>
         ) : null}
       </span>
@@ -88,10 +88,10 @@ export function EventCardContent({ value, checked }: { value: TipoEvento; checke
         className={[
           'absolute top-4 right-4 flex size-[22px] items-center justify-center rounded-full border transition-[background-color,border-color,opacity] duration-300 ease-brand sm:top-5 sm:right-5',
           // En filas, la marca ocupa el sitio del icono (centrada sobre sus 28 px) y solo aparece al elegir
-          '@max-[17rem]:top-[calc(50%-11px)] @max-[17rem]:right-auto @max-[17rem]:left-[calc(0.875rem+3px)]',
+          '@max-[17.5rem]:top-[calc(50%-11px)] @max-[17.5rem]:right-auto @max-[17.5rem]:left-[calc(0.875rem+3px)]',
           checked
             ? 'border-wood bg-wood opacity-100'
-            : 'border-sand bg-cream opacity-0 @min-[17rem]:group-hover:opacity-100',
+            : 'border-sand bg-cream opacity-0 @min-[17.5rem]:group-hover:opacity-100',
         ].join(' ')}
       >
         <Check strokeWidth={2.5} className={`size-3 text-cream ${checked ? '' : 'opacity-0'}`} />

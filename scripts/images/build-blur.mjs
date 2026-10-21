@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const dirs = ['public/images/real', 'public/images/stock', 'public/images/posters'];
+// Los posters del 3D no usan next/image: no necesitan placeholder
+const dirs = ['public/images/real', 'public/images/stock'];
 const entries = [];
 for (const dir of dirs) {
   let files = [];
@@ -17,7 +18,11 @@ for (const dir of dirs) {
   }
   for (const f of files.sort()) {
     if (!/\.(jpe?g|png|webp|avif)$/i.test(f) || /-sm\./.test(f)) continue;
-    const buf = await sharp(join(root, dir, f)).resize(16, 16, { fit: 'inside' }).blur(1.2).jpeg({ quality: 50 }).toBuffer();
+    const buf = await sharp(join(root, dir, f))
+      .resize(16, 16, { fit: 'inside' })
+      .blur(1.2)
+      .jpeg({ quality: 50 })
+      .toBuffer();
     entries.push([`/${dir.replace(/^public\//, '')}/${f}`, `data:image/jpeg;base64,${buf.toString('base64')}`]);
   }
 }

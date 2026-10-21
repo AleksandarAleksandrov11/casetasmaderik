@@ -11,7 +11,7 @@ type HorizontalRailProps = { header: ReactNode; children: ReactNode };
  * Escritorio "encajado": ancho lg y al menos 37,5rem de alto (600 px con la fuente por defecto). En
  * rem, como el breakpoint lg de Tailwind, para que el umbral siga a la fuente que elija el usuario.
  * Debe coincidir con la variante de las clases de aquí y de las tarjetas de HomeEvents:
- * `lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:`.
+ * `rail-fit:`.
  * Con ella (solo con JS y sin movimiento reducido, porque js-motion lo pone el script de arranque
  * en ese caso), el bloque mide justo una pantalla y las fotos son lo único que cede alto: títulos,
  * textos y línea de progreso quedan siempre a la vista mientras la sección está fijada.
@@ -173,14 +173,14 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
     <div
       ref={pinRef}
       data-rail
-      className="flex flex-col justify-center py-[var(--section-y)] lg:min-h-svh lg:pt-[clamp(56px,9svh,128px)] lg:pb-[clamp(32px,6svh,96px)] lg:[@media(min-height:37.5rem)]:[html.js-motion_&:not([data-unfit])]:h-svh"
+      className="flex flex-col justify-center py-[var(--section-y)] lg:min-h-svh lg:pt-[clamp(56px,9svh,128px)] lg:pb-[clamp(32px,6svh,96px)] rail-fit-self:h-svh"
     >
       <div ref={headerRef}>{header}</div>
       {/* Encajado: la ventana del carril ocupa el alto que deja el resto (como mucho, el de una tarjeta
           4:5 con su pie) y es contenedor de tamaño, para que las tarjetas calculen su ancho con cqh. */}
       <div
         ref={viewportRef}
-        className="mt-12 snap-x snap-mandatory scroll-px-[max(var(--gutter),var(--safe-left))] [scrollbar-width:none] overflow-x-auto overscroll-x-contain data-[pinned]:snap-none data-[pinned]:overflow-visible lg:mt-[clamp(28px,5svh,64px)] [&::-webkit-scrollbar]:hidden lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:[container-type:size] lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:flex lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:h-[calc(min(28vw,420px)*1.25+8rem)] lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:min-h-0 lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:flex-col lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:justify-center"
+        className="mt-12 snap-x snap-mandatory scroll-px-[max(var(--gutter),var(--safe-left))] [scrollbar-width:none] overflow-x-auto overscroll-x-contain data-[pinned]:snap-none data-[pinned]:overflow-visible lg:mt-[clamp(28px,5svh,64px)] pointer-fine:[scrollbar-width:thin] pointer-fine:[scrollbar-color:var(--color-sand)_transparent] rail-fit:[container-type:size] rail-fit:flex rail-fit:h-[calc(min(28vw,420px)*1.25+8rem)] rail-fit:min-h-0 rail-fit:flex-col rail-fit:justify-center [&::-webkit-scrollbar]:hidden"
       >
         {/* Una columna por tarjeta y dos filas compartidas (foto y pie) que cada tarjeta hereda con
             subgrid; la de la foto es la única que cede alto. El relleno lateral coincide con el
@@ -192,7 +192,8 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
           {children}
         </ul>
       </div>
-      <div className="container-site mt-[clamp(20px,4svh,40px)] hidden lg:block" aria-hidden="true">
+      {/* data-wa-avoid: el botón flotante de WhatsApp no tapa el final de la línea */}
+      <div className="container-site mt-[clamp(20px,4svh,40px)] hidden lg:block" aria-hidden="true" data-wa-avoid>
         <div className="h-px w-full bg-sand">
           {/* Escala inicial con transform (no con scale-x-0, que fija la propiedad `scale` y anularía el
               scaleX que escribe onUpdate) */}

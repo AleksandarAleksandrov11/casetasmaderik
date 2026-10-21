@@ -67,14 +67,22 @@ test('menú móvil se cierra al navegar @mobile', async ({ page }) => {
 });
 
 test('botón de WhatsApp: aparece tras el hero y se oculta en /contacto', async ({ page }) => {
+  // Sin la intro y con el scroll instantáneo (Lenis y scroll-behavior lo animarían)
+  await page.addInitScript(() => sessionStorage.setItem('cm:intro', '1'));
+  const scrollDown = async () => {
+    await page.waitForFunction(() => document.documentElement.classList.contains('reveal-ready'));
+    await page.evaluate(() => window.scrollTo({ top: window.innerHeight * 1.5, behavior: 'instant' }));
+    await expect.poll(() => page.evaluate(() => window.scrollY > window.innerHeight)).toBe(true);
+  };
+  const wa = page.locator('#whatsapp-flotante');
   await page.goto('/casetas');
-  const wa = page.getByRole('link', { name: 'Escribir por WhatsApp' }).last();
-  await page.evaluate(() => window.scrollTo(0, window.innerHeight * 1.5));
+  await scrollDown();
   await expect(wa).toHaveClass(/opacity-100/);
   await expect(wa).toHaveAttribute('href', /^https:\/\/wa\.me\/34656324123\?text=/);
+  await expect(wa).toHaveAttribute('aria-label', 'Escribir por WhatsApp');
   await page.goto('/contacto');
-  await page.evaluate(() => window.scrollTo(0, window.innerHeight * 1.5));
-  await expect(page.locator('a[aria-label="Escribir por WhatsApp"].fixed')).toHaveClass(/opacity-0/);
+  await scrollDown();
+  await expect(wa).toHaveClass(/opacity-0/);
 });
 
 test('FAQ funciona como acordeón', async ({ page }) => {

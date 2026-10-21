@@ -30,7 +30,8 @@ export type LegalPage = {
   intro: string;
   sections: LegalSection[];
   /** CTA final propio: la última idea de la página sigue de su contenido. */
-  cta: { title: string; text: string };
+  /** CTA final de la página. Sin actions: llamar y WhatsApp. */
+  cta: { title: string; text: string; actions?: ('email' | 'llamar' | 'whatsapp')[] };
 };
 
 const domicilio = site.address
@@ -314,7 +315,8 @@ export const politicaPrivacidad: LegalPage = {
   ],
   cta: {
     title: '¿Tienes alguna duda sobre tus datos?',
-    text: `Llámanos o escríbenos por WhatsApp y te explicamos cómo los tratamos. Te respondemos en ${site.responseTime}.`,
+    text: `Escríbenos y te explicamos cómo los tratamos o atendemos tu solicitud. Te respondemos en ${site.responseTime}.`,
+    actions: ['email', 'llamar', 'whatsapp'],
   },
 };
 

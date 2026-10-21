@@ -46,6 +46,20 @@ export const viewerCss = /* css */ `
   }
 }
 
+/*
+ * En portátiles bajos (1280 × 720, 1366 × 768) el titular de cuatro líneas
+ * empujaba el botón y los controles bajo el pliegue y bajo el aviso de
+ * cookies: se limita también por el alto. 9svh sigue por encima de la escala
+ * H2 en esos tamaños (65 px frente a 63 px a 1280 × 720).
+ */
+@media (min-width: 1024px) {
+  @supports (width: 1cqi) {
+    .viewer__title {
+      font-size: min(max(2.6rem, var(--fs-h1)), calc(100cqi / 4.75), 9svh);
+    }
+  }
+}
+
 @media (min-width: 1024px) {
   .viewer__grid {
     grid-template-columns: minmax(0, 4.3fr) minmax(0, 7.7fr);
@@ -57,24 +71,20 @@ export const viewerCss = /* css */ `
 
 /*
  * Sin 3D, la lista de puntos de interés va bajo la caja, en una segunda fila
- * (subgrid): el texto se centra con la caja y no con la caja más la lista,
- * y el botón queda a la vista en portátiles bajos. Con 3D no hay lista y la
- * segunda fila mide cero.
+ * de la rejilla: el texto ocupa la primera fila y queda alineado con la caja,
+ * no centrado con la caja más la lista, así el botón se ve en portátiles
+ * bajos. (El subgrid no llega a aplicarse porque .viewer__media es un
+ * contenedor de consultas, pero las dos filas sí, y es lo que importa.)
  */
-@supports (grid-template-rows: subgrid) {
-  @media (min-width: 1024px) {
-    .viewer__grid {
-      grid-template-rows: auto auto;
-      align-content: center;
-      row-gap: 0;
-    }
+@media (min-width: 1024px) {
+  .viewer__grid {
+    grid-template-rows: auto auto;
+    align-content: center;
+    row-gap: 0;
+  }
 
-    .viewer__media {
-      display: grid;
-      grid-row: span 2;
-      grid-template-rows: subgrid;
-      align-items: center;
-    }
+  .viewer__media {
+    grid-row: span 2;
   }
 }
 
@@ -146,21 +156,6 @@ export const viewerCss = /* css */ `
 
 .viewer__media {
   container-type: inline-size;
-}
-
-/*
- * El poster corta la sombra en su borde derecho y, en la caja apaisada del
- * móvil en horizontal, ese borde queda dentro de la caja. La máscara deja
- * entera la parte alta (caseta, viseras y mostradores) y, por debajo, funde
- * la sombra hacia la derecha desde el 80 %, ya fuera de la pared lateral:
- * la sombra se desvanece en lugar de terminar en un corte.
- */
-.viewer__visual .caseta-poster img {
-  --fade:
-    linear-gradient(#000 63%, transparent 63%),
-    linear-gradient(to right, #000 80%, rgb(0 0 0 / 0.45) 90%, transparent 99%);
-  -webkit-mask-image: var(--fade);
-  mask-image: var(--fade);
 }
 
 /*

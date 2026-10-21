@@ -57,7 +57,7 @@ export function ContactoHero() {
          * el formulario, para que su cabecera ("Paso 1 de 4" y la barra) se vea
          * sin hacer scroll.
          */}
-        <div className="mt-4 grid gap-x-16 gap-y-8 lg:mt-10 lg:grid-cols-12 max-lg:[@media(max-height:520px)_and_(min-aspect-ratio:5/4)]:gap-y-6">
+        <div className="mt-4 grid gap-x-16 gap-y-8 lg:mt-6 lg:grid-cols-12 max-lg:low-landscape:gap-y-6">
           <div className="@container lg:col-span-6">
             <Label className="hidden lg:inline-flex">{h.label}</Label>
             {/*
@@ -67,14 +67,12 @@ export function ContactoHero() {
              * En horizontal, 7,3cqi deja el título entero en una línea (mide
              * 13,3em) sin bajar nunca del 104 % de los H2.
              */}
-            <h1 className="text-h1 text-[length:min(var(--fs-h1),13.5cqi)] lg:mt-6 max-lg:[@media(max-height:520px)_and_(min-aspect-ratio:5/4)]:text-[length:clamp(calc(var(--fs-h2)*1.04),7.3cqi,var(--fs-h1))]">
+            <h1 className="text-h1 text-[length:min(var(--fs-h1),13.5cqi)] lg:mt-6 max-lg:low-landscape:text-[length:clamp(calc(var(--fs-h2)*1.04),7.3cqi,var(--fs-h1))]">
               {h.title}
             </h1>
             {/* En horizontal, la entradilla en una línea, tan ancha como el título */}
-            <p className="text-lead mt-4 max-w-[40ch] text-stone lg:mt-6 max-lg:[@media(max-height:520px)_and_(min-aspect-ratio:5/4)]:max-w-none">
-              {h.text}
-            </p>
-            <ContactShortcuts className="mt-12 hidden lg:block" />
+            <p className="text-lead mt-4 max-w-[40ch] text-stone lg:mt-6 max-lg:low-landscape:max-w-none">{h.text}</p>
+            <ContactShortcuts className="mt-8 hidden lg:block" />
           </div>
           <div id="formulario" className="scroll-mt-24 lg:col-span-6">
             <QuoteFormIsland>

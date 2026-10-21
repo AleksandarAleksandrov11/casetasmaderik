@@ -86,10 +86,14 @@ export function WhatsAppFloat() {
     schedule();
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
+    // Abrir o cerrar una pregunta del acordeón mueve la lista sin hacer scroll
+    // (toggle no burbujea: se escucha en captura)
+    document.addEventListener('toggle', schedule, true);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
+      document.removeEventListener('toggle', schedule, true);
       setOverContent(false);
     };
   }, [pathname]);

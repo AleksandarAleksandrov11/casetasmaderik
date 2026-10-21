@@ -246,10 +246,13 @@ test.describe('Formulario de presupuesto', () => {
     await open(page);
     await audit('paso 1');
     await next(page).click();
+    await page.waitForTimeout(800);
     await audit('paso 1 con error');
     await pickEvent(page, 'Mercado navideño');
     await stepLabel(page, 2);
     await next(page).click();
+    // Los mensajes de error entran con un fundido: axe mide el contraste del color final
+    await page.waitForTimeout(800);
     await audit('paso 2 con errores');
     await fillWhenWhere(page);
     await next(page).click();

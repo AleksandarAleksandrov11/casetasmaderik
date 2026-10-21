@@ -231,8 +231,16 @@ html.js-motion .hero__scroll-line::after {
   animation: scroll-line 2.2s var(--ease-brand) infinite;
 }
 
-/* Pantallas bajas: la etiqueta repite el logotipo que queda justo encima */
-@media (max-height: 640px) and (max-aspect-ratio: 1/1), (max-height: 400px) {
+/* Móviles verticales bajos: la etiqueta se mantiene (brief), con menos aire */
+@media (max-height: 640px) and (max-aspect-ratio: 1/1) {
+  .hero__title {
+    margin-top: 10px;
+  }
+}
+
+/* Móviles en horizontal: la etiqueta repetiría el logotipo justo encima y no
+   hay alto para los dos */
+@media (max-height: 400px) {
   .hero .hero__label {
     display: none;
   }
@@ -289,12 +297,16 @@ html.js-motion .hero__scroll-line::after {
   }
 }
 
-/* Pantallas bajas en horizontal: todo más compacto */
-@media (max-height: 520px) and (min-aspect-ratio: 5/4) {
+/* Pantallas bajas en horizontal: todo más compacto. Solo con la disposición
+   ancha el escenario puede bajar del mínimo de 560 px: apilado (568 × 320) no
+   cabrían el texto y la caseta, y se cortarían */
+@media (max-height: 520px) and (min-aspect-ratio: 5/4) and (min-width: 600px) {
   .hero__stage {
     min-height: 0;
   }
+}
 
+@media (max-height: 520px) and (min-aspect-ratio: 5/4) {
   .hero__content {
     padding-bottom: 2svh;
   }

@@ -225,7 +225,12 @@ export function LegalPageView({ page }: { page: LegalPage }) {
           </div>
         </div>
       </section>
-      <CtaFinal variant="dudas" title={page.cta.title} text={page.cta.text} actions={['llamar', 'whatsapp']} />
+      <CtaFinal
+        variant="dudas"
+        title={page.cta.title}
+        text={page.cta.text}
+        actions={page.cta.actions ?? ['llamar', 'whatsapp']}
+      />
     </>
   );
 }

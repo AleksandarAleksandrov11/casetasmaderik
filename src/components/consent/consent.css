@@ -357,7 +357,7 @@
       'btns btns'
       'show policy';
     row-gap: 12px;
-    padding: 14px max(var(--gutter), var(--safe-right)) max(2px, var(--safe-bottom))
+    padding: 14px max(var(--gutter), var(--safe-right)) max(10px, var(--safe-bottom))
       max(var(--gutter), var(--safe-left));
   }
 
@@ -396,7 +396,7 @@
       'btns btns'
       'show policy';
     row-gap: 10px;
-    padding: 14px 16px max(2px, var(--safe-bottom));
+    padding: 14px 16px max(10px, var(--safe-bottom));
     border: 1px solid #e6dccf;
     border-bottom: 0;
     border-radius: 4px 4px 0 0;

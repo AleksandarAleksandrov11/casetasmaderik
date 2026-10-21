@@ -5,8 +5,7 @@ import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
 import { casetasSpecs } from '@/content/casetas';
 import { site } from '@/content/site';
-import { InlineStyle } from '@/components/three/InlineStyle';
-import { FloorPlan, FrontElevation, SideElevation, plansCss } from './TechnicalPlans';
+import { FloorPlan, FrontElevation, SideElevation } from './TechnicalPlans';
 
 /**
  * Plano en su tarjeta. Las tres tarjetas tienen siempre el mismo ancho y los
@@ -60,7 +59,6 @@ export function CasetasSpecs() {
       </div>
 
       <div className="container-site mt-[clamp(72px,9vw,128px)]">
-        <InlineStyle id="caseta-planos" css={plansCss} />
         <h3 className="text-h3">{s.plansTitle}</h3>
         {/* Columnas iguales: una, dos (la planta junto a la nota) o tres */}
         <div className="mt-10 grid gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">

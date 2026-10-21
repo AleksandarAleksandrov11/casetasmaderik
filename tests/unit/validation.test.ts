@@ -20,7 +20,7 @@ import {
 } from '@/lib/validation';
 import { casetasLabel, daysLabel, firstName, formatDateRange } from '@/components/form/format';
 import { sanitizeValues } from '@/components/form/storage';
-import { computeLayout } from '@/components/form/lineup-geometry';
+import { STAGE, STALL_BOX, computeLayout, computeStage } from '@/components/form/lineup-geometry';
 
 const TODAY = '2026-10-20';
 
@@ -282,5 +282,49 @@ describe('CasetaLineup: disposición', () => {
     expect(computeLayout(0, 12).slots).toHaveLength(0);
     expect(computeLayout(-3, 12).slots).toHaveLength(0);
     expect(computeLayout(3, 0).slots).toHaveLength(1);
+  });
+});
+
+describe('CasetaLineup: escenario con zoom', () => {
+  const bounds = (count: number) => {
+    const st = computeStage(count, 12);
+    const xs = st.slots.flatMap((sl) => [sl.x + STALL_BOX.minX, sl.x + STALL_BOX.maxX]);
+    const ys = st.slots.flatMap((sl) => [sl.y + STALL_BOX.minY, sl.y + STALL_BOX.maxY]);
+    if (st.plus) xs.push(st.plus.x + 34);
+    return { st, minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+  };
+
+  it('filas de 4: 1, 4, 8 y 12 casetas forman una, una, dos y tres filas', () => {
+    const rows = (n: number) => new Set(computeStage(n, 12).slots.map((sl) => sl.row)).size;
+    expect(rows(1)).toBe(1);
+    expect(rows(4)).toBe(1);
+    expect(rows(8)).toBe(2);
+    expect(rows(12)).toBe(3);
+  });
+
+  it('el grupo escalado cabe en el lienzo con su margen', () => {
+    for (const n of [1, 2, 4, 5, 8, 12, 30]) {
+      const { st, minX, maxX, minY, maxY } = bounds(n);
+      expect(st.width).toBe(STAGE.width);
+      expect(st.height).toBe(STAGE.height);
+      expect((maxX - minX) * st.scale).toBeLessThanOrEqual(STAGE.width - 2 * STAGE.pad + 1);
+      expect((maxY - minY) * st.scale).toBeLessThanOrEqual(STAGE.height - 2 * STAGE.pad + 1);
+    }
+  });
+
+  it('una caseta sola no pasa de la escala máxima y la vista se aleja al añadir más', () => {
+    const one = computeStage(1, 12);
+    const four = computeStage(4, 12);
+    const twelve = computeStage(12, 12);
+    expect(one.scale).toBeLessThanOrEqual(STAGE.maxScale);
+    expect(four.scale).toBeLessThan(one.scale);
+    expect(twelve.scale).toBeLessThanOrEqual(four.scale);
+  });
+
+  it('más casetas que el máximo: dibuja el máximo y muestra el "+N"', () => {
+    const st = computeStage(20, 12);
+    expect(st.slots).toHaveLength(12);
+    expect(st.extra).toBe(8);
+    expect(st.plus).not.toBeNull();
   });
 });

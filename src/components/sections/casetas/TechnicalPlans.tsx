@@ -15,17 +15,6 @@ const FRAME = { w: 400, h: 316 };
 const PLAN_CLASS = 'plan-svg mx-auto max-w-[340px]';
 const viewBox = (x: number, y: number) => `${x} ${y} ${FRAME.w} ${FRAME.h}`;
 
-/**
- * Cotas a 20 unidades del plano (en lugar de los 15 de globals.css): con la
- * escala común miden de 12,5 a 17 px en pantalla. Una sola regla, más
- * específica que la de globals.css; CasetasSpecs la sirve en línea.
- */
-export const plansCss = /* css */ `
-.plan .plan-svg .plan-dim__label {
-  font-size: 20px;
-}
-`;
-
 const BOARD = 12;
 
 function Boards({

@@ -38,7 +38,7 @@ export function HomeEvents() {
           <li
             key={card.slug}
             data-rail-item
-            className="row-span-2 grid w-[78vw] max-w-[min(420px,calc((100svh-9rem)*1.25))] snap-start grid-rows-subgrid sm:w-[44vw] lg:w-[28vw] lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:w-[min(28vw,420px,calc((100cqh-7.5rem)*1.25))]"
+            className="row-span-2 grid w-[78vw] max-w-[min(420px,calc((100svh-9rem)*1.25))] snap-start grid-rows-subgrid sm:w-[44vw] lg:w-[28vw] rail-fit:w-[min(28vw,420px,calc((100cqh-7.5rem)*1.25))]"
           >
             <Link
               href={`/contacto?evento=${card.slug}`}
