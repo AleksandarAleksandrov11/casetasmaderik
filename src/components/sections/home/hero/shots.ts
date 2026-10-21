@@ -4,8 +4,10 @@ import type { CameraShot, FitMode, FrameFit } from '@/components/three/state';
  * Planos de cámara del hero de Inicio. El primero de cada serie es el
  * encuadre del poster: si cambia, hay que regenerar los posters.
  *
- * Escritorio (fit 'h'): la caseta a la derecha, el texto a la izquierda.
- * Móvil (fit 'w'): texto arriba, caseta abajo.
+ * Escritorio: la caseta a la derecha, el texto a la izquierda; el lienzo
+ * ocupa todo el escenario.
+ * Vertical: texto arriba y caseta abajo; el lienzo es solo la caja que deja
+ * libre el texto (ver hero/styles.ts) y la caseta se centra en ella.
  */
 
 /** Disposición ancha: escritorio y pantallas apaisadas. Igual que en hero.css. */
@@ -28,8 +30,12 @@ export interface HeroShots {
 
 /** Escritorio: u = min(alto, 0,65 × ancho útil del contenedor); ancla dentro del contenedor. */
 export const DESKTOP_FIT: FrameFit = { hk: 1, wk: 0.65 };
-/** Vertical: u = min(0,56 × alto, ancho útil). */
-export const MOBILE_FIT: FrameFit = { hk: 0.56, wk: 1 };
+/**
+ * Vertical: u = min(1,15 × alto de la caja bajo el texto, ancho útil).
+ * La caja tiene un tope de alto en hero/styles.ts (ancho útil o 600 px, entre
+ * 1,15): si cambia hk, ese tope también.
+ */
+export const MOBILE_FIT: FrameFit = { hk: 1.15, wk: 1 };
 
 export const DESKTOP: HeroShots = {
   fit: DESKTOP_FIT,
@@ -42,11 +48,11 @@ export const DESKTOP: HeroShots = {
 
 export const MOBILE: HeroShots = {
   fit: MOBILE_FIT,
-  start: { az: 34, el: 7, dist: 12, tx: 0.08, ty: 1.15, ax: 0.5, ay: 0.735, span: 4.3 },
-  front: { az: 13, el: 6, dist: 12, tx: 0.45, ty: 1.1, ax: 0.5, ay: 0.735, span: 4.95 },
-  night: { az: -4, el: 7, dist: 12, tx: 0.3, ty: 1.1, ax: 0.5, ay: 0.735, span: 4.95 },
-  dims: { az: -32, el: 15, dist: 12, tx: -0.3, ty: 1.0, ax: 0.5, ay: 0.735, span: 5.6 },
-  end: { az: -29, el: 14, dist: 12, tx: -0.3, ty: 1.0, ax: 0.5, ay: 0.735, span: 5.75 },
+  start: { az: 34, el: 7, dist: 12, tx: 0.08, ty: 1.15, ax: 0.5, ay: 0.48, span: 4.3 },
+  front: { az: 13, el: 6, dist: 12, tx: 0.45, ty: 1.1, ax: 0.5, ay: 0.48, span: 4.95 },
+  night: { az: -4, el: 7, dist: 12, tx: 0.3, ty: 1.1, ax: 0.5, ay: 0.48, span: 4.95 },
+  dims: { az: -32, el: 15, dist: 12, tx: -0.3, ty: 1.0, ax: 0.5, ay: 0.48, span: 5.6 },
+  end: { az: -29, el: 14, dist: 12, tx: -0.3, ty: 1.0, ax: 0.5, ay: 0.48, span: 5.75 },
 };
 
 /** Encuadre de la imagen base de Open Graph (1200 × 630, caseta a la derecha; ajuste por alto). */

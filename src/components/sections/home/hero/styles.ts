@@ -10,6 +10,12 @@ export const heroCss = /* css */ `
 /* Disposición "ancha" (texto a la izquierda, caseta a la derecha) en  */
 /* escritorio y en móviles o tabletas en horizontal; apilada en        */
 /* vertical. Debe coincidir con HERO_WIDE en shots.ts.                 */
+/* Apilada: el escenario es una columna; el texto ocupa lo que mide y  */
+/* la caseta (poster y lienzo) el espacio que queda debajo, así nunca  */
+/* se pisan. La caja de la caseta no pasa del alto que la caseta pide  */
+/* a lo ancho: si aún sobra alto (teléfonos altos, tabletas), texto y  */
+/* caseta se centran juntos y el aire queda arriba y abajo, nunca en   */
+/* medio.                                                              */
 /* ------------------------------------------------------------------ */
 
 .hero {
@@ -33,8 +39,13 @@ export const heroCss = /* css */ `
 
 .hero__stage {
   position: relative;
+  display: flex;
   height: 100svh;
   min-height: 560px;
+  flex-direction: column;
+  justify-content: center;
+  /* Si el texto no cabe (zoom, letra grande), se alinea arriba en vez de salirse por los dos lados */
+  justify-content: safe center;
   overflow: clip;
 }
 
@@ -43,15 +54,25 @@ export const heroCss = /* css */ `
   top: 0;
 }
 
-.hero__visual {
+/* Apilada: la caseta en el espacio libre bajo el texto (el lienzo y el */
+/* poster se encuadran con unidades de contenedor de esta caja).        */
+/* Tope de alto: con MOBILE_FIT (shots.ts, u = 1,15 × alto) la escala   */
+/* llega justo al ancho útil, y en tabletas a 600 px (la caseta mide    */
+/* entonces como la línea grande del H1 y el poster no se amplía).      */
+.hero .hero__visual {
+  position: relative;
+  inset: auto;
   z-index: 0;
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: calc(min(100vw - 2 * var(--gutter), 600px) / 1.15);
 }
 
 .hero__content {
   position: relative;
   z-index: 2;
   display: flex;
-  height: 100%;
+  flex: none;
   flex-direction: column;
   justify-content: flex-start;
   padding-top: calc(var(--header-h) + var(--safe-top) + clamp(8px, 2.4svh, 28px));
@@ -64,7 +85,8 @@ export const heroCss = /* css */ `
 .hero__title {
   margin-top: clamp(14px, 2.2svh, 24px);
   font-family: var(--font-display);
-  font-size: clamp(2.25rem, 9.3vw, 4.6rem);
+  /* La línea fuerte (unos 7,8 em, sin cortes) cabe en 320 px con su margen */
+  font-size: clamp(2.125rem, 10.6vw, 4.6rem);
   line-height: 0.94;
   letter-spacing: -0.035em;
   text-wrap: balance;
@@ -74,8 +96,9 @@ export const heroCss = /* css */ `
   display: block;
 }
 
+/* Las líneas ligeras quedan claramente por encima del subtítulo */
 .hero__line--light {
-  font-size: 0.5em;
+  font-size: 0.54em;
   font-weight: 300;
   line-height: 1.3;
   letter-spacing: -0.012em;
@@ -142,10 +165,41 @@ export const heroCss = /* css */ `
   color: var(--hero-link);
 }
 
+/* Teléfonos estrechos y en horizontal (columna de texto junto a la      */
+/* caseta): los dos CTA caben en una fila                                */
+@media (max-width: 419.98px), (max-width: 699.98px) and (min-aspect-ratio: 5/4) {
+  .hero__ctas {
+    column-gap: 1rem;
+  }
+
+  .hero .hero__primary {
+    padding-inline: 1rem;
+  }
+}
+
+/* Por debajo de 360 px la flecha no cabe: sin ella los dos CTA siguen   */
+/* en una fila y la caseta no pierde el alto de una segunda fila. Con    */
+/* margen para la fuente de reserva: si la fila se partiera hasta que    */
+/* llega la fuente buena, la caseta saltaría (CLS).                      */
+@media (max-width: 359.98px) {
+  .hero__ctas {
+    column-gap: 0.75rem;
+  }
+
+  .hero .hero__primary {
+    padding-inline: 0.875rem;
+  }
+
+  .hero .hero__primary svg {
+    display: none;
+  }
+}
+
 .hero__scroll {
   position: absolute;
   z-index: 2;
-  left: max(var(--gutter), var(--safe-left));
+  /* Alineado con el contenido del contenedor (también en 1920 y 2560) */
+  left: max(var(--gutter), var(--safe-left), calc((100% - var(--container)) / 2));
   bottom: calc(clamp(16px, 3svh, 32px) + var(--safe-bottom));
   display: none;
   align-items: center;
@@ -177,14 +231,38 @@ html.js-motion .hero__scroll-line::after {
   animation: scroll-line 2.2s var(--ease-brand) infinite;
 }
 
+/* Pantallas bajas: la etiqueta repite el logotipo que queda justo encima */
+@media (max-height: 640px) and (max-aspect-ratio: 1/1), (max-height: 400px) {
+  .hero .hero__label {
+    display: none;
+  }
+
+  .hero__title {
+    margin-top: 0;
+  }
+}
+
 /* Disposición ancha */
 @media (min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4) {
   .hero {
     --hero-pin: 250vh;
   }
 
+  .hero__stage {
+    display: block;
+  }
+
+  .hero .hero__visual {
+    position: absolute;
+    inset: 0;
+    max-height: none;
+  }
+
   .hero__content {
+    height: 100%;
     justify-content: center;
+    /* Si el texto no cabe, se alinea arriba (bajo la cabecera) en vez de salirse por los dos lados */
+    justify-content: safe center;
     padding-top: calc(var(--header-h) + var(--safe-top));
     padding-bottom: 7svh;
   }
@@ -200,6 +278,10 @@ html.js-motion .hero__scroll-line::after {
       min(5.35vw, 10.6svh, calc((min(100vw, 1440px + 2 * var(--gutter)) - 2 * var(--gutter)) * 0.058)),
       7.5rem
     );
+  }
+
+  .hero__line--light {
+    font-size: 0.5em;
   }
 
   .hero__scroll {
@@ -247,8 +329,14 @@ html.js-motion .hero__scroll-line::after {
 }
 
 html.js-motion .hero__visual {
-  transform-origin: 70% 75%;
+  transform-origin: 50% 60%;
   animation: hero-rise 1.6s var(--ease-expo) 0.1s both;
+}
+
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4) {
+  html.js-motion .hero__visual {
+    transform-origin: 70% 75%;
+  }
 }
 
 html.js-motion .hero__title .hero__line {

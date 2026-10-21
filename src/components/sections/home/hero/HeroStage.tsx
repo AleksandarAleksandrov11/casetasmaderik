@@ -197,6 +197,8 @@ export function HeroStage({
       aria-labelledby="hero-titulo"
     >
       <div ref={stage} className="hero__stage">
+        {/* Primero el texto: en vertical la caseta ocupa el espacio que queda debajo */}
+        {children}
         <div className="caseta-visual hero__visual" aria-hidden="true" data-live={live && !failed ? '' : undefined}>
           {poster}
           {show3D ? (
@@ -216,7 +218,6 @@ export function HeroStage({
             />
           ) : null}
         </div>
-        {children}
         <div className="hero__scroll" data-hero-scroll="" aria-hidden="true">
           <span className="hero__scroll-line" />
           <span>{scrollLabel}</span>
