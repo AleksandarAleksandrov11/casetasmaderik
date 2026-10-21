@@ -262,6 +262,8 @@ test.describe('Formulario de presupuesto', () => {
     await next(page).click();
     await stepLabel(page, 4);
     await send(page).click();
+    // Igual que en los pasos anteriores: los errores entran con un fundido
+    await page.waitForTimeout(800);
     await audit('paso 4 con errores');
   });
 

@@ -191,27 +191,52 @@ Ocho agentes comprobaron en la página real las 24 correcciones de la pasada 3 (
 
 ### Resultados automáticos finales
 
-Sobre el build final (commit e442212):
+Sobre el build final de la entrega (con las mejoras de rendimiento de la sección Lighthouse):
 
-| Comprobación                         | Resultado                                                                                                     |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| Lint, tipos y formato                | Sin errores ni avisos (ESLint, `tsc`, Prettier)                                                               |
-| Tests unitarios                      | 121 de 121                                                                                                    |
-| Capturas, estados, axe y contraste   | 202 de 202 (170 de capturas y estados, 16 de axe y 32 de contraste medido en píxeles a 390, 768, 1024 y 1440) |
-| End to end                           | 72 correctos y 2 omitidos (el de fps, que necesita GPU, y uno solo de móvil en el proyecto de escritorio)     |
-| Enlaces internos                     | 275 comprobados, ninguno roto                                                                                 |
-| Consola, red y CSP                   | Sin errores, sin peticiones fallidas y sin violaciones de CSP en ninguna captura                              |
-| JavaScript inicial (gzip, sin el 3D) | Inicio 160,4 KB · Casetas 164,5 KB · Nosotros 155,1 KB · Contacto 156,5 KB (límite 170 KB)                    |
+| Comprobación                         | Resultado                                                                                                                                                                                                                                  |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Lint, tipos y formato                | Sin errores ni avisos (ESLint, `tsc`, Prettier)                                                                                                                                                                                            |
+| Tests unitarios                      | 121 de 121                                                                                                                                                                                                                                 |
+| Capturas, estados, axe y contraste   | 202 de 202 (170 de capturas y estados, 16 de axe y 32 de contraste medido en píxeles a 390, 768, 1024 y 1440)                                                                                                                              |
+| End to end                           | 72 correctos y 2 omitidos (el de fps, que necesita GPU, y uno solo de móvil en el proyecto de escritorio). El test de axe del formulario esperaba al fundido de los errores en todos los pasos menos en el 4: se le añadió la misma espera |
+| Enlaces internos                     | 275 comprobados, ninguno roto                                                                                                                                                                                                              |
+| Consola, red y CSP                   | Sin errores, sin peticiones fallidas y sin violaciones de CSP en ninguna captura                                                                                                                                                           |
+| JavaScript inicial (gzip, sin el 3D) | Inicio 160,6 KB · Casetas 164,7 KB · Nosotros 155,3 KB · Contacto 156,6 KB (límite 170 KB)                                                                                                                                                 |
 
 ## Lighthouse
 
-Pendiente (se ejecuta tras la pasada 2).
+`pnpm qa:lighthouse` (Lighthouse CI 12, 3 ejecuciones por URL y modo, servidor de QA en local, throttling simulado por defecto: Moto G Power con 4G lenta y CPU ×4 en móvil, preset de escritorio en escritorio). **Todas las aserciones pasan.** Rendimiento: mediana y, entre paréntesis, las tres ejecuciones.
+
+| Página                 | Móvil           | Escritorio          | Accesibilidad | Buenas prácticas | SEO     |
+| ---------------------- | --------------- | ------------------- | ------------- | ---------------- | ------- |
+| Inicio                 | 91 (90, 91, 92) | 100 (99, 100, 100)  | 100           | 100              | 100     |
+| Casetas                | 91 (87, 91, 93) | 99 (99, 99, 100)    | 100           | 100              | 100     |
+| Nosotros               | 90 (88, 90, 91) | 99 (99, 99, 99)     | 100           | 100              | 100     |
+| Contacto               | 92 (92, 92, 92) | 100 (100, 100, 100) | 100           | 100              | 100     |
+| Aviso legal            | 91 (88, 91, 96) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Política de privacidad | 91 (86, 91, 92) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Política de cookies    | 91 (89, 91, 93) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+
+(\*) Las páginas legales llevan `noindex, follow` por el brief (sección 10.5): Lighthouse descuenta la auditoría de indexabilidad. La configuración comprueba una a una todas las demás auditorías SEO (título, descripción, canonical, enlaces, robots.txt, hreflang, alt) y pasan todas.
+
+Métricas en móvil (mediana): CLS 0 en todas las páginas, TBT de 176 a 297 ms, FCP de 1,2 a 1,4 s simulado. El LCP real (observado en la traza) llega entre 0,22 y 0,32 s, al mismo tiempo que el primer pintado; el simulado da de 2,3 a 3,1 s. La diferencia es de la medición en localhost: con latencia cero, todos los scripts, fuentes e imágenes (unos 350 KB) se piden antes del primer pintado, y la simulación los descarga todos en 4G lenta antes del LCP. Contra el dominio real, con latencia de red, PageSpeed Insights lo medirá con más fidelidad (pendiente tras el despliegue).
+
+### Qué se cambió para llegar ahí
+
+La primera medición de esta pasada dio en móvil entre 59 y 81:
+
+1. **Configuración de Lighthouse**: se lanzaba Chrome con WebGL por software forzado (SwiftShader). Con él, la comprobación de WebGL de la caseta 3D tardaba unos 0,6 s en Inicio y Casetas (×4 en la simulación), algo que no pasa en un dispositivo real ni en PageSpeed Insights, y la web rechaza ese WebGL igualmente y enseña el poster. Ahora usa las opciones por defecto de Chrome, como PageSpeed. Con eso, de 59-81 a 82-91.
+2. **Lo que no se ve al cargar espera a la primera interacción** (scroll, rueda, toque, clic, tecla o ratón): GSAP, SplitText, Lenis, el carril fijado (que además ya no descarga GSAP en móvil), la precarga del menú móvil y el formulario interactivo de Contacto. TBT de 214-594 ms a 127-234 ms y rendimiento de 82-91 a 90-95 en una ejecución.
+3. **Titulares visibles desde el primer pintado**: antes esperaban a SplitText con opacidad cero (el brief pide no ocultar el H1, que es el LCP). Ahora el H1 entra con un desplazamiento corto en CSS, sin opacidad, y SplitText solo anima los titulares que aún están por debajo de la pantalla.
+4. **Imagen LCP de Nosotros** con `loading="eager"` y `fetchPriority="high"`: el `preload` que tenía salía con prioridad baja.
+
+Probado y descartado: el CSS en línea de Next (`experimental.inlineCss`) duplicaba el CSS en la carga de React (HTML de 25 a 99 KB gzip) y empeoraba FCP y LCP.
 
 ## Pendiente de validar tras el despliegue
 
 - JSON-LD en Rich Results Test y en validator.schema.org.
 - Redirecciones de las URLs antiguas con `curl` en el dominio real (comandos en el README).
-- PageSpeed Insights en el dominio real.
+- PageSpeed Insights en el dominio real, y los objetivos de campo del brief (LCP por debajo de 2,0 s, INP por debajo de 200 ms, CLS por debajo de 0,05) en Vercel Speed Insights con visitas reales. En local el LCP real es de 0,2 a 0,3 s y el CLS es 0.
 - 3D en un iPhone y un Android de gama media.
 - Safari y Firefox.
 - Apps Script en una cuenta de Google real (`setup()` y solicitud de prueba).
