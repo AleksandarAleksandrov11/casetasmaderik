@@ -8,7 +8,7 @@ export const nosotrosHero = {
   label: 'Sobre nosotros',
   title: 'Casetas Maderik: montajes cuidados y fechas cumplidas',
   text: 'Alquilamos casetas de madera para ferias, mercados y eventos. Nos ocupamos de que todo esté listo a tiempo.',
-  image: { src: '/images/stock/taller-carpinteria-madera.jpg', alt: '' },
+  image: { src: '/images/stock/taller-carpinteria-madera.jpg', width: 2560, height: 1706, alt: '' },
 };
 
 export const nosotrosAbout = {
@@ -21,6 +21,8 @@ export const nosotrosAbout = {
   ],
   image: {
     src: '/images/stock/detalle-madera-pino.jpg',
+    width: 2560,
+    height: 1715,
     alt: 'Detalle de tablones de madera de pino con la veta a la vista',
   },
 };
@@ -57,7 +59,7 @@ export const nosotrosSeason = {
     { month: 'Noviembre', text: 'Planificación' },
     { month: 'Diciembre', text: 'Montaje' },
   ],
-  image: { src: '/images/stock/mercado-navideno-noche-casetas-madera.jpg', alt: '' },
+  image: { src: '/images/stock/mercado-navideno-noche-casetas-madera.jpg', width: 2560, height: 1707, alt: '' },
 };
 
 export const nosotrosArea = {

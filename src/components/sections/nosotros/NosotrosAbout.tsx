@@ -1,16 +1,23 @@
-import Image from 'next/image';
-import { blurFor } from '@/content/image-blur';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
 import { nosotrosAbout } from '@/content/nosotros';
+import { CoverPhoto, photoSizes } from './CoverPhoto';
 
 /**
- * Ancho al que se dibuja la foto 3:2, no el de la caja. En 4:5 (móvil y lg)
- * object-cover la escala a 1,87 veces el ancho de la caja; entre sm y lg la
- * caja es 3:2, como la foto, y basta con su ancho.
+ * Ancho al que se dibuja la foto 3:2. En 4:5 (móvil en vertical y lg) la foto
+ * cubre la caja a 1,87 veces su ancho; en 3:2 (de sm a lg y móviles en
+ * horizontal) basta con el ancho de la caja, que como mucho es 1,5 veces el 85 %
+ * del alto de la pantalla. Tope de 2x: es la foto de contenido, sin overlay.
  */
-const PHOTO_SIZES = '(min-width: 1552px) 1320px, (min-width: 1024px) 85vw, (min-width: 640px) 92vw, 172vw';
+const PHOTO_SIZES = photoSizes(
+  [
+    ['(max-width: 639px) and (orientation: portrait)', '172vw'],
+    ['(max-width: 1023px)', 'min(92vw, 127.5vh)'],
+    [null, 'min(85vw, 1320px)'],
+  ],
+  2,
+);
 
 /** S2. Quiénes somos: texto y foto partidos. */
 export function NosotrosAbout() {
@@ -32,21 +39,14 @@ export function NosotrosAbout() {
           </div>
         </div>
         <div className="col-span-4 md:col-span-6 lg:col-span-6 lg:col-start-7">
-          {/* 4:5 en móvil y en lg, junto al texto; apilada entre sm y lg, 3:2. Bajo lg no pasa del 85 % del
-              alto de la pantalla: en un móvil en horizontal se estrecha sin perder la proporción */}
+          {/* 4:5 en móvil en vertical y en lg, junto al texto; apilada bajo lg, 3:2 desde sm y en cualquier
+              móvil en horizontal. Bajo lg no pasa del 85 % del alto de la pantalla: en horizontal se
+              estrecha sin perder la proporción */}
           <div
             data-reveal-image
-            className="relative aspect-[4/5] overflow-hidden rounded-sm bg-paper max-lg:max-h-[85svh] sm:aspect-[3/2] lg:aspect-[4/5]"
+            className="@container-size relative aspect-[4/5] overflow-hidden rounded-sm bg-paper max-lg:max-h-[85svh] sm:aspect-[3/2] lg:aspect-[4/5] max-lg:landscape:aspect-[3/2]"
           >
-            <Image
-              src={a.image.src}
-              {...blurFor(a.image.src)}
-              alt={a.image.alt}
-              fill
-              sizes={PHOTO_SIZES}
-              quality={75}
-              className="object-cover"
-            />
+            <CoverPhoto image={a.image} sizes={PHOTO_SIZES} quality={75} />
           </div>
         </div>
       </div>
