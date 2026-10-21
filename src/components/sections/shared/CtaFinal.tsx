@@ -31,6 +31,26 @@ function Arrow() {
   );
 }
 
+/** El email que cita el texto es un enlace (cuando no hay ya una acción de email). */
+function withEmailLink(text: string, place: string) {
+  const at = text.indexOf(site.email);
+  if (at === -1) return text;
+  return (
+    <>
+      {text.slice(0, at)}
+      <ContactLink
+        href={emailHref}
+        event="click_email"
+        place={place}
+        className="link-inline [hyphens:none] whitespace-nowrap"
+      >
+        {site.email}
+      </ContactLink>
+      {text.slice(at + site.email.length)}
+    </>
+  );
+}
+
 /**
  * CTA final reutilizable. La última sección de cada página es siempre un CTA.
  * - temporada: foto nocturna a todo el ancho con overlay tinta.
@@ -163,7 +183,7 @@ export function CtaFinal({
           {label ? <Label>{label}</Label> : null}
           <Heading className={label ? 'mt-6' : ''}>{title}</Heading>
           <p data-reveal className={`text-lead mt-6 max-w-[44ch] ${dark ? 'text-cream/85' : 'text-stone'}`}>
-            {text}
+            {actions.includes('email') ? text : withEmailLink(text, place)}
           </p>
           <div
             data-reveal

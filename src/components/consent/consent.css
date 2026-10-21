@@ -1,9 +1,10 @@
 /* ------------------------------------------------------------------ */
 /* Aviso de cookies con estilos de marca (vanilla-cookieconsent v3)    */
 /* Primera capa: barra fina a todo el ancho en escritorio y tableta,   */
-/* hoja compacta en móvil vertical y tarjeta lateral en móvil          */
-/* horizontal (sobre la imagen, lejos de los CTA). Su franja inferior  */
-/* se publica en --consent-h para que la página le deje sitio (ver     */
+/* hoja compacta en móvil vertical y tarjeta en la esquina inferior    */
+/* derecha en móvil horizontal (sobre la imagen, lejos de los CTA). Su */
+/* franja inferior se publica en --consent-h para que la página le     */
+/* deje sitio, y en pantallas bajas espera a no tapar ningún CTA (ver  */
 /* ConsentProvider y globals.css).                                     */
 /* ------------------------------------------------------------------ */
 #cc-main {
@@ -38,7 +39,8 @@
   --cc-toggle-off-knob-bg: #fbf8f3;
   --cc-toggle-enabled-icon-color: #98603e;
   --cc-toggle-disabled-icon-color: #5e6461;
-  --cc-toggle-readonly-bg: #c49a76;
+  /* Necesarias: siempre activas, en madera oscura (madera clara solo sobre oscuro) */
+  --cc-toggle-readonly-bg: #6e4329;
   --cc-toggle-readonly-knob-bg: #fbf8f3;
   --cc-toggle-readonly-knob-icon-color: #6e4329;
   --cc-section-category-border: #e6dccf;
@@ -195,9 +197,12 @@
   color: #0e1615;
 }
 
-/* Centinela de foco de la librería: vacío y fuera de la rejilla */
+/* Centinela de foco de la librería: vacío y fuera de la rejilla. Recibe el */
+/* foco al aparecer el aviso (lo anuncia el lector de pantalla) y no pinta  */
+/* anillo: no es un control.                                               */
 #cc-main .cm > div[tabindex='-1'] {
   position: absolute;
+  outline: none;
 }
 
 #cc-main .cm--bar .cm__body,
@@ -212,6 +217,8 @@
   grid-area: texts;
   display: flex;
   flex-direction: row;
+  /* La librería lo centra: el texto arranca en el borde del contenedor, como el logo */
+  justify-content: flex-start;
   align-items: baseline;
   gap: 28px;
   padding: 0;
@@ -256,7 +263,9 @@
   display: inline;
 }
 
-/* La segunda frase repite lo que dicen los botones: solo se ve si cabe */
+/* El título y la segunda frase (repite lo que dicen los botones) solo se */
+/* ven si caben sin que la barra crezca; si no, quedan para los lectores  */
+/* de pantalla.                                                           */
 #cc-main .cm--bar .cm__title,
 #cc-main .cm--bar .cm__desc .cc-line + .cc-line {
   position: absolute;
@@ -269,8 +278,18 @@
   white-space: nowrap;
 }
 
+@media screen and (min-width: 72rem) and (min-height: 501px) {
+  #cc-main .cm--bar .cm__title {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+  }
+}
+
 @media screen and (min-width: 85rem) and (min-height: 501px) {
-  #cc-main .cm--bar .cm__title,
   #cc-main .cm--bar .cm__desc .cc-line + .cc-line {
     position: static;
     width: auto;
@@ -279,10 +298,6 @@
     overflow: visible;
     clip-path: none;
     white-space: normal;
-  }
-
-  #cc-main .cm--bar .cm__title {
-    white-space: nowrap;
   }
 }
 
@@ -351,7 +366,6 @@
   }
 
   #cc-main .cm--bar .cm__btn {
-    min-height: 48px;
     padding: 0 16px;
   }
 
@@ -365,33 +379,31 @@
   }
 }
 
-/* Móvil horizontal: poca altura, así que el aviso toma ancho y no alto. */
-/* Tarjeta abajo a la derecha, sobre la imagen y lejos de los CTA.       */
+/* Móvil horizontal: poca altura, así que el aviso toma ancho y no alto.  */
+/* Tarjeta apoyada en el borde inferior, a la derecha: sobre la imagen y  */
+/* lejos de los CTA, que en horizontal van a la izquierda.                */
 @media screen and (orientation: landscape) and (max-height: 500px) {
   #cc-main .cm.cm--bar {
-    right: max(12px, var(--safe-right));
-    bottom: max(12px, var(--safe-bottom));
+    right: max(var(--gutter), var(--safe-right));
+    bottom: 0;
     left: auto;
-    /* !important: la librería fuerza width: auto por debajo de 640 px */
-    width: min(320px, 46vw) !important;
+    /* Del ancho de la columna de la imagen del hero (46 %), sin pasar de 320 px. */
+    /* !important: la librería fuerza width: auto por debajo de 640 px            */
+    width: min(320px, max(264px, calc(46vw - var(--gutter)))) !important;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'texts texts'
       'btns btns'
       'show policy';
     row-gap: 10px;
-    padding: 14px 16px 2px;
+    padding: 14px 16px max(2px, var(--safe-bottom));
     border: 1px solid #e6dccf;
-    border-radius: 4px;
-  }
-
-  #cc-main .cm--bar.cm--bottom {
-    transform: translateY(calc(100% + 24px));
+    border-bottom: 0;
+    border-radius: 4px 4px 0 0;
   }
 
   #cc-main .cm--bar .cm__btn {
     min-width: 0;
-    min-height: 48px;
     padding: 0 16px;
   }
 
@@ -449,6 +461,15 @@
   font-weight: 600;
 }
 
+/* Flechas de las categorías: madera con la flecha en crema, como todo lo que se pulsa */
+#cc-main .pm__section--expandable .pm__section-arrow {
+  background-color: #98603e;
+}
+
+#cc-main .pm__section--expandable .pm__section-arrow svg {
+  stroke: #fbf8f3;
+}
+
 #cc-main .pm__section-desc,
 #cc-main .pm__section-desc-wrapper p {
   color: #5e6461;
@@ -460,6 +481,18 @@
 
 #cc-main .pm__footer {
   gap: 8px;
+}
+
+/* Móvil: los tres botones apilados con el mismo aire entre ellos */
+@media screen and (max-width: 640px) {
+  #cc-main .pm__footer .pm__btn-group {
+    gap: 8px;
+  }
+
+  #cc-main .pm__footer .pm__btn + .pm__btn,
+  #cc-main .pm__footer .pm__btn-group + .pm__btn-group {
+    margin: 0 !important;
+  }
 }
 
 /* Aceptar todas y Rechazar todas, del mismo ancho */

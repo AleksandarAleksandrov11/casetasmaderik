@@ -53,13 +53,14 @@ export function AccordionItem({ question, children, defaultOpen = false, heading
   };
 
   return (
-    <details ref={detailsRef} open={defaultOpen} className="group/acc border-t border-sand last:border-b">
+    // data-wa-avoid: el botón flotante de WhatsApp se aparta mientras pasa sobre la lista, así el
+    // "+" sigue alineado con la columna y nunca choca con él (ver WhatsAppFloat)
+    <details ref={detailsRef} open={defaultOpen} data-wa-avoid className="group/acc border-t border-sand last:border-b">
       {/* -mx-3 px-3: el anillo de foco va por dentro de la fila, con aire a los lados y sin pisar
-          las líneas. En escritorio el "+" deja sitio al botón flotante de WhatsApp (52 px a 16 px
-          del borde, más 8 px de aire), que de 1024 a 1440 px se mete en la columna. */}
+          las líneas */}
       <summary
         onClick={onToggleClick}
-        className="-mx-3 flex min-h-[64px] items-center justify-between gap-6 px-3 py-5 text-left transition-colors duration-300 hover:text-wood-dark focus-visible:outline-offset-[-2px] lg:pr-[calc(12px_+_max(0px,76px_-_var(--gutter)))]"
+        className="-mx-3 flex min-h-[64px] items-center justify-between gap-6 px-3 py-5 text-left transition-colors duration-300 hover:text-wood-dark focus-visible:outline-offset-[-2px]"
       >
         <Heading className="font-display text-[clamp(1.125rem,1rem+0.5vw,1.375rem)] leading-snug tracking-[-0.01em]">
           {question}
