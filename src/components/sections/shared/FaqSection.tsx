@@ -4,6 +4,7 @@ import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section, type Surface } from '@/components/ui/Section';
 import type { Faq } from '@/content/faqs';
+import { noOrphans } from '@/lib/typography';
 
 type FaqSectionProps = {
   id?: string;
@@ -37,7 +38,7 @@ export function FaqSection({ id, label, title, faqs, surface = 'cream', aside }:
         <div className="col-span-4 md:col-span-6 lg:col-span-7 lg:col-start-6 lg:mt-5" data-reveal>
           {faqs.map((f) => (
             <AccordionItem key={f.q} question={f.q}>
-              <p>{f.a}</p>
+              <p>{noOrphans(f.a)}</p>
             </AccordionItem>
           ))}
         </div>

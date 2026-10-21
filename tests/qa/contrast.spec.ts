@@ -27,8 +27,11 @@ const HIDE_TEXT =
   '*,*::before,*::after{transition:none!important}*{-webkit-text-fill-color:transparent!important;text-decoration-color:transparent!important;text-shadow:none!important}svg text{fill:transparent!important}.link-underline{background-image:none!important}';
 
 for (const route of ROUTES) {
+  // Móvil, tablet y escritorio: por debajo de lg las fotos se dibujan más anchas que la pantalla
   for (const vp of [
     { width: 1440, height: 900, mobile: false },
+    { width: 1024, height: 768, mobile: false },
+    { width: 768, height: 1024, mobile: true },
     { width: 390, height: 844, mobile: true },
   ]) {
     test(`contraste sobre fotos ${route.name} @ ${vp.width}`, async ({ browser }) => {

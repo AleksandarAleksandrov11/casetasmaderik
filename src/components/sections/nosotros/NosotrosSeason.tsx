@@ -9,7 +9,7 @@ import { CoverPhoto, photoSizes } from './CoverPhoto';
  * parallax un 24 % más, así que la foto 3:2 llega a 1,86 veces el alto de la
  * banda. En móvil son unos 1.500 px sea cual sea el ancho; desde sm crece con el
  * viewport hasta 1.760 px, y a partir de ahí manda el ancho. Tope de 1x: queda
- * bajo un overlay del 78 %.
+ * bajo un overlay del 78 % (86 % por debajo de lg).
  */
 const SEASON_SIZES = photoSizes(
   [
@@ -28,7 +28,8 @@ export function NosotrosSeason() {
         <div data-parallax className="@container-size absolute inset-x-0 -top-[12%] -bottom-[12%]">
           <CoverPhoto image={s.image} sizes={SEASON_SIZES} quality={70} focus={[50, 70]} />
         </div>
-        <div className="absolute inset-0 bg-ink/78" />
+        {/* Más velo por debajo de lg, donde la foto se amplía y sus luces quedan detrás del texto */}
+        <div className="absolute inset-0 bg-ink/86 lg:bg-ink/78" />
       </div>
       <div className="container-site relative py-[clamp(110px,14vw,220px)]">
         <div className="max-w-[48rem]">

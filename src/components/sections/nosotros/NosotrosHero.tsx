@@ -25,7 +25,8 @@ export function NosotrosHero() {
         <div data-parallax className="@container-size absolute inset-x-0 -top-[10%] -bottom-[10%]">
           <CoverPhoto image={h.image} sizes={HERO_SIZES} quality={70} focus={[35, 50]} preload />
         </div>
-        <div className="absolute inset-0 bg-ink/62" />
+        {/* 74 % por debajo de lg: con la foto ampliada, la etiqueta no llegaba al AA en móvil y tablet */}
+        <div className="absolute inset-0 bg-ink/74 lg:bg-ink/62" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-ink/40" />
       </div>
       <div className="container-site relative pt-[calc(var(--header-h)+48px)] pb-[clamp(56px,8vw,112px)]">

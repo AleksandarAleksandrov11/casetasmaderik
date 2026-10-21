@@ -8,6 +8,7 @@ import { Section } from '@/components/ui/Section';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { ContactLink } from '@/components/layout/ContactLink';
 import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
+import { noOrphans } from '@/lib/typography';
 
 type Action = 'presupuesto' | 'email' | 'llamar' | 'whatsapp';
 
@@ -172,9 +173,9 @@ export function CtaFinal({
               className="object-cover object-center"
             />
           </div>
-          {/* En móvil la foto se dibuja a unas tres veces el ancho y las luces de la guirnalda
-              crecen detrás de la etiqueta: algo más de velo para mantener el AA */}
-          <div className="absolute inset-0 bg-ink/82 sm:bg-ink/72" />
+          {/* Por debajo de lg la foto se dibuja más ancha que la pantalla (hasta tres veces en
+              móvil) y las luces de la guirnalda crecen detrás de la etiqueta: más velo para el AA */}
+          <div className="absolute inset-0 bg-ink/82 lg:bg-ink/72" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-ink/30" />
         </div>
       ) : null}
@@ -193,7 +194,7 @@ export function CtaFinal({
             data-cta-lead
             className={`text-lead mt-6 max-w-[44ch] ${dark ? 'text-cream/85' : 'text-stone'}`}
           >
-            {actions.includes('email') ? text : withEmailLink(text, place)}
+            {actions.includes('email') ? noOrphans(text) : withEmailLink(noOrphans(text), place)}
           </p>
           {/* data-wa-avoid: el botón flotante de WhatsApp no tapa estas acciones */}
           <div

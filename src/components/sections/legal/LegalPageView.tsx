@@ -11,6 +11,7 @@ import type { LegalBlock, LegalInline, LegalLink, LegalPage } from '@/content/le
 import { CtaFinal } from '@/components/sections/shared/CtaFinal';
 import { site } from '@/content/site';
 import { breadcrumbNode, graph, organizationNode, webPageNode, websiteNode } from '@/lib/schema';
+import { noOrphans } from '@/lib/typography';
 
 /**
  * Columnas del listado de cookies en el orden de la sección 15 del brief, que es
@@ -55,7 +56,7 @@ function CookieTable() {
       {cookieCategories.map((cat) => (
         <div key={cat.id}>
           <h3>{cat.title}</h3>
-          <p>{cat.description}</p>
+          <p>{noOrphans(cat.description)}</p>
           {cat.rows.length > 0 ? (
             <div className="cookie-table">
               <table role="table">
@@ -121,7 +122,7 @@ function InlineLink({ text, href }: LegalLink) {
 }
 
 function Inline({ parts }: { parts: LegalInline[] }) {
-  return parts.map((part, i) => (typeof part === 'string' ? part : <InlineLink key={i} {...part} />));
+  return parts.map((part, i) => (typeof part === 'string' ? noOrphans(part) : <InlineLink key={i} {...part} />));
 }
 
 function Block({ block }: { block: LegalBlock }) {
@@ -190,7 +191,7 @@ export function LegalPageView({ page }: { page: LegalPage }) {
             ]}
           />
           <h1 className="text-h1 mt-6">{page.title}</h1>
-          <p className="text-lead mt-6 max-w-[30em] text-stone">{page.intro}</p>
+          <p className="text-lead mt-6 max-w-[30em] text-stone">{noOrphans(page.intro)}</p>
           <p className="mt-4 text-[0.9375rem] text-stone">Última actualización: {site.legalUpdated}</p>
 
           <div className="grid-site mt-14 gap-y-12 border-t border-sand pt-12">

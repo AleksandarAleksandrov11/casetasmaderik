@@ -153,7 +153,8 @@ function showWhenClear(lib: CC) {
   banner.addEventListener('keydown', onKey);
   banner.addEventListener('focusout', onFocusOut);
   let tucked = false;
-  let lastY = window.scrollY;
+  // Sin valores negativos: el rebote de iOS arriba del todo no cuenta como bajar
+  let lastY = Math.max(0, window.scrollY);
   const setTucked = (value: boolean) => {
     tucked = value;
     root.classList.toggle(TUCKED_CLASS, value);
@@ -178,8 +179,9 @@ function showWhenClear(lib: CC) {
     const share = (window.innerHeight - banner.offsetTop) / window.innerHeight;
     const short = share >= SHORT_SCREEN_SHARE;
     const atEnd = window.scrollY + window.innerHeight >= root.scrollHeight - 2;
-    const y = window.scrollY;
-    const goingUp = y < lastY;
+    const y = Math.max(0, window.scrollY);
+    const prevY = lastY;
+    const goingUp = y < prevY;
     lastY = y;
     if (!shown) {
       if (!short || atEnd || !coversKeyContent(banner)) {
@@ -188,10 +190,12 @@ function showWhenClear(lib: CC) {
       }
       return;
     }
-    const want = short && !atEnd && y < window.innerHeight * 0.5 && !usingKeyboard && coversKeyContent(banner);
-    // Solo se recoge al volver hacia arriba; al bajar únicamente se suelta (si no, en la primera
-    // bajada aparecería, se iría y volvería)
-    setTucked(tucked ? want : want && goingUp);
+    const hold = short && !atEnd && y < window.innerHeight * 0.5 && !usingKeyboard;
+    const want = hold && coversKeyContent(banner);
+    // Solo se recoge al volver hacia arriba y sigue recogido hasta arriba del todo; al bajar
+    // únicamente se suelta, cuando ya no taparía nada (si no, en la primera bajada aparecería,
+    // se iría y volvería). Quieto (al redimensionar), conserva el estado.
+    setTucked(goingUp ? want || (tucked && hold) : y > prevY ? tucked && want : tucked && hold);
   };
   function schedule() {
     if (!frame) frame = requestAnimationFrame(check);

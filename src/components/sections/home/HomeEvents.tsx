@@ -67,7 +67,7 @@ export function HomeEvents() {
                   style={{ objectPosition: card.focus }}
                 />
                 {/* Velo para que el número llegue al AA (4,5:1) incluso sobre una lona blanca de la foto */}
-                <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink/80 via-ink/40 to-transparent" />
+                <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink/85 via-ink/55 to-transparent" />
                 <span className="tabular absolute top-4 left-4 font-display text-[0.875rem] tracking-[0.08em] text-cream">
                   {String(i + 1).padStart(2, '0')}
                 </span>

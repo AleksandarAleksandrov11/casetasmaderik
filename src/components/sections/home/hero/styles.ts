@@ -342,6 +342,24 @@ html.js-motion .hero__scroll-line::after {
   .hero .hero__primary svg {
     display: none;
   }
+
+  /* El enlace nunca se parte por dentro: su subrayado es de una sola línea */
+  .hero .hero__secondary {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+/* De 600 a 611 px la fila aún pasa de la columna por 1 a 3 px: la misma
+   compactación que por debajo de 360 px */
+@media (max-height: 520px) and (min-aspect-ratio: 5/4) and (min-width: 600px) and (max-width: 611.98px) {
+  .hero__ctas {
+    column-gap: 0.75rem;
+  }
+
+  .hero .hero__primary {
+    padding-inline: 0.875rem;
+  }
 }
 
 @media (max-height: 520px) and (min-aspect-ratio: 5/4) {
