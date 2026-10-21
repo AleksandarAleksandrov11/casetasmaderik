@@ -814,13 +814,24 @@ html.js-intro .intro__rule {
 /* ------------------------------------------------------------------ */
 /* Titulares con SplitText                                             */
 /* ------------------------------------------------------------------ */
-html.js-motion [data-split]:not(.is-split) {
-  opacity: 0;
+/* Los titulares se ven desde el primer pintado: SplitText (que llega con la
+   primera interacción) solo anima los que aún están por debajo de la pantalla */
+
+/* El H1 es el LCP: entra con un desplazamiento corto, nunca desde opacidad cero
+   (brief 7). Solo CSS, sin esperar a JavaScript; con la intro, al retirarse la
+   cortina. "backwards": al terminar no fija ningún transform. */
+html.js-motion main h1 {
+  animation: cm-h1-in 0.9s var(--ease-brand) backwards;
 }
 
-/* Si GSAP no llega a cargar, los titulares aparecen igualmente */
-html.js-motion:not(.split-ready) [data-split] {
-  animation: cm-reveal-fallback 0.01s linear 4s forwards;
+html.js-intro main h1 {
+  animation-delay: 1.05s;
+}
+
+@keyframes cm-h1-in {
+  from {
+    transform: translate3d(0, 14px, 0);
+  }
 }
 
 /* ------------------------------------------------------------------ */

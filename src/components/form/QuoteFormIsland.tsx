@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
+import { onFirstIntent } from '@/lib/intent';
 
 // Misma clave que el borrador de storage.ts (no se importa para no traer su código)
 const DRAFT_KEY = 'cm:presupuesto';
@@ -17,11 +18,11 @@ function loadForm(): Promise<ComponentType> {
 }
 
 /**
- * Carga el formulario interactivo fuera del JavaScript inicial: cuando el
- * navegador queda libre tras la carga, al primer toque o foco en la versión
- * estática, o enseguida si hay un borrador o parámetros en la URL. Hasta
- * entonces se ve la versión estática del servidor (children), con las mismas
- * medidas, así que el cambio no desplaza nada.
+ * Carga el formulario interactivo fuera del JavaScript inicial: con la primera
+ * interacción con la página (scroll, toque, tecla o ratón), al primer toque o
+ * foco en la versión estática, o enseguida si hay un borrador o parámetros en
+ * la URL. Hasta entonces se ve la versión estática del servidor (children), con
+ * las mismas medidas, así que el cambio no desplaza nada.
  */
 export function QuoteFormIsland({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -70,14 +71,9 @@ export function QuoteFormIsland({ children }: { children: ReactNode }) {
       // Sin sessionStorage no hay borrador que recuperar
     }
 
-    let idleId: number | undefined;
-    const schedule = () => {
-      if (window.requestIdleCallback) idleId = window.requestIdleCallback(load, { timeout: 2500 });
-      else idleId = window.setTimeout(load, 300);
-    };
+    let stopWaiting = () => {};
     if (urgent) load();
-    else if (document.readyState === 'complete') schedule();
-    else window.addEventListener('load', schedule, { once: true });
+    else stopWaiting = onFirstIntent(load);
 
     return () => {
       cancelled = true;
@@ -85,8 +81,7 @@ export function QuoteFormIsland({ children }: { children: ReactNode }) {
       el.removeEventListener('focusin', onFocus);
       el.removeEventListener('change', onChange);
       el.removeEventListener('submit', onSubmit);
-      window.removeEventListener('load', schedule);
-      if (idleId !== undefined) (window.cancelIdleCallback ?? window.clearTimeout)(idleId);
+      stopWaiting();
     };
   }, []);
 

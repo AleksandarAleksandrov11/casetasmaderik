@@ -27,7 +27,10 @@ module.exports = {
       chromePath,
       settings: {
         ...(desktop ? { preset: 'desktop' } : {}),
-        chromeFlags: '--headless=new --no-sandbox --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader',
+        // Las opciones por defecto de Chrome sin pantalla, como PageSpeed Insights. Sin WebGL por
+        // software forzado: la comprobación de WebGL tardaría ~0,6 s, algo que no pasa en un
+        // dispositivo real ni en PageSpeed, y la web lo rechaza igualmente (enseña el poster)
+        chromeFlags: '--headless=new --no-sandbox',
         onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
       },
     },

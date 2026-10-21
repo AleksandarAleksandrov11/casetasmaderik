@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { MEDIA } from '@/lib/motion';
 import { loadGsap } from '@/lib/gsap-loader';
 import { getLenis } from '@/components/layout/MotionRoot';
+import { onFirstIntent } from '@/lib/intent';
 
 type HorizontalRailProps = { header: ReactNode; children: ReactNode };
 
@@ -84,110 +85,125 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
 
     let cancelled = false;
     let revert = () => {};
-    loadGsap().then(({ gsap, ScrollTrigger }) => {
-      if (cancelled) return;
-      const mm = gsap.matchMedia();
-      revert = () => mm.revert();
-      mm.add(`${FIT} and ${MEDIA.motionOk}`, () => {
-        let tween: gsap.core.Tween | null = null;
-        const distance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
+    // Solo en escritorio encajado, y con la primera interacción: en móvil no se descarga GSAP por el carril
+    const setup = () =>
+      loadGsap().then(({ gsap, ScrollTrigger }) => {
+        if (cancelled) return;
+        const mm = gsap.matchMedia();
+        revert = () => mm.revert();
+        mm.add(`${FIT} and ${MEDIA.motionOk}`, () => {
+          let tween: gsap.core.Tween | null = null;
+          const distance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
 
-        // Con teclado: al enfocar una tarjeta fuera de vista, se lleva el scroll hasta ella
-        const onFocus = (e: FocusEvent) => {
-          const item = (e.target as HTMLElement).closest<HTMLElement>('[data-rail-item]');
-          const st = tween?.scrollTrigger;
-          if (!item || !st) return;
-          const max = distance();
-          if (max <= 0) return;
-          // La tarjeta enfocada queda en el borde del contenedor (el relleno izquierdo de la pista)
-          const padL = parseFloat(getComputedStyle(track).paddingLeft) || 0;
-          const target = Math.min(1, Math.max(0, (item.offsetLeft - padL) / max));
-          const top = st.start + target * (st.end - st.start);
-          const lenis = getLenis();
-          if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
-          else window.scrollTo({ top, behavior: 'auto' });
-        };
+          // Con teclado: al enfocar una tarjeta fuera de vista, se lleva el scroll hasta ella
+          const onFocus = (e: FocusEvent) => {
+            const item = (e.target as HTMLElement).closest<HTMLElement>('[data-rail-item]');
+            const st = tween?.scrollTrigger;
+            if (!item || !st) return;
+            const max = distance();
+            if (max <= 0) return;
+            // La tarjeta enfocada queda en el borde del contenedor (el relleno izquierdo de la pista)
+            const padL = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+            const target = Math.min(1, Math.max(0, (item.offsetLeft - padL) / max));
+            const top = st.start + target * (st.end - st.start);
+            const lenis = getLenis();
+            if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
+            else window.scrollTo({ top, behavior: 'auto' });
+          };
 
-        const pin = () => {
-          viewport.dataset.pinned = '';
-          tween = gsap.to(track, {
-            x: () => -distance(),
-            ease: 'none',
-            scrollTrigger: {
-              trigger: pinEl,
-              start: 'top top',
-              end: () => `+=${distance()}`,
-              pin: true,
-              scrub: 0.8,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                if (progressRef.current) progressRef.current.style.transform = `scaleX(${self.progress})`;
+          const pin = () => {
+            viewport.dataset.pinned = '';
+            tween = gsap.to(track, {
+              x: () => -distance(),
+              ease: 'none',
+              scrollTrigger: {
+                trigger: pinEl,
+                start: 'top top',
+                end: () => `+=${distance()}`,
+                pin: true,
+                scrub: 0.8,
+                anticipatePin: 1,
+                invalidateOnRefresh: true,
+                onUpdate: (self) => {
+                  if (progressRef.current) progressRef.current.style.transform = `scaleX(${self.progress})`;
+                },
               },
-            },
+            });
+            track.addEventListener('focusin', onFocus);
+          };
+
+          const unpin = () => {
+            track.removeEventListener('focusin', onFocus);
+            tween?.scrollTrigger?.kill(true);
+            tween?.kill();
+            tween = null;
+            gsap.set(track, { clearProps: 'transform' });
+            if (progressRef.current) progressRef.current.style.transform = '';
+            delete viewport.dataset.pinned;
+          };
+
+          // Decide si se fija; devuelve true si cambia la decisión o el aire exterior
+          const update = () => {
+            const ok = fits(pinEl);
+            pinEl.toggleAttribute('data-unfit', !ok);
+            const freeChanged = measureFree(pinEl);
+            if (ok === !!tween) return freeChanged;
+            if (ok) pin();
+            else unpin();
+            return true;
+          };
+          update();
+
+          // Se repite tras cada refresco de ScrollTrigger (redimensionado, carga de fuentes) y cuando
+          // cambia el alto del encabezado sin redimensionar la ventana (tamaño de letra del navegador,
+          // zoom solo de texto). En ese segundo caso también se refresca si sigue fijada, porque cambia
+          // el ancho de las tarjetas y con él el recorrido. Con espera corta para que el layout se asiente.
+          let timer = 0;
+          let relayout = false;
+          const recheck = (layoutChanged: boolean) => {
+            relayout ||= layoutChanged;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => {
+              const refresh = update() || (relayout && !!tween);
+              relayout = false;
+              if (refresh) ScrollTrigger.refresh();
+            }, 120);
+          };
+          const onRefresh = () => recheck(false);
+          ScrollTrigger.addEventListener('refresh', onRefresh);
+          let observed = false;
+          const ro = new ResizeObserver(() => {
+            // La primera notificación llega al observar: no es un cambio
+            if (observed) recheck(true);
+            observed = true;
           });
-          track.addEventListener('focusin', onFocus);
-        };
+          ro.observe(headerEl);
 
-        const unpin = () => {
-          track.removeEventListener('focusin', onFocus);
-          tween?.scrollTrigger?.kill(true);
-          tween?.kill();
-          tween = null;
-          gsap.set(track, { clearProps: 'transform' });
-          if (progressRef.current) progressRef.current.style.transform = '';
-          delete viewport.dataset.pinned;
-        };
-
-        // Decide si se fija; devuelve true si cambia la decisión o el aire exterior
-        const update = () => {
-          const ok = fits(pinEl);
-          pinEl.toggleAttribute('data-unfit', !ok);
-          const freeChanged = measureFree(pinEl);
-          if (ok === !!tween) return freeChanged;
-          if (ok) pin();
-          else unpin();
-          return true;
-        };
-        update();
-
-        // Se repite tras cada refresco de ScrollTrigger (redimensionado, carga de fuentes) y cuando
-        // cambia el alto del encabezado sin redimensionar la ventana (tamaño de letra del navegador,
-        // zoom solo de texto). En ese segundo caso también se refresca si sigue fijada, porque cambia
-        // el ancho de las tarjetas y con él el recorrido. Con espera corta para que el layout se asiente.
-        let timer = 0;
-        let relayout = false;
-        const recheck = (layoutChanged: boolean) => {
-          relayout ||= layoutChanged;
-          window.clearTimeout(timer);
-          timer = window.setTimeout(() => {
-            const refresh = update() || (relayout && !!tween);
-            relayout = false;
-            if (refresh) ScrollTrigger.refresh();
-          }, 120);
-        };
-        const onRefresh = () => recheck(false);
-        ScrollTrigger.addEventListener('refresh', onRefresh);
-        let observed = false;
-        const ro = new ResizeObserver(() => {
-          // La primera notificación llega al observar: no es un cambio
-          if (observed) recheck(true);
-          observed = true;
+          return () => {
+            window.clearTimeout(timer);
+            ScrollTrigger.removeEventListener('refresh', onRefresh);
+            ro.disconnect();
+            unpin();
+            pinEl.removeAttribute('data-unfit');
+            pinEl.closest('section')?.style.removeProperty('--rail-free');
+          };
         });
-        ro.observe(headerEl);
-
-        return () => {
-          window.clearTimeout(timer);
-          ScrollTrigger.removeEventListener('refresh', onRefresh);
-          ro.disconnect();
-          unpin();
-          pinEl.removeAttribute('data-unfit');
-          pinEl.closest('section')?.style.removeProperty('--rail-free');
-        };
       });
-    });
+    const fit = window.matchMedia(`${FIT} and ${MEDIA.motionOk}`);
+    let stopWaiting = () => {};
+    const arm = () => {
+      if (!fit.matches) return;
+      fit.removeEventListener('change', arm);
+      // El aire exterior ya se ajusta antes de fijar: el encajado lo pone el CSS
+      measureFree(pinEl);
+      stopWaiting = onFirstIntent(() => void setup());
+    };
+    if (fit.matches) arm();
+    else fit.addEventListener('change', arm);
     return () => {
       cancelled = true;
+      fit.removeEventListener('change', arm);
+      stopWaiting();
       revert();
     };
   }, []);

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ButtonLink } from '@/components/ui/Button';
 import { nav } from '@/content/site';
+import { onFirstIntent } from '@/lib/intent';
 
 // El menú móvil (con motion) se descarga después de la carga inicial
 const loadMenu = () => import('./MobileMenu').then((m) => m.MobileMenu);
@@ -33,12 +34,10 @@ export function Header({ logo }: { logo: ReactNode }) {
   const headerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Precarga del menú móvil cuando el navegador está libre
+  // Precarga del menú móvil con la primera interacción (no compite con la carga)
   useEffect(() => {
     if (window.matchMedia('(min-width: 1024px)').matches) return;
-    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500));
-    const id = idle(() => void loadMenu());
-    return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
+    return onFirstIntent(() => void loadMenu());
   }, []);
 
   // Hasta hidratar, el CSS decide el tono del header (ver globals.css)
