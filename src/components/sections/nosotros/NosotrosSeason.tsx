@@ -56,7 +56,8 @@ export function NosotrosSeason() {
                 className="absolute top-0 left-0 hidden size-[11px] rounded-full bg-wood-light sm:block"
               />
               <p className="font-display text-[clamp(1.75rem,1.4rem+1.4vw,2.5rem)] leading-none">{t.month}</p>
-              <p className="mt-3 text-mist">{t.text}</p>
+              {/* Crema al 80 % y no mist: sobre las luces de la foto, mist bajaba de 4,5:1 en móvil */}
+              <p className="mt-3 text-cream/80">{t.text}</p>
             </li>
           ))}
         </ol>

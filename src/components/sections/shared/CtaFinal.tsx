@@ -172,7 +172,9 @@ export function CtaFinal({
               className="object-cover object-center"
             />
           </div>
-          <div className="absolute inset-0 bg-ink/72" />
+          {/* En móvil la foto se dibuja a unas tres veces el ancho y las luces de la guirnalda
+              crecen detrás de la etiqueta: algo más de velo para mantener el AA */}
+          <div className="absolute inset-0 bg-ink/82 sm:bg-ink/72" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-ink/30" />
         </div>
       ) : null}
