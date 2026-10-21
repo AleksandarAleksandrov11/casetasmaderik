@@ -6,6 +6,11 @@
   overflow: visible;
 }
 
+/* Escenario con zoom: en reposo todo cabe con margen; durante el zoom, lo que sobra se recorta */
+.cm-lineup--zoom {
+  overflow: hidden;
+}
+
 .cm-lineup--light {
   --cl-line: #8a5a3c;
   --cl-front: #f1e3cf;
@@ -123,6 +128,11 @@
   transition: transform 0.7s var(--ease-brand, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
+/* Escenario con zoom: la vista se aleja o se acerca al mismo ritmo que la recolocación */
+html.js-motion .cm-lineup__stage {
+  transition: transform 0.7s var(--ease-brand, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
 /* Entrada de cada caseta nueva: solo con JavaScript y sin movimiento reducido */
 html.js-motion .cm-lineup__stall {
   animation: cm-lineup-in 0.65s var(--ease-brand, cubic-bezier(0.22, 1, 0.36, 1)) both;
@@ -153,7 +163,8 @@ html.js-motion .cm-lineup__plus {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cm-lineup__slot {
+  .cm-lineup__slot,
+  html.js-motion .cm-lineup__stage {
     transition: none;
   }
 

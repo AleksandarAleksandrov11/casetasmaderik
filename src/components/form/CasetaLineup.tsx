@@ -1,4 +1,4 @@
-import { STALL, computeLayout } from './lineup-geometry';
+import { STALL, computeLayout, computeStage } from './lineup-geometry';
 
 type CasetaLineupProps = {
   count: number;
@@ -9,6 +9,12 @@ type CasetaLineupProps = {
   tone?: 'light' | 'dark';
   /** Si se indica, la ilustración se anuncia como imagen con este texto. */
   label?: string;
+  /**
+   * Escenario con zoom: lienzo apaisado fijo (2:1) y las casetas a la mayor
+   * escala que cabe; al cambiar el número la vista se aleja o se acerca. Sin
+   * zoom, cada caseta mantiene su tamaño en un lienzo calculado para `max`.
+   */
+  zoom?: boolean;
 };
 
 function Stall() {
@@ -40,21 +46,26 @@ function Stall() {
  * Fila isométrica de casetas de madera (hasta `max` dibujadas y "+N").
  * Componente de servidor: las casetas nuevas entran con una animación CSS
  * (solo transform y opacidad, solo con html.js-motion) y los huecos se
- * recolocan con una transición de transform.
+ * recolocan con una transición de transform. Con `zoom`, el grupo escala con
+ * la misma transición.
  */
-export function CasetaLineup({ count, max = 12, className = '', tone = 'light', label }: CasetaLineupProps) {
-  const layout = computeLayout(Number.isFinite(count) ? count : 0, max);
+export function CasetaLineup({
+  count,
+  max = 12,
+  className = '',
+  tone = 'light',
+  label,
+  zoom = false,
+}: CasetaLineupProps) {
+  const safeCount = Number.isFinite(count) ? count : 0;
+  const stage = zoom ? computeStage(safeCount, max) : null;
+  const layout = stage ?? computeLayout(safeCount, max);
   // Orden de pintado: fila trasera primero y, en cada fila, de derecha a izquierda
   const ordered = [...layout.slots].sort((a, b) => a.row - b.row || b.x - a.x);
   const a11y = label ? { role: 'img' as const, 'aria-label': label } : { 'aria-hidden': true as const };
 
-  return (
-    <svg
-      viewBox={`0 0 ${layout.width} ${layout.height}`}
-      className={`cm-lineup cm-lineup--${tone} ${className}`}
-      focusable="false"
-      {...a11y}
-    >
+  const content = (
+    <>
       {ordered.map((slot) => (
         <g key={slot.index} className="cm-lineup__slot" style={{ transform: `translate(${slot.x}px, ${slot.y}px)` }}>
           <g className="cm-lineup__stall" style={{ animationDelay: `${(slot.index % 6) * 45}ms` }}>
@@ -67,6 +78,28 @@ export function CasetaLineup({ count, max = 12, className = '', tone = 'light', 
           +{layout.extra.toLocaleString('es-ES')}
         </text>
       ) : null}
+    </>
+  );
+
+  return (
+    <svg
+      viewBox={`0 0 ${layout.width} ${layout.height}`}
+      className={['cm-lineup', `cm-lineup--${tone}`, stage ? 'cm-lineup--zoom' : '', className]
+        .filter(Boolean)
+        .join(' ')}
+      focusable="false"
+      {...a11y}
+    >
+      {stage ? (
+        <g
+          className="cm-lineup__stage"
+          style={{ transform: `translate(${stage.width / 2}px, ${stage.height / 2}px) scale(${stage.scale})` }}
+        >
+          {content}
+        </g>
+      ) : (
+        content
+      )}
     </svg>
   );
 }

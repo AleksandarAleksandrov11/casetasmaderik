@@ -8,6 +8,7 @@ import { createCasetaState, DPR_DESKTOP, DPR_MOBILE, type Quality, type SceneHan
 import { MEDIA } from '@/lib/motion';
 import { markTooSlowFor3D } from '@/lib/device';
 import { ANCHORS } from './anchors';
+import { WIDE } from './media';
 import { clampOrbit, createOrbit, nearestAngle, VIEWER_START } from './orbit';
 import type { ViewerTargets } from './ViewerScene';
 
@@ -52,6 +53,7 @@ export function ViewerStage({
   const can3D = useCan3D();
   const posterKey = usePosterKey();
   const big = useMedia(MEDIA.desktop);
+  const wide = useMedia(WIDE);
   const fine = useMedia(MEDIA.finePointer);
   const capture = posterKey === 'viewer' || posterKey === 'viewer-mobile';
   const forceHigh = useDevFlag('hq') || capture;
@@ -255,6 +257,7 @@ export function ViewerStage({
           ref={box}
           className="viewer__box"
           data-live={live && !failed ? '' : undefined}
+          data-fit={wide ? 'h' : 'w'}
           {...(mode === '3d'
             ? {
                 role: 'group',
@@ -278,7 +281,7 @@ export function ViewerStage({
                 orbitRef={orbitRef}
                 hotspotsRef={hotspotEls}
                 hotspotIds={ids}
-                fit={big ? 'h' : 'w'}
+                fit={wide ? 'h' : 'w'}
                 quality={quality}
                 dpr={dpr}
                 active={inView || capture}

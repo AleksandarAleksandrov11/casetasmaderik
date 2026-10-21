@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { casetasHero } from '@/content/casetas';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ButtonLink } from '@/components/ui/Button';
@@ -30,7 +31,13 @@ export function CasetasViewerHero() {
               ]}
             />
             <h1 id="casetas-titulo" className="viewer__title text-h1 mt-5">
-              {h.title}
+              {/* Frases enteras: el espacio entre ellas es el único punto de corte */}
+              {h.title.map((phrase, i) => (
+                <Fragment key={phrase}>
+                  {i ? ' ' : null}
+                  <span className="whitespace-nowrap">{phrase}</span>
+                </Fragment>
+              ))}
             </h1>
             <p className="viewer__text text-lead mt-6 max-w-[34ch] text-stone">{h.text}</p>
             <ButtonLink href={h.primary.href} className="mt-8">
@@ -42,9 +49,9 @@ export function CasetasViewerHero() {
           <Poster
             desktop={posters.viewer}
             mobile={posters.viewerMobile}
-            media="lg"
+            media="wide"
             eager
-            sizes={{ desktop: '(min-width: 1024px) 58vw, 100vw', mobile: '100vw' }}
+            sizes={{ desktop: '(min-width: 1024px) 50vw, 60vw', mobile: '100vw' }}
           />
         }
         list={
