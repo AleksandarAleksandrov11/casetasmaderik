@@ -231,8 +231,8 @@ test('formulario: pasos, errores, éxito y fallo de red', async ({ browser }) =>
         await shotForm('paso4-error');
       }
       await page.getByLabel('Nombre y apellidos').fill('Lucía Martín Ortega');
-      await page.getByLabel('Teléfono').fill('+34 600 123 456');
-      await page.getByLabel('Email').fill('lucia@example.com');
+      await page.getByLabel('Teléfono', { exact: true }).fill('+34 600 123 456');
+      await page.getByLabel('Email', { exact: true }).fill('lucia@example.com');
       await page.getByLabel(/He leído y acepto/).check();
       if (outcome === 'exito') await shotForm('paso4');
       await send.click();

@@ -99,7 +99,8 @@ export const homeEvents = {
 
 export const homeProcess = {
   label: 'Cómo trabajamos',
-  title: 'Tú organizas el evento. Nosotros, las casetas.',
+  // Una línea por frase: cada una se equilibra por su cuenta
+  title: ['Tú organizas el evento.', 'Nosotros, las casetas.'],
   steps: [
     {
       n: '01',

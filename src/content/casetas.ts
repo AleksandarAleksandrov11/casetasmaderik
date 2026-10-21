@@ -77,6 +77,7 @@ export const casetasAssembly = {
 export const casetasGallery = {
   label: 'La caseta, en uso',
   title: 'Así trabaja en la calle',
+  // En móvil van de dos en dos: primero las dos cuadradas y luego las dos verticales
   images: [
     {
       src: '/images/real/caseta-madera-alquiler-feria-abierta.jpg',
@@ -85,16 +86,16 @@ export const casetasGallery = {
       alt: 'Caseta de madera abierta en una plaza, con mostrador de café y contraventanas como visera',
     },
     {
-      src: '/images/real/caseta-madera-cerrada-plaza.jpg',
-      width: 683,
-      height: 1024,
-      alt: 'Caseta de madera cerrada en una plaza al atardecer, con cubierta a dos aguas',
-    },
-    {
       src: '/images/real/caseta-madera-mostrador-ventanas-abiertas.jpg',
       width: 682,
       height: 682,
       alt: 'Caseta de madera con dos ventanas con mostrador abiertas y luces interiores',
+    },
+    {
+      src: '/images/real/caseta-madera-cerrada-plaza.jpg',
+      width: 683,
+      height: 1024,
+      alt: 'Caseta de madera cerrada en una plaza al atardecer, con cubierta a dos aguas',
     },
     {
       src: '/images/real/caseta-madera-montada-exterior-dia.jpg',

@@ -77,7 +77,11 @@ export function checkDates(v: DateFields, ctx: z.RefinementCtx, today: string, t
   }
   if (v.unDia) return;
   if (!v.fechaFin) {
-    ctx.addIssue({ code: 'custom', path: ['fechaFin'], message: 'Indica la fecha de fin o marca “Es un solo día”.' });
+    ctx.addIssue({
+      code: 'custom',
+      path: ['fechaFin'],
+      message: 'Indica la fecha de fin o\u00a0marca “Es\u00a0un\u00a0solo\u00a0día”.',
+    });
     return;
   }
   if (!isValidDateString(v.fechaFin)) {

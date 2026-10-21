@@ -165,7 +165,9 @@ export function CtaFinal({
               {...blurFor(image.src)}
               alt=""
               fill
-              sizes="100vw"
+              // object-cover en una caja más alta que ancha (y un 24 % más alta por el
+              // parallax): en móvil la foto se dibuja a unas tres veces el ancho
+              sizes="(max-width: 639px) 300vw, (max-width: 1023px) 130vw, 100vw"
               quality={70}
               className="object-cover object-center"
             />
@@ -185,10 +187,12 @@ export function CtaFinal({
           <p data-reveal className={`text-lead mt-6 max-w-[44ch] ${dark ? 'text-cream/85' : 'text-stone'}`}>
             {actions.includes('email') ? text : withEmailLink(text, place)}
           </p>
+          {/* data-wa-avoid: el botón flotante de WhatsApp no tapa estas acciones */}
           <div
             data-reveal
+            data-wa-avoid
             style={{ ['--reveal-delay' as string]: '0.1s' }}
-            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4"
+            className="mt-10 flex w-fit max-w-full flex-wrap items-center gap-x-6 gap-y-4"
           >
             {buttons}
           </div>

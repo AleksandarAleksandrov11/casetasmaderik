@@ -1,7 +1,6 @@
 'use client';
 
 import { ButtonAnchor, ButtonLink } from '@/components/ui/Button';
-import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { trackEvent } from '@/components/consent/trackEvent';
 import { whatsappHref } from '@/content/site';
 import { FORM_COPY } from './copy';
@@ -53,13 +52,14 @@ export function Success({ nombre, numero, headingRef }: SuccessProps) {
           href={whatsappHref(FORM_COPY.successWhatsappMessage(numero))}
           target="_blank"
           rel="noopener noreferrer"
-          icon={<WhatsAppIcon className="size-5" />}
+          arrow
           magnetic={false}
           onClick={() => trackEvent('click_whatsapp', { ubicacion: 'formulario_exito' })}
         >
           {FORM_COPY.whatsapp}
         </ButtonAnchor>
-        <ButtonLink href="/" variant="outline" magnetic={false}>
+        {/* Principal con flecha; el secundario, sin ella (como en el resto de la web) */}
+        <ButtonLink href="/" variant="outline" arrow={false} magnetic={false}>
           {FORM_COPY.home}
         </ButtonLink>
       </div>

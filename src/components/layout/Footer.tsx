@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
+import { Isotipo } from '@/components/brand/Isotipo';
 import { ButtonLink } from '@/components/ui/Button';
 import { CookieSettingsButton } from '@/components/consent/CookieSettingsButton';
 import { ContactLink } from './ContactLink';
@@ -69,16 +70,18 @@ export function Footer() {
          */}
         <div className="grid-site gap-y-12 @min-[43rem]:gap-y-16">
           {/*
-           * Frase y botón en una banda: comparten fila (frase a la izquierda,
-           * botón al canto derecho) cuando caben, y si no, el botón baja solo.
-           * content-start: en la columna de la marca las dos líneas quedan
-           * arriba y no se reparten el alto de la fila.
+           * Bloque de la marca (brief 9.3): isotipo, frase y botón. Isotipo y
+           * frase van juntos; el botón comparte fila con ellos (al canto
+           * derecho, alineado con la última línea) cuando cabe, y si no, baja
+           * solo. content-start: en la columna de la marca todo queda arriba.
            */}
           <div className="col-span-full flex flex-wrap content-start items-end justify-between gap-8 @min-[70.5rem]:col-span-4">
-            {/* En la rejilla de 12, el -mt compensa el interlineado: la frase cuelga de la misma línea que los títulos */}
-            <p className="text-lead max-w-[32ch] text-cream @min-[70.5rem]:-mt-2">
-              Alquiler de casetas de madera para ferias, mercados y eventos.
-            </p>
+            <div className="flex flex-col gap-6">
+              <Isotipo className="h-12 w-auto self-start text-wood-light" />
+              <p className="text-lead max-w-[32ch] text-cream">
+                Alquiler de casetas de madera para ferias, mercados y eventos.
+              </p>
+            </div>
             <ButtonLink href="/contacto" variant="light">
               Pedir presupuesto
             </ButtonLink>

@@ -211,7 +211,7 @@ export function Header({ logo }: { logo: ReactNode }) {
             <button
               ref={menuButtonRef}
               type="button"
-              className="relative z-10 -mr-2 flex size-12 items-center justify-center lg:hidden"
+              className="relative z-10 -mr-[11px] flex size-12 items-center justify-center lg:hidden"
               aria-expanded={menuOpen}
               aria-controls="menu-movil"
               aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -220,7 +220,14 @@ export function Header({ logo }: { logo: ReactNode }) {
                 setMenuOpen((v) => !v);
               }}
             >
-              <span className="relative block h-[14px] w-[26px]" aria-hidden="true">
+              {/* Iconos alineados con el borde derecho del contenido; la X (más estrecha) se desplaza un poco */}
+              <span
+                className={[
+                  'relative block h-[14px] w-[26px] transition-transform duration-500 ease-brand',
+                  menuOpen ? 'translate-x-[2px]' : '',
+                ].join(' ')}
+                aria-hidden="true"
+              >
                 <span
                   className={[
                     'absolute left-0 h-[1.5px] w-full bg-current transition-transform duration-500 ease-brand',

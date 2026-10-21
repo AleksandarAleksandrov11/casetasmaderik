@@ -480,7 +480,7 @@ export function QuoteForm() {
                         <ArrowLeft
                           aria-hidden="true"
                           strokeWidth={1.5}
-                          className="size-[18px] transition-transform duration-500 ease-brand group-hover:-translate-x-1"
+                          className="size-[18px] flex-none transition-transform duration-500 ease-brand group-hover:-translate-x-1"
                         />
                         {FORM_COPY.back}
                       </button>

@@ -41,7 +41,7 @@ export function NosotrosArea() {
             loading="lazy"
             decoding="async"
             alt={`Mapa de España. Zona de servicio: ${zone}.`}
-            className="h-auto w-full"
+            className="h-auto w-full max-lg:landscape:mx-auto max-lg:landscape:max-w-[calc(80svh*1000/740)]"
           />
           {!all ? (
             <figcaption className="mt-4 text-[0.9375rem] text-stone">

@@ -51,7 +51,7 @@ export function HomeCaseta() {
             ))}
           </dl>
 
-          <ul className="mt-14 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+          <ul className="mt-14 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             {c.features.map((f, i) => {
               const Icon = ICONS[f.icon as keyof typeof ICONS];
               return (
@@ -77,7 +77,7 @@ export function HomeCaseta() {
         </div>
 
         <div className="col-span-4 md:col-span-6 lg:col-span-5 lg:col-start-8">
-          <figure className="lg:sticky lg:top-[calc(var(--header-h-compact)+40px)]">
+          <figure className="lg:sticky lg:top-[calc(var(--header-h-compact)+40px)] max-lg:short-landscape:max-w-[calc(100svh-6rem)]">
             <div data-reveal-image className="relative aspect-square overflow-hidden rounded-sm bg-charcoal">
               <Image
                 src={c.image.src}

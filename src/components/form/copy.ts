@@ -5,7 +5,8 @@ export const STEPS = [
   {
     short: 'Evento',
     title: '¿Qué evento estás organizando?',
-    hint: 'Elige el que más se parezca. Lo afinamos después.',
+    // \u00a0: sin palabras sueltas al final de línea
+    hint: 'Elige el que más se parezca. Lo\u00a0afinamos después.',
   },
   {
     short: 'Fecha y lugar',
@@ -45,7 +46,7 @@ export const FORM_COPY = {
   casetasLess: 'Quitar una caseta',
   casetasMore: 'Añadir una caseta',
   casetasQuick: 'Accesos rápidos',
-  comentarios: '¿Algo más que debamos saber?',
+  comentarios: '¿Algo más que debamos\u00a0saber?',
   comentariosHint: 'Opcional.',
   comentariosPlaceholder: 'Accesos al recinto, horarios de montaje, electricidad...',
   summaryLabel: 'Tu solicitud',
@@ -58,13 +59,13 @@ export const FORM_COPY = {
   optional: 'Opcional',
   honeypot: 'Deja este campo vacío',
   privacyBefore: 'He leído y acepto la ',
-  privacyLink: 'política de privacidad',
+  privacyLink: 'política de\u00a0privacidad',
   privacyAfter: '.',
   legal:
     'Responsable: AJE ZENTIO. Finalidad: responder a tu solicitud de presupuesto. Legitimación: tu consentimiento. Destinatarios: no se ceden datos a terceros salvo obligación legal. Usamos proveedores tecnológicos (Google y Vercel) como encargados del tratamiento. Derechos: acceso, rectificación, supresión y otros en info@casetasmaderik.es. Más información en la política de privacidad.',
   errorSummary: 'Revisa los campos marcados.',
-  networkError: 'No hemos podido enviar tu solicitud. Inténtalo de nuevo o escríbenos por WhatsApp.',
-  rateLimited: 'Has enviado varias solicitudes en poco tiempo. Espera unos minutos o escríbenos por WhatsApp.',
+  networkError: 'No hemos podido enviar tu solicitud. Inténtalo de nuevo o\u00a0escríbenos por WhatsApp.',
+  rateLimited: 'Has enviado varias solicitudes en poco tiempo. Espera unos minutos o\u00a0escríbenos por WhatsApp.',
   serverValidation: 'Revisa los datos marcados y vuelve a enviarla.',
   whatsapp: 'Escribir por WhatsApp',
   successTitle: 'Solicitud enviada',

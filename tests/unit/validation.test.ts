@@ -101,7 +101,7 @@ describe('validación por pasos del borrador', () => {
     const errors = validateStep(1, EMPTY_DRAFT, TODAY);
     expect(errors).toEqual({
       fechaInicio: 'Indica la fecha de inicio.',
-      fechaFin: 'Indica la fecha de fin o marca “Es un solo día”.',
+      fechaFin: 'Indica la fecha de fin o\u00a0marca “Es\u00a0un\u00a0solo\u00a0día”.',
       localidad: 'Indica la localidad.',
       provincia: 'Elige una provincia.',
     });

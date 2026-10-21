@@ -4,11 +4,11 @@ import { Section } from '@/components/ui/Section';
 import { casetasConfigurator } from '@/content/casetas';
 import { CasetasConfigurator } from './CasetasConfigurator';
 
-/** S6. CTA final con configurador (oscuro). */
+/** S6. CTA final con configurador (oscuro). Una línea fina lo cierra antes del footer, también tinta. */
 export function CasetasCta() {
   const c = casetasConfigurator;
   return (
-    <Section surface="dark" aria-labelledby="configurador-titulo">
+    <Section surface="dark" className="pb-0!" aria-labelledby="configurador-titulo">
       <div className="container-site">
         <div className="max-w-[44rem]">
           <Label>{c.label}</Label>
@@ -20,6 +20,7 @@ export function CasetasCta() {
         <div className="mt-14">
           <CasetasConfigurator />
         </div>
+        <div aria-hidden="true" className="mt-[var(--section-y)] border-t border-mist/20" />
       </div>
     </Section>
   );

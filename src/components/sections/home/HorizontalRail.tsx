@@ -77,7 +77,9 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
           if (!item || !st) return;
           const max = distance();
           if (max <= 0) return;
-          const target = Math.min(1, Math.max(0, (item.offsetLeft - 40) / max));
+          // La tarjeta enfocada queda en el borde del contenedor (el relleno izquierdo de la pista)
+          const padL = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+          const target = Math.min(1, Math.max(0, (item.offsetLeft - padL) / max));
           const top = st.start + target * (st.end - st.start);
           const lenis = getLenis();
           if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
@@ -180,7 +182,7 @@ export function HorizontalRail({ header, children }: HorizontalRailProps) {
           4:5 con su pie) y es contenedor de tamaño, para que las tarjetas calculen su ancho con cqh. */}
       <div
         ref={viewportRef}
-        className="mt-12 snap-x snap-mandatory scroll-px-[max(var(--gutter),var(--safe-left))] [scrollbar-width:none] overflow-x-auto overscroll-x-contain data-[pinned]:snap-none data-[pinned]:overflow-visible lg:mt-[clamp(28px,5svh,64px)] pointer-fine:[scrollbar-width:thin] pointer-fine:[scrollbar-color:var(--color-sand)_transparent] rail-fit:[container-type:size] rail-fit:flex rail-fit:h-[calc(min(28vw,420px)*1.25+8rem)] rail-fit:min-h-0 rail-fit:flex-col rail-fit:justify-center [&::-webkit-scrollbar]:hidden"
+        className="mt-12 snap-x snap-mandatory scroll-px-[max(var(--gutter),var(--safe-left))] [scrollbar-width:none] overflow-x-auto overscroll-x-contain data-[pinned]:snap-none data-[pinned]:overflow-visible lg:mt-[clamp(28px,5svh,64px)] pointer-fine:[scrollbar-width:thin] pointer-fine:[scrollbar-color:var(--color-sand)_transparent] rail-fit:[container-type:size] rail-fit:flex rail-fit:h-[calc(min(26vw,420px)*1.25+8rem)] rail-fit:min-h-0 rail-fit:flex-col rail-fit:justify-center [&::-webkit-scrollbar]:hidden"
       >
         {/* Una columna por tarjeta y dos filas compartidas (foto y pie) que cada tarjeta hereda con
             subgrid; la de la foto es la única que cede alto. El relleno lateral coincide con el

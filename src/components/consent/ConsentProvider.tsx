@@ -112,23 +112,34 @@ function showKeepingFocus(lib: CC, banner: HTMLElement) {
   lib.show();
 }
 
+const TUCKED_CLASS = 'cc-tucked';
+
 /**
  * Muestra el aviso sin tapar nunca un CTA. Si en una pantalla baja el primer
  * pantallazo no le deja sitio (el hero ocupa todo el alto), espera al primer
  * desplazamiento que deje libre su franja. Al final de la página siempre la
- * hay: el body reserva ese hueco (globals.css).
+ * hay: el footer reserva ese hueco (globals.css). Ya visible, en una pantalla
+ * baja se aparta (html.cc-tucked) mientras, de vuelta arriba, taparía el
+ * título o un CTA, y vuelve en cuanto se baja un poco.
  */
 function showWhenClear(lib: CC) {
   stopWaiting?.();
   const banner = document.querySelector<HTMLElement>('#cc-main .cm');
   if (!banner) return;
-  document.documentElement.classList.add(CONSENT_PENDING_CLASS);
+  const root = document.documentElement;
+  root.classList.add(CONSENT_PENDING_CLASS);
   measureBanner();
   let frame = 0;
+  let shown = false;
+  const setTucked = (tucked: boolean) => {
+    root.classList.toggle(TUCKED_CLASS, tucked);
+    banner.toggleAttribute('inert', tucked);
+  };
   const stop = () => {
     cancelAnimationFrame(frame);
     window.removeEventListener('scroll', schedule);
     window.removeEventListener('resize', schedule);
+    setTucked(false);
     stopWaiting = null;
   };
   const check = () => {
@@ -139,12 +150,22 @@ function showWhenClear(lib: CC) {
       return;
     }
     const share = (window.innerHeight - banner.offsetTop) / window.innerHeight;
-    const root = document.documentElement;
+    const short = share >= SHORT_SCREEN_SHARE;
     const atEnd = window.scrollY + window.innerHeight >= root.scrollHeight - 2;
-    if (share < SHORT_SCREEN_SHARE || atEnd || !coversKeyContent(banner)) {
-      stop();
-      showKeepingFocus(lib, banner);
+    if (!shown) {
+      if (!short || atEnd || !coversKeyContent(banner)) {
+        shown = true;
+        showKeepingFocus(lib, banner);
+      }
+      return;
     }
+    const tuck =
+      short &&
+      !atEnd &&
+      window.scrollY < window.innerHeight * 0.5 &&
+      !banner.contains(document.activeElement) &&
+      coversKeyContent(banner);
+    setTucked(tuck);
   };
   function schedule() {
     if (!frame) frame = requestAnimationFrame(check);
@@ -225,6 +246,7 @@ function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
     },
     onModalHide: ({ modalName }) => {
       if (modalName !== 'consentModal') return;
+      stopWaiting?.();
       watchBanner(false);
       releaseBanner();
     },

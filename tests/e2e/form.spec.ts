@@ -68,8 +68,8 @@ async function fillWhenWhere(
 
 async function fillContact(page: Page, name = 'Lucía Martín Ortega') {
   await page.getByLabel('Nombre y apellidos').fill(name);
-  await page.getByLabel('Teléfono').fill('+34 600 123 456');
-  await page.getByLabel('Email').fill('lucia@example.com');
+  await page.getByLabel('Teléfono', { exact: true }).fill('+34 600 123 456');
+  await page.getByLabel('Email', { exact: true }).fill('lucia@example.com');
   await page.getByLabel(/He leído y acepto/).check();
 }
 
@@ -227,9 +227,9 @@ test.describe('Formulario de presupuesto', () => {
     }
     await expect(page.getByLabel('Nombre y apellidos')).toBeFocused();
     await expect(page.getByLabel('Nombre y apellidos')).toHaveAttribute('aria-invalid', 'true');
-    await page.getByLabel('Teléfono').fill('123');
+    await page.getByLabel('Teléfono', { exact: true }).fill('123');
     await expect(form(page).getByText('Indica un teléfono válido, de 9 a 15 dígitos.')).toBeVisible();
-    await page.getByLabel('Email').fill('lucia@');
+    await page.getByLabel('Email', { exact: true }).fill('lucia@');
     await expect(form(page).getByText('Indica un email válido.')).toBeVisible();
     await stepLabel(page, 4);
   });
@@ -396,7 +396,7 @@ test.describe('Formulario de presupuesto', () => {
     await expect(form(page).getByRole('alert')).toContainText('Has enviado varias solicitudes en poco tiempo.', {
       timeout: 15_000,
     });
-    await expect(page.getByLabel('Email')).toHaveValue('lucia@example.com');
+    await expect(page.getByLabel('Email', { exact: true })).toHaveValue('lucia@example.com');
   });
 
   test('flujo completo solo con teclado', async ({ page }) => {
@@ -529,8 +529,8 @@ test.describe('Formulario en móvil @mobile', () => {
     await next(page).click();
     await stepLabel(page, 4);
     await page.getByLabel('Nombre y apellidos').fill('Pedro Ruiz');
-    await page.getByLabel('Teléfono').fill('600123456');
-    await page.getByLabel('Email').fill('pedro@example.com');
+    await page.getByLabel('Teléfono', { exact: true }).fill('600123456');
+    await page.getByLabel('Email', { exact: true }).fill('pedro@example.com');
     await page.getByLabel(/He leído y acepto/).check();
     // Tras marcar la casilla, el botón queda por encima del aviso
     await expect

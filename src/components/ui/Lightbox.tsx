@@ -128,7 +128,7 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
               <button
                 type="button"
                 onClick={close}
-                className="flex size-12 items-center justify-center rounded-full text-cream hover:bg-cream/10"
+                className="flex size-12 items-center justify-center rounded-sm text-cream hover:bg-cream/10"
                 aria-label="Cerrar galería"
               >
                 <X strokeWidth={1.5} className="size-6" aria-hidden="true" />
@@ -164,7 +164,7 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
               <button
                 type="button"
                 onClick={() => go(-1)}
-                className="flex size-12 items-center justify-center rounded-full border border-cream/30 hover:bg-cream/10"
+                className="flex size-12 items-center justify-center rounded-sm border border-cream/30 hover:bg-cream/10"
                 aria-label="Imagen anterior"
               >
                 <ChevronLeft strokeWidth={1.5} className="size-6" aria-hidden="true" />
@@ -172,7 +172,7 @@ export function Lightbox({ images, thumbs, className, itemClassNames }: Lightbox
               <button
                 type="button"
                 onClick={() => go(1)}
-                className="flex size-12 items-center justify-center rounded-full border border-cream/30 hover:bg-cream/10"
+                className="flex size-12 items-center justify-center rounded-sm border border-cream/30 hover:bg-cream/10"
                 aria-label="Imagen siguiente"
               >
                 <ChevronRight strokeWidth={1.5} className="size-6" aria-hidden="true" />

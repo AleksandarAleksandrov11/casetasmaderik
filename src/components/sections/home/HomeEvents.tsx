@@ -12,7 +12,13 @@ import { HorizontalRail } from './HorizontalRail';
 export function HomeEvents() {
   const e = homeEvents;
   return (
-    <Section surface="cream" spacing={false} className="overflow-clip" aria-labelledby="eventos-titulo">
+    <Section
+      surface="cream"
+      spacing={false}
+      // Fuera de la sección fijada: el aire que le falta hasta --section-y (el pin no cambia)
+      className="overflow-clip lg:pt-[max(0px,calc(var(--section-y)-clamp(56px,9svh,128px)))] lg:pb-[max(0px,calc(var(--section-y)-clamp(32px,6svh,96px)))]"
+      aria-labelledby="eventos-titulo"
+    >
       <HorizontalRail
         header={
           <div className="container-site flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -38,7 +44,7 @@ export function HomeEvents() {
           <li
             key={card.slug}
             data-rail-item
-            className="row-span-2 grid w-[78vw] max-w-[min(420px,calc((100svh-9rem)*1.25))] snap-start grid-rows-subgrid sm:w-[44vw] lg:w-[28vw] rail-fit:w-[min(28vw,420px,calc((100cqh-7.5rem)*1.25))]"
+            className="row-span-2 grid w-[78vw] max-w-[min(420px,calc((100svh-9rem)*1.25))] snap-start grid-rows-subgrid sm:w-[40vw] lg:w-[26vw] rail-fit:w-[min(26vw,420px,calc((100cqh-7.5rem)*1.25))]"
           >
             <Link
               href={`/contacto?evento=${card.slug}`}
@@ -54,7 +60,7 @@ export function HomeEvents() {
                   {...blurFor(card.image)}
                   alt={card.alt}
                   fill
-                  sizes="(min-width: 1500px) 420px, (min-width: 1024px) 28vw, (min-width: 640px) 44vw, 78vw"
+                  sizes="(min-width: 1620px) 420px, (min-width: 1024px) 26vw, (min-width: 640px) 40vw, 78vw"
                   quality={75}
                   className="object-cover transition-transform duration-[1200ms] ease-brand group-hover/card:scale-[1.04]"
                   style={{ objectPosition: card.focus }}

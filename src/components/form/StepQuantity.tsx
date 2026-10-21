@@ -90,7 +90,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
           <p id={ids.quick} className="sr-only">
             {FORM_COPY.casetasQuick}
           </p>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-5 gap-2 sm:flex">
             {QUICK.map((n) => {
               const active = count === n;
               return (
@@ -101,7 +101,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
                   aria-label={casetasLabel(n)}
                   onClick={() => set(n)}
                   className={[
-                    'tabular flex h-11 min-w-11 items-center justify-center rounded-sm border px-3 text-[0.9375rem] font-semibold transition-colors duration-300 ease-brand',
+                    'tabular flex h-11 min-w-0 items-center justify-center rounded-sm border px-0 text-[0.9375rem] font-semibold transition-colors duration-300 ease-brand sm:min-w-11 sm:px-3',
                     active ? 'border-wood bg-wood text-cream' : 'border-sand bg-cream text-ink hover:border-ink/35',
                   ].join(' ')}
                 >

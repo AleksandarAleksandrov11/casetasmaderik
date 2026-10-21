@@ -16,7 +16,7 @@ export const ROOT_CLASS = 'relative scroll-mt-[calc(var(--header-h-compact)+16px
  */
 export const PANEL_CLASS =
   'surface-paper rounded-sm border border-sand bg-paper px-5 py-7 sm:px-9 sm:py-10 lg:px-11 lg:py-11';
-export const ACTIONS_CLASS = 'mt-10 flex items-center gap-3 border-t border-sand pt-6';
+export const ACTIONS_CLASS = 'mt-10 flex flex-wrap-reverse items-center gap-3 border-t border-sand pt-6';
 /*
  * Las tarjetas se reparten según el ancho real de la rejilla (container
  * queries), no según la pantalla: el formulario vive en columnas muy distintas
@@ -27,7 +27,7 @@ export const ACTIONS_CLASS = 'mt-10 flex items-center gap-3 border-t border-sand
  */
 export const EVENT_GRID_CLASS = '@container clear-both grid grid-cols-6 gap-3';
 // ml-auto lo deja a la derecha aunque no haya botón Atrás; en móvil ocupa toda la fila
-export const NEXT_BUTTON_CLASS = 'ml-auto min-w-[10.5rem] max-sm:flex-1';
+export const NEXT_BUTTON_CLASS = 'ml-auto min-w-[10.5rem] max-sm:min-w-fit max-sm:flex-1 max-sm:px-4';
 
 const EVENT_ICONS: Record<TipoEvento, LucideIcon> = {
   'Mercado navideño': TreePine,

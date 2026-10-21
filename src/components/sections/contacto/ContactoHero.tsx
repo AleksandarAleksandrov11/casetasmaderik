@@ -57,7 +57,7 @@ export function ContactoHero() {
          * el formulario, para que su cabecera ("Paso 1 de 4" y la barra) se vea
          * sin hacer scroll.
          */}
-        <div className="mt-4 grid gap-x-16 gap-y-8 lg:mt-6 lg:grid-cols-12 max-lg:low-landscape:gap-y-6">
+        <div className="mt-4 grid grid-cols-1 gap-x-16 gap-y-8 lg:mt-6 lg:grid-cols-12 max-lg:low-landscape:gap-y-6">
           <div className="@container lg:col-span-6">
             <Label className="hidden lg:inline-flex">{h.label}</Label>
             {/*

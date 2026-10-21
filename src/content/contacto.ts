@@ -15,7 +15,7 @@ export const contactoHero = {
 export const contactoChannels = {
   // Corta para que la etiqueta quepa en una línea también a 320 px
   label: 'Otros canales',
-  title: 'Si lo prefieres, hablamos',
+  title: 'Teléfono, WhatsApp o email',
   channels: [
     { id: 'phone', title: 'Llamar', note: site.hours },
     { id: 'whatsapp', title: 'WhatsApp', note: 'Escríbenos cuando quieras' },

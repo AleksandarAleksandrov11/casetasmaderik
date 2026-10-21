@@ -304,6 +304,15 @@ html.js-motion .hero__scroll-line::after {
   .hero__stage {
     min-height: 0;
   }
+
+  /* En los móviles horizontales más estrechos (667 px) el titular no aprieta la caseta */
+  .hero__title {
+    font-size: clamp(2.125rem, min(5.35vw, 10.6svh), 7.5rem);
+  }
+
+  .hero__col {
+    max-width: min(50%, 50rem);
+  }
 }
 
 @media (max-height: 520px) and (min-aspect-ratio: 5/4) {

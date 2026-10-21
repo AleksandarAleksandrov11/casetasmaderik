@@ -13,11 +13,12 @@ export function ContactoNext() {
         <Heading id="despues-titulo" className="mt-6 max-w-[18ch]">
           {n.title}
         </Heading>
-        <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-12">
+        {/* Subgrid: número, título y texto comparten filas en las tres columnas, así los textos empiezan a la misma altura aunque un título ocupe dos líneas */}
+        <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-x-12 md:gap-y-0">
           {n.steps.map((s, i) => (
             <li
               key={s.n}
-              className="border-t border-sand pt-6"
+              className="border-t border-sand pt-6 md:row-span-3 md:grid md:grid-rows-subgrid"
               data-reveal
               style={{ ['--reveal-delay' as string]: `${i * 0.1}s` }}
             >

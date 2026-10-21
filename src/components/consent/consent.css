@@ -415,6 +415,11 @@
   #cc-main .cm--bar .cm__link-group > a {
     justify-self: end;
   }
+
+  /* La tarjeta va a la derecha: la acción del formulario pasa a la izquierda */
+  html.cc-pending #formulario [data-quote-actions] > button[type='submit'] {
+    margin-left: 0;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -424,6 +429,21 @@
   border: 1px solid #e6dccf;
   border-radius: 4px;
   box-shadow: none;
+}
+
+/* Móvil: el panel ocupa la pantalla entera, sin marco de tarjeta y con el margen de la web */
+@media screen and (max-width: 640px) {
+  #cc-main .pm {
+    border: 0;
+    border-radius: 0;
+  }
+
+  #cc-main .pm__header,
+  #cc-main .pm__body,
+  #cc-main .pm__footer {
+    padding-left: max(var(--gutter), var(--safe-left)) !important;
+    padding-right: max(var(--gutter), var(--safe-right)) !important;
+  }
 }
 
 #cc-main .pm__title {

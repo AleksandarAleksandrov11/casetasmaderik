@@ -13,7 +13,12 @@ export function HomeProcess() {
         <div className="max-w-[48rem]">
           <Label>{p.label}</Label>
           <Heading id="proceso-titulo" className="mt-6">
-            {p.title}
+            {p.title.map((line, i) => (
+              <span key={line} className="block">
+                {i > 0 ? ' ' : null}
+                {line}
+              </span>
+            ))}
           </Heading>
         </div>
 

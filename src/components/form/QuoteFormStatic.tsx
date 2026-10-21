@@ -40,7 +40,7 @@ export function QuoteFormStatic() {
                 </div>
               </fieldset>
             </div>
-            <div className={ACTIONS_CLASS}>
+            <div data-quote-actions="" className={ACTIONS_CLASS}>
               <Button type="submit" arrow className={NEXT_BUTTON_CLASS}>
                 {FORM_COPY.next}
               </Button>

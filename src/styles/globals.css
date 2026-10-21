@@ -997,9 +997,21 @@ html.cc-pending {
   }
 }
 
-/* El final de cada página queda por encima del aviso */
-html.cc-pending body {
+/* El final de cada página queda por encima del aviso. La franja la pone el
+   footer (tinta), no el body (crema): en móvil horizontal el aviso es una
+   tarjeta a la derecha y el resto de la franja queda a la vista */
+html.cc-pending #pie {
   padding-bottom: var(--consent-h);
+}
+
+/* Aviso apartado (ConsentProvider): de vuelta arriba en una pantalla baja,
+   se retira mientras taparía el título o un CTA */
+html.cc-tucked #cc-main .cm {
+  visibility: hidden;
+  transform: translateY(calc(100% + 24px)) !important;
+  transition:
+    transform 0.45s var(--ease-brand),
+    visibility 0s linear 0.45s !important;
 }
 
 /* Lo que sube el botón flotante de WhatsApp: solo con el aviso a la vista */
