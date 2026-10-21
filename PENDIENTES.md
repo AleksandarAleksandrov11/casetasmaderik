@@ -29,7 +29,7 @@ Datos y decisiones que necesitamos del cliente. Todos los datos de negocio está
 
 15. **Fotos profesionales de la caseta**: montada, de día y de noche, en eventos reales y en detalle. Ahora solo hay 4 fotos de 480 a 683 px de ancho (dos de ellas parecen fotomontajes sobre un fondo de calle). Con fotos buenas, la galería "La caseta, en uso" y la sección "La caseta" de Inicio ganarían muchísimo.
 16. **Logo circular original** (`brief/logo.png`): no se entregó con el brief. El logo se ha redibujado en SVG a partir del logo horizontal de la web antigua (`brief/logo-horizontal-original.webp`), con la palabra en Outfit en lugar de la tipografía con remate del original, como pide el brief.
-17. Las fotos de recurso son de Unsplash y Pexels (uso comercial permitido). Para la tarjeta de "Eventos corporativos" no encontramos una activación de marca sin logotipos legibles y se usa un montaje de evento al aire libre.
+17. Las fotos de recurso son de Unsplash y Pexels (uso comercial permitido; autor, enlace y recorte de cada una en `public/images/stock/CREDITS.md`). Dos se descargaron de la biblioteca gratuita de Unsplash por su identificador sin poder abrir su página desde el entorno de desarrollo: conviene confirmarlas en sus enlaces antes de publicar. Para "Ferias y bazares" se usa una caseta de pino en una feria (en lugar de carpas blancas, que son justo la alternativa con la que compite la caseta) y para "Eventos corporativos" una exposición con pabellones de madera, porque las activaciones de marca de stock llevan logotipos. En cuanto haya fotos propias de eventos de empresa, conviene usarlas ahí.
 
 ## Reseñas, analítica y campañas
 
