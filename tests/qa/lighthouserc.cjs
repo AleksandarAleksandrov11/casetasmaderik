@@ -1,7 +1,8 @@
-// Lighthouse CI (móvil por defecto; LHCI_PRESET=desktop para escritorio).
+// Lighthouse CI (móvil por defecto; QA_LH_DESKTOP=1 para escritorio). No se usa una variable
+// LHCI_*: lhci las lee como opciones propias (LHCI_PRESET sería --preset).
 // Requiere el servidor en marcha: pnpm build:qa && pnpm start:qa
 const base = process.env.E2E_BASE_URL || 'http://localhost:3300';
-const desktop = process.env.LHCI_PRESET === 'desktop';
+const desktop = process.env.QA_LH_DESKTOP === '1';
 const chromePath = process.env.CHROME_PATH || '/opt/pw-browsers/chromium';
 
 const perf = ['error', { minScore: desktop ? 0.95 : 0.9 }];

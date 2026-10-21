@@ -14,7 +14,7 @@
     "test": "vitest run",
     "e2e": "playwright test --config tests/playwright.config.ts",
     "qa:screens": "playwright test --config tests/qa/playwright.qa.config.ts",
-    "qa:lighthouse": "lhci autorun --config=tests/qa/lighthouserc.cjs && LHCI_PRESET=desktop lhci autorun --config=tests/qa/lighthouserc.cjs",
+    "qa:lighthouse": "lhci autorun --config=tests/qa/lighthouserc.cjs && QA_LH_DESKTOP=1 lhci autorun --config=tests/qa/lighthouserc.cjs",
     "qa:links": "node tests/qa/links.mjs",
     "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build:qa && pnpm e2e && pnpm qa:screens && pnpm qa:links && pnpm qa:lighthouse && pnpm build",
     "build:qa": "VERCEL_JSON_LOCAL=1 NEXT_PUBLIC_GA_ID=G-QATEST0000 NEXT_PUBLIC_ANALYTICS_LOCAL=1 next build",

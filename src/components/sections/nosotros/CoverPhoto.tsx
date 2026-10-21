@@ -38,7 +38,8 @@ type CoverPhotoProps = {
   quality: number;
   /** Punto de la foto que queda a la vista al recortar, como object-position (en %) */
   focus?: readonly [x: number, y: number];
-  preload?: boolean;
+  /** Imagen LCP (hero): se pide enseguida y con prioridad alta */
+  lcp?: boolean;
 };
 
 /**
@@ -51,7 +52,7 @@ type CoverPhotoProps = {
  * proporción va fija en CSS porque cada archivo redimensionado redondea su alto
  * y, con el suyo, la foto quedaría a medio píxel de cubrir la caja.
  */
-export function CoverPhoto({ image, sizes, quality, focus = [50, 50], preload = false }: CoverPhotoProps) {
+export function CoverPhoto({ image, sizes, quality, focus = [50, 50], lcp = false }: CoverPhotoProps) {
   const vars = {
     '--cover-x': `${focus[0]}%`,
     '--cover-y': `${focus[1]}%`,
@@ -66,7 +67,9 @@ export function CoverPhoto({ image, sizes, quality, focus = [50, 50], preload = 
       height={image.height}
       sizes={sizes}
       quality={quality}
-      preload={preload}
+      // Como recomienda Next 16 para la imagen LCP: eager y fetchPriority alta, sin <link preload>
+      // (el preload salía con prioridad baja)
+      {...(lcp ? { loading: 'eager' as const, fetchPriority: 'high' as const } : {})}
       style={vars}
       className="absolute top-(--cover-y) left-(--cover-x) aspect-(--cover-ratio) h-auto w-[max(100cqw,calc(100cqh*var(--cover-ratio)))] max-w-none -translate-x-(--cover-x) -translate-y-(--cover-y) object-cover"
     />

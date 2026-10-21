@@ -23,7 +23,7 @@ export function NosotrosHero() {
     >
       <div className="absolute inset-0" aria-hidden="true">
         <div data-parallax className="@container-size absolute inset-x-0 -top-[10%] -bottom-[10%]">
-          <CoverPhoto image={h.image} sizes={HERO_SIZES} quality={70} focus={[35, 50]} preload />
+          <CoverPhoto image={h.image} sizes={HERO_SIZES} quality={70} focus={[35, 50]} lcp />
         </div>
         {/* 74 % por debajo de lg: con la foto ampliada, la etiqueta no llegaba al AA en móvil y tablet */}
         <div className="absolute inset-0 bg-ink/74 lg:bg-ink/62" />
