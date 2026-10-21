@@ -29,35 +29,57 @@ export function HomeEvents() {
         }
       >
         {e.cards.map((card, i) => (
+          // Subrejilla: todas las fotos comparten fila (mismo alto) y los pies arrancan a la misma
+          // altura aunque un título ocupe dos líneas. En escritorio encajado (ver HorizontalRail)
+          // la fila de la foto cede alto para que todo quepa en pantalla, y el ancho de la tarjeta
+          // sale del alto disponible (100cqh menos el pie, unos 7,5rem) para que la foto se quede en
+          // torno a 5:4 apaisada como mucho. En móvil en horizontal, el mismo tope con el alto de la
+          // ventana (la foto mide como mucho 100svh menos 9rem).
           <li
             key={card.slug}
             data-rail-item
-            className="w-[78vw] max-w-[420px] flex-none snap-start sm:w-[44vw] lg:w-[min(28vw,440px)]"
+            className="row-span-2 grid w-[78vw] max-w-[min(420px,calc((100svh-9rem)*1.25))] snap-start grid-rows-subgrid sm:w-[44vw] lg:w-[28vw] lg:[@media(min-height:37.5rem)]:[html.js-motion_[data-rail]:not([data-unfit])_&]:w-[min(28vw,420px,calc((100cqh-7.5rem)*1.25))]"
           >
-            <Link href={`/contacto?evento=${card.slug}`} className="group/card block rounded-sm">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-paper">
+            <Link
+              href={`/contacto?evento=${card.slug}`}
+              className="group/card row-span-2 grid grid-rows-subgrid rounded-sm"
+            >
+              <div
+                data-rail-media
+                className="relative aspect-[4/5] max-h-[calc(100svh-9rem)] min-h-0 self-stretch justify-self-stretch overflow-hidden rounded-sm bg-paper"
+              >
+                {/* Fotos recortadas a 4:5: la caja nunca es más vertical, así que el ancho servido es el de la caja */}
                 <Image
                   src={card.image}
                   {...blurFor(card.image)}
                   alt={card.alt}
                   fill
-                  sizes="(min-width: 1024px) 440px, (min-width: 640px) 44vw, 78vw"
+                  sizes="(min-width: 1500px) 420px, (min-width: 1024px) 28vw, (min-width: 640px) 44vw, 78vw"
                   quality={75}
                   className="object-cover transition-transform duration-[1200ms] ease-brand group-hover/card:scale-[1.04]"
+                  style={{ objectPosition: card.focus }}
                 />
-                <span className="tabular absolute top-4 left-4 font-display text-[0.875rem] tracking-[0.08em] text-cream/90">
+                {/* Velo suave para que el número se lea sobre cualquier foto */}
+                <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-ink/45 to-transparent" />
+                <span className="tabular absolute top-4 left-4 font-display text-[0.875rem] tracking-[0.08em] text-cream">
                   {String(i + 1).padStart(2, '0')}
                 </span>
               </div>
-              <div className="mt-5 flex items-start justify-between gap-4">
-                <h3 className="text-h3">{card.title}</h3>
-                <ArrowUpRight
-                  aria-hidden="true"
-                  strokeWidth={1.5}
-                  className="mt-1 size-6 flex-none text-wood transition-transform duration-500 ease-brand group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5"
-                />
+              {/* En escritorio el título se ajusta al ancho de la tarjeta (cqw) para caber en una línea:
+                  el pie más alto marca la fila de todos y así las fotos no pierden alto */}
+              <div className="@container mt-5">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="text-h3 lg:text-[length:clamp(1.25rem,calc(8.4cqw-3.5px),var(--fs-h3))]">
+                    {card.title}
+                  </h3>
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    strokeWidth={1.5}
+                    className="mt-1 size-6 flex-none text-wood transition-transform duration-500 ease-brand group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5"
+                  />
+                </div>
+                <p className="mt-2 max-w-[36ch] text-stone">{card.text}</p>
               </div>
-              <p className="mt-2 max-w-[36ch] text-stone">{card.text}</p>
               <span className="sr-only">Pedir presupuesto para este tipo de evento</span>
             </Link>
           </li>

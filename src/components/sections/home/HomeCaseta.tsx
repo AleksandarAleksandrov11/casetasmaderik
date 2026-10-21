@@ -26,9 +26,11 @@ export function HomeCaseta() {
 
           <dl className="mt-14 grid grid-cols-2 gap-x-6 gap-y-10 sm:gap-x-10">
             {c.figures.map((f, i) => (
+              // En columna invertida, justify-end lleva la cifra arriba, pegada a su línea, aunque
+              // la etiqueta de la celda vecina ocupe dos líneas
               <div
                 key={f.label}
-                className="flex flex-col-reverse border-t border-mist/25 pt-5"
+                className="flex flex-col-reverse justify-end border-t border-mist/25 pt-5"
                 data-reveal
                 style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}
               >
@@ -83,7 +85,7 @@ export function HomeCaseta() {
                 alt={c.image.alt}
                 width={682}
                 height={682}
-                sizes="(min-width: 1024px) 460px, (min-width: 768px) 520px, 92vw"
+                sizes="(min-width: 1540px) 584px, (min-width: 1024px) 38vw, 92vw"
                 quality={80}
                 className="h-full w-full object-cover"
               />
