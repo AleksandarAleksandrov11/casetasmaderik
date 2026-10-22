@@ -12,7 +12,15 @@ export function PageTransition({ children }: { children: ReactNode }) {
       firstRender = false;
       return;
     }
-    ref.current?.classList.add('page-enter');
+    const el = ref.current;
+    if (!el) return;
+    el.classList.add('page-enter');
+    // Al terminar se quita la clase: la animación no debe seguir activa sobre el contenedor
+    const done = (e: AnimationEvent) => {
+      if (e.target === el) el.classList.remove('page-enter');
+    };
+    el.addEventListener('animationend', done);
+    return () => el.removeEventListener('animationend', done);
   }, []);
   return <div ref={ref}>{children}</div>;
 }

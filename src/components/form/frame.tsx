@@ -75,7 +75,7 @@ export function EventCardContent({ value, checked }: { value: TipoEvento; checke
         strokeWidth={1.5}
         className={`size-7 flex-none text-wood transition-[translate,opacity] duration-500 ease-brand group-hover:-translate-y-0.5 ${checked ? '@max-[17.5rem]:opacity-0' : ''}`}
       />
-      <span className="min-w-0 pr-1 font-display text-[1.0625rem] leading-[1.2] break-words hyphens-auto text-ink sm:text-[1.125rem] @max-[17.5rem]:text-base @min-[17.5rem]:@max-[18.5rem]:text-base">
+      <span className="min-w-0 pr-1 font-display text-[1.0625rem] leading-[1.2] break-words text-ink sm:text-[1.125rem] @max-[17.5rem]:text-base @min-[17.5rem]:@max-[18.5rem]:text-base">
         {first}
         {rest ? (
           <>

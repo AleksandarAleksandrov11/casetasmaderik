@@ -158,8 +158,9 @@
   dd,
   figcaption {
     text-wrap: pretty;
-    hyphens: auto;
-    -webkit-hyphens: auto;
+    /* Sin guiones de corte: una palabra nunca se parte al final de línea */
+    hyphens: manual;
+    -webkit-hyphens: manual;
   }
 
   a {
@@ -876,18 +877,18 @@ html.js-motion .wordmark__iso path:nth-child(3) {
 /* ------------------------------------------------------------------ */
 /* Transición entre páginas: fundido y desplazamiento corto (300 ms)   */
 /* ------------------------------------------------------------------ */
+/* "backwards" y sin keyframe final: al terminar no queda ningún transform en
+   el contenedor de la página. Un transform (aunque sea la identidad) lo
+   convierte en el bloque contenedor de los position: fixed y rompe las
+   secciones fijadas con scroll (el carril de eventos, el montaje). */
 html.js-motion .page-enter {
-  animation: page-enter 0.3s var(--ease-brand) both;
+  animation: page-enter 0.3s var(--ease-brand) backwards;
 }
 
 @keyframes page-enter {
   from {
     opacity: 0;
     transform: translate3d(0, 10px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 
