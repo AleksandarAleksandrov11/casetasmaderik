@@ -3,6 +3,7 @@ import { EVENT_TYPES } from '@/lib/quote-data';
 import { FORM_COPY } from './copy';
 import {
   ACTIONS_CLASS,
+  BODY_CLASS,
   EVENT_GRID_CLASS,
   EventCardContent,
   FormProgress,
@@ -27,7 +28,7 @@ export function QuoteFormStatic() {
         <div className={PANEL_CLASS}>
           <form method="get" action="/contacto#formulario" aria-label={FORM_COPY.formLabel}>
             <FormProgress step={0} />
-            <div>
+            <div className={BODY_CLASS}>
               <fieldset>
                 <StepLegend step={0} id="presupuesto-paso-1" />
                 <div className={EVENT_GRID_CLASS}>

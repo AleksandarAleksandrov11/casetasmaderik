@@ -64,7 +64,7 @@ export function QuoteFormIsland({ children }: { children: ReactNode }) {
     el.addEventListener('change', onChange);
     el.addEventListener('submit', onSubmit);
 
-    let urgent = /[?&](evento|casetas)=/.test(window.location.search);
+    let urgent = /[?&](evento|casetas|provincia)=/.test(window.location.search);
     try {
       urgent ||= window.sessionStorage.getItem(DRAFT_KEY) !== null;
     } catch {

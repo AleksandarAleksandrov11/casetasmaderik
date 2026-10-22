@@ -303,6 +303,37 @@ test.describe('Formulario de presupuesto', () => {
     await expect(page.getByLabel('Número de casetas', { exact: true })).toHaveValue('7');
   });
 
+  test('precarga por URL: ?provincia= la deja elegida en el paso 2, con aviso y sin saltarse pasos', async ({
+    page,
+  }) => {
+    const notice = page.locator('[data-quote-form]').getByText('Tu evento en A Coruña');
+    await open(page, `?provincia=${encodeURIComponent('A Coruña')}`);
+    await expect(notice).toBeVisible();
+    await stepLabel(page, 1);
+    await pickEvent(page, 'Mercado navideño');
+    await stepLabel(page, 2);
+    await expect(page.getByLabel('Provincia')).toHaveValue('A Coruña');
+    // El aviso sigue a la provincia elegida
+    await page.getByLabel('Provincia').selectOption('Lugo');
+    await expect(page.locator('[data-quote-form]').getByText('Tu evento en Lugo')).toBeVisible();
+
+    // Sin tildes ni mayúsculas también vale, y la URL manda sobre el borrador guardado
+    await page.goto('/contacto?provincia=a%20coruna');
+    await expect(page.locator('[data-quote-form][data-ready="true"]')).toBeVisible();
+    await stepLabel(page, 2);
+    await expect(page.getByLabel('Provincia')).toHaveValue('A Coruña');
+    await expect(notice).toBeVisible();
+    await expect(page.getByLabel('Localidad')).toHaveValue('');
+  });
+
+  test('?provincia= desconocida: se ignora y no hay aviso', async ({ page }) => {
+    await open(page, '?provincia=Atl%C3%A1ntida');
+    await expect(page.getByText(/Tu evento en/)).toHaveCount(0);
+    await pickEvent(page, 'Feria o bazar');
+    await stepLabel(page, 2);
+    await expect(page.getByLabel('Provincia')).toHaveValue('');
+  });
+
   test('precarga por URL con valores no válidos: se ignoran', async ({ page }) => {
     await open(page, '?evento=boda-real&casetas=abc');
     for (const name of ['Mercado navideño', 'Feria o bazar', 'Otro']) {

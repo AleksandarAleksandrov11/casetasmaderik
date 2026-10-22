@@ -1,4 +1,4 @@
-import { Mail, Phone } from 'lucide-react';
+import { ArrowUpRight, Mail, Phone } from 'lucide-react';
 import { ContactLink } from '@/components/layout/ContactLink';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { Heading } from '@/components/ui/Heading';
@@ -19,9 +19,9 @@ function EmailValue() {
 }
 
 /**
- * S2. Otras formas de contacto: tres columnas en escritorio. En tablet, Llamar
- * ocupa la fila entera y WhatsApp y Email comparten la segunda, para que cada
- * dato quepa en una línea.
+ * S2. Otras formas de contacto. Fondo crema. En escritorio, título y entradilla
+ * a la izquierda (5 columnas) y a la derecha una lista de tres filas:
+ * icono, canal, dato grande y la acción. En móvil, la misma lista bajo el título.
  */
 export function ContactoChannels() {
   const c = contactoChannels;
@@ -29,39 +29,42 @@ export function ContactoChannels() {
     phone: {
       href: phoneHref,
       value: site.phone.display,
-      icon: <Phone aria-hidden="true" strokeWidth={1.5} className="size-7" />,
+      icon: <Phone aria-hidden="true" strokeWidth={1.5} className="size-5" />,
       event: 'click_phone' as const,
       external: false,
     },
     whatsapp: {
       href: whatsappHref(),
-      value: 'Abrir chat',
-      icon: <WhatsAppIcon className="size-7" />,
+      value: site.phone.display,
+      icon: <WhatsAppIcon className="size-5" />,
       event: 'click_whatsapp' as const,
       external: true,
     },
     email: {
       href: emailHref,
       value: <EmailValue />,
-      icon: <Mail aria-hidden="true" strokeWidth={1.5} className="size-7" />,
+      icon: <Mail aria-hidden="true" strokeWidth={1.5} className="size-5" />,
       event: 'click_email' as const,
       external: false,
     },
   };
   return (
-    <Section surface="paper" aria-labelledby="canales-titulo">
-      <div className="container-site">
-        <Label>{c.label}</Label>
-        <Heading id="canales-titulo" className="mt-6">
-          {c.title}
-        </Heading>
-        <ul className="mt-14 grid gap-px overflow-hidden rounded-sm border border-sand bg-sand md:grid-cols-2 lg:grid-cols-3">
+    <Section surface="cream" aria-labelledby="canales-titulo">
+      <div className="container-site grid-site gap-y-12">
+        <div className="col-span-4 md:col-span-6 lg:col-span-5">
+          <Label>{c.label}</Label>
+          <Heading id="canales-titulo" className="mt-6 max-w-[14ch]">
+            {c.title}
+          </Heading>
+          <p className="text-lead mt-6 max-w-[36ch] text-stone">{c.text}</p>
+        </div>
+        <ul className="col-span-4 border-t border-sand md:col-span-6 lg:col-span-7 lg:mt-1">
           {c.channels.map((ch, i) => {
             const d = data[ch.id as keyof typeof data];
             return (
               <li
                 key={ch.id}
-                className={`bg-paper ${i === 0 ? 'md:col-span-2 lg:col-span-1' : ''}`}
+                className="border-b border-sand"
                 data-reveal
                 style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}
               >
@@ -70,15 +73,29 @@ export function ContactoChannels() {
                   event={d.event}
                   place="contacto-canales"
                   external={d.external}
-                  className="group/ch flex h-full flex-col gap-10 p-8 transition-colors duration-500 hover:bg-cream focus-visible:outline-offset-[-6px] md:p-10"
+                  className="group/ch grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3.5 py-6 transition-colors duration-500 focus-visible:outline-offset-4 sm:gap-x-6 sm:py-8"
                 >
-                  <span className="text-wood-dark">{d.icon}</span>
-                  <span>
-                    <span className="text-h3 block font-display">{ch.title}</span>
-                    <span className="text-lead mt-2 block break-words text-ink underline decoration-sand underline-offset-4 transition-colors group-hover/ch:decoration-wood">
+                  <span className="flex size-12 items-center justify-center rounded-full border border-sand bg-paper text-wood-dark transition-colors duration-500 ease-brand group-hover/ch:border-wood group-hover/ch:bg-wood group-hover/ch:text-cream sm:size-14">
+                    {d.icon}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[0.8125rem] font-semibold tracking-[0.14em] text-wood-dark uppercase">
+                      {ch.title}
+                    </span>
+                    <span className="mt-1.5 block font-display text-[1.25rem] leading-tight break-words text-ink xs:text-[1.375rem] sm:text-[1.75rem] lg:text-[clamp(1.5rem,1.1rem+0.8vw,2rem)]">
                       {d.value}
                     </span>
-                    <span className="mt-3 block text-[0.9375rem] text-stone">{ch.note}</span>
+                    <span className="mt-1.5 block text-[0.9375rem] text-stone">{ch.note}</span>
+                  </span>
+                  <span className="flex items-center gap-2 text-[0.9375rem] font-semibold text-ink">
+                    <span className="hidden md:inline">{ch.action}</span>
+                    <span className="flex size-10 items-center justify-center rounded-full border border-ink/20 transition-[border-color,background-color,color] duration-500 ease-brand group-hover/ch:border-ink group-hover/ch:bg-ink group-hover/ch:text-cream">
+                      <ArrowUpRight
+                        aria-hidden="true"
+                        strokeWidth={1.5}
+                        className="size-[18px] transition-transform duration-500 ease-brand group-hover/ch:translate-x-0.5 group-hover/ch:-translate-y-0.5"
+                      />
+                    </span>
                   </span>
                 </ContactLink>
               </li>

@@ -1,73 +1,52 @@
-import { Phone } from 'lucide-react';
-import { ContactLink } from '@/components/layout/ContactLink';
-import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
+import Image from 'next/image';
 import { QuoteFormIsland } from '@/components/form/QuoteFormIsland';
 import { QuoteFormStatic } from '@/components/form/QuoteFormStatic';
-import { Label } from '@/components/ui/Label';
+import { blurFor } from '@/content/image-blur';
 import { contactoHero } from '@/content/contacto';
-import { phoneHref, site, whatsappHref } from '@/content/site';
+import { noOrphans } from '@/lib/typography';
 
 /**
- * Atajo para hablar sin rellenar el formulario, junto a él en escritorio. Solo
- * teléfono y WhatsApp: el email y el horario están en la sección siguiente.
- */
-function ContactShortcuts({ className = '' }: { className?: string }) {
-  const item = 'flex min-h-[48px] items-center gap-4 text-ink transition-colors duration-300 hover:text-wood-dark';
-  return (
-    <ul className={`border-t border-sand ${className}`}>
-      <li className="border-b border-sand">
-        <ContactLink href={phoneHref} event="click_phone" place="contacto-hero" className={item}>
-          <Phone aria-hidden="true" strokeWidth={1.5} className="size-5 text-wood" />
-          <span>{site.phone.display}</span>
-        </ContactLink>
-      </li>
-      <li className="border-b border-sand">
-        <ContactLink href={whatsappHref()} event="click_whatsapp" place="contacto-hero" external className={item}>
-          <WhatsAppIcon className="size-5 text-wood" />
-          <span>WhatsApp</span>
-        </ContactLink>
-      </li>
-    </ul>
-  );
-}
-
-/**
- * S1. Título y atajos de contacto a la izquierda, formulario a la derecha (6 y 6
- * columnas). En móvil, el formulario va justo debajo del título y los canales
- * se dejan para la sección siguiente.
+ * S1. Fondo papel. En escritorio, título, entradilla y una foto real de la
+ * caseta a la izquierda (5 columnas, fija al hacer scroll mientras se rellena
+ * el formulario) y el formulario como protagonista a la derecha (7 columnas).
+ * En móvil y tablet, título y entradilla y justo debajo el formulario; la foto
+ * se queda para escritorio, donde acompaña sin empujar el formulario hacia abajo.
  */
 export function ContactoHero() {
   const h = contactoHero;
   return (
     <section
       data-header="light"
-      className="relative bg-cream pt-[calc(var(--header-h)+8px)] pb-[clamp(72px,9vw,140px)] lg:pt-[calc(var(--header-h)+32px)]"
+      className="relative bg-paper pt-[calc(var(--header-h)+20px)] pb-[clamp(72px,9vw,128px)] lg:pt-[calc(var(--header-h)+40px)]"
     >
       <div className="container-site">
-        {/*
-         * Móviles en horizontal (poca altura, misma consulta que el héroe de
-         * Inicio): título y entradilla en una línea cada uno y menos aire hasta
-         * el formulario, para que su cabecera ("Paso 1 de 4" y la barra) se vea
-         * sin hacer scroll.
-         */}
-        <div className="mt-10 grid grid-cols-1 gap-x-16 gap-y-8 lg:mt-12 lg:grid-cols-12 max-lg:low-landscape:gap-y-6">
-          <div className="@container lg:col-span-6">
-            <Label className="hidden lg:inline-flex">{h.label}</Label>
+        <div className="grid grid-cols-1 gap-x-[clamp(32px,4vw,72px)] gap-y-8 lg:grid-cols-12 max-lg:low-landscape:gap-y-6">
+          <div className="@container lg:sticky lg:top-[calc(var(--header-h-compact)+24px)] lg:col-span-5 lg:self-start">
             {/*
-             * Tamaño de H1 de las páginas interiores (por encima de los H2), con
-             * tope relativo a la columna (13,5cqi) para que "Pide presupuesto"
-             * quepa siempre en una línea y el título nunca se parta en tres.
-             * En horizontal, 7,3cqi deja el título entero en una línea (mide
-             * 13,3em) sin bajar nunca del 104 % de los H2.
+             * Tamaño de H1 de las páginas interiores con tope relativo a la
+             * columna (11cqi): "presupuesto" cabe siempre en su línea y el
+             * título no pasa de tres líneas en la columna de escritorio.
              */}
-            <h1 className="text-h1 text-[length:min(var(--fs-h1),13.5cqi)] lg:mt-6 max-lg:low-landscape:text-[length:clamp(calc(var(--fs-h2)*1.04),7.3cqi,var(--fs-h1))]">
-              {h.title}
+            <h1 className="text-h1 max-w-[14ch] text-[length:min(var(--fs-h1),11cqi)] text-balance max-lg:text-[length:min(var(--fs-h1),12.5cqi)] max-lg:low-landscape:max-w-none max-lg:low-landscape:text-[length:clamp(calc(var(--fs-h2)*1.04),6cqi,var(--fs-h1))]">
+              {noOrphans(h.title)}
             </h1>
-            {/* En horizontal, la entradilla en una línea, tan ancha como el título */}
-            <p className="text-lead mt-4 max-w-[40ch] text-stone lg:mt-6 max-lg:low-landscape:max-w-none">{h.text}</p>
-            <ContactShortcuts className="mt-8 hidden lg:block" />
+            <p className="text-lead mt-5 max-w-[38ch] text-stone lg:mt-6 max-lg:low-landscape:max-w-none">{h.text}</p>
+            <figure className="relative mt-10 hidden aspect-[4/3] overflow-hidden rounded-sm bg-sand lg:block xl:aspect-[5/4]">
+              <Image
+                src={h.image.src}
+                {...blurFor(h.image.src)}
+                alt={h.image.alt}
+                fill
+                sizes="(min-width: 1440px) 560px, 40vw"
+                quality={75}
+                className="object-cover object-[50%_60%]"
+              />
+              <figcaption className="absolute bottom-4 left-4 rounded-xs bg-cream/92 px-3 py-1.5 text-[0.8125rem] font-semibold text-ink backdrop-blur-sm">
+                {h.caption}
+              </figcaption>
+            </figure>
           </div>
-          <div id="formulario" className="scroll-mt-24 lg:col-span-6">
+          <div id="formulario" className="scroll-mt-24 lg:col-span-7">
             <QuoteFormIsland>
               <QuoteFormStatic />
             </QuoteFormIsland>

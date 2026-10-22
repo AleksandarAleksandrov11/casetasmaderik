@@ -12,6 +12,7 @@ import {
   isValidPhone,
   leadRequestSchema,
   normalizePhone,
+  provinciaFromParam,
   stepOfField,
   todayLocal,
   todayMadrid,
@@ -72,6 +73,19 @@ describe('utilidades de fecha y teléfono', () => {
     expect(eventFromSlug('no-existe')).toBeUndefined();
     expect(eventFromSlug(null)).toBeUndefined();
     expect(EVENT_TYPES).toHaveLength(6);
+  });
+
+  it('traduce ?provincia= a la provincia de la lista, sin tildes ni mayúsculas', () => {
+    expect(provinciaFromParam('Madrid')).toBe('Madrid');
+    expect(provinciaFromParam(decodeURIComponent('A%20Coru%C3%B1a'))).toBe('A Coruña');
+    expect(provinciaFromParam('a coruna')).toBe('A Coruña');
+    expect(provinciaFromParam('A-Coruña')).toBe('A Coruña');
+    expect(provinciaFromParam('  ÁLAVA ')).toBe('Álava');
+    expect(provinciaFromParam('santa cruz de tenerife')).toBe('Santa Cruz de Tenerife');
+    expect(provinciaFromParam('Fuera de España')).toBeUndefined();
+    expect(provinciaFromParam('Atlántida')).toBeUndefined();
+    expect(provinciaFromParam('')).toBeUndefined();
+    expect(provinciaFromParam(null)).toBeUndefined();
   });
 
   it('ofrece 52 provincias más "Fuera de España"', () => {

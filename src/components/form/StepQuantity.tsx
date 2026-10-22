@@ -17,7 +17,7 @@ function toCount(value: string): number {
 }
 
 const stepButton =
-  'flex size-14 flex-none items-center justify-center border border-sand bg-cream text-ink transition-colors duration-300 ease-brand hover:border-ink/35 hover:bg-paper aria-disabled:cursor-default aria-disabled:text-stone/50 aria-disabled:hover:border-sand aria-disabled:hover:bg-cream';
+  'flex size-14 flex-none items-center justify-center border border-ink/20 bg-cream text-ink transition-colors duration-300 ease-brand hover:border-ink/40 hover:bg-paper aria-disabled:cursor-default aria-disabled:text-stone/50 aria-disabled:hover:border-ink/20 aria-disabled:hover:bg-cream';
 
 /** Paso 3: número de casetas con ilustración y comentarios. */
 export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showErrors: boolean }) {
@@ -39,7 +39,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
   return (
     <fieldset>
       <StepLegend step={2} id={`${idPrefix}-title`} />
-      <div className="clear-both rounded-sm border border-sand bg-cream px-2 pt-5 pb-4 sm:px-8 sm:pt-7">
+      <div className="clear-both rounded-sm border border-sand bg-paper/60 px-2 pt-5 pb-4 sm:px-8 sm:pt-7">
         <CasetaLineup count={count} />
         <p className="tabular mt-3 text-center text-[0.875rem] text-stone" aria-hidden="true">
           {count > 0 ? casetasLabel(count) : ' '}
@@ -102,7 +102,7 @@ export function StepQuantity({ idPrefix, showErrors }: { idPrefix: string; showE
                   onClick={() => set(n)}
                   className={[
                     'tabular flex h-11 min-w-0 items-center justify-center rounded-sm border px-0 text-[0.9375rem] font-semibold transition-colors duration-300 ease-brand sm:min-w-11 sm:px-3',
-                    active ? 'border-wood bg-wood text-cream' : 'border-sand bg-cream text-ink hover:border-ink/35',
+                    active ? 'border-wood bg-wood text-cream' : 'border-ink/20 bg-cream text-ink hover:border-ink/40',
                   ].join(' ')}
                 >
                   {n}
