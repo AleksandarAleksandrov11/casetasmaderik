@@ -45,11 +45,11 @@ export default function HomePage() {
         aside={<TextLink href={homeFaqIntro.link.href}>{homeFaqIntro.link.label}</TextLink>}
       />
       <CtaFinal
-        variant="temporada"
+        place="cta-temporada"
+        image={seasonCta.image}
         label={cta.label}
         title={cta.title}
         text={cta.text}
-        image={seasonCta.image}
         note={seasonCta.responseNote}
       />
     </>

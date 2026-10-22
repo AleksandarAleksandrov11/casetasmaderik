@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ContactLink } from '@/components/layout/ContactLink';
 import { CookieSettingsButton } from '@/components/consent/CookieSettingsButton';
 import { buttonClasses } from '@/components/ui/Button';
 import { JsonLd } from '@/components/ui/JsonLd';
 import { Label } from '@/components/ui/Label';
 import { cookieCategories } from '@/content/cookies';
-import type { LegalBlock, LegalInline, LegalLink, LegalPage } from '@/content/legal';
+import { legalCta, type LegalBlock, type LegalInline, type LegalLink, type LegalPage } from '@/content/legal';
 import { CtaFinal } from '@/components/sections/shared/CtaFinal';
 import { site } from '@/content/site';
 import { breadcrumbNode, graph, organizationNode, webPageNode, websiteNode } from '@/lib/schema';
@@ -182,15 +181,13 @@ export function LegalPageView({ page }: { page: LegalPage }) {
           ]),
         ])}
       />
-      <section data-header="light" className="bg-cream pt-[calc(var(--header-h)+24px)] pb-[clamp(88px,10vw,160px)]">
+      {/* Sin migas visibles (el BreadcrumbList va en el JSON-LD): aire propio sobre el título */}
+      <section
+        data-header="light"
+        className="bg-cream pt-[calc(var(--header-h)+clamp(48px,7vw,112px))] pb-[clamp(88px,10vw,160px)]"
+      >
         <div className="container-site">
-          <Breadcrumbs
-            items={[
-              { name: 'Inicio', path: '/' },
-              { name: page.title, path: page.path },
-            ]}
-          />
-          <h1 className="text-h1 mt-6">{page.title}</h1>
+          <h1 className="text-h1 max-w-[16ch]">{page.title}</h1>
           <p className="text-lead mt-6 max-w-[30em] text-stone">{noOrphans(page.intro)}</p>
           <p className="mt-4 text-[0.9375rem] text-stone">Última actualización: {site.legalUpdated}</p>
 
@@ -227,7 +224,10 @@ export function LegalPageView({ page }: { page: LegalPage }) {
         </div>
       </section>
       <CtaFinal
-        variant="dudas"
+        place="cta-dudas"
+        image={legalCta.image}
+        focus="50% 60%"
+        label={legalCta.label}
         title={page.cta.title}
         text={page.cta.text}
         actions={page.cta.actions ?? ['llamar', 'whatsapp']}

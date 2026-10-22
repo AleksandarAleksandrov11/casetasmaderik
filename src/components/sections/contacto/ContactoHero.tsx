@@ -1,5 +1,4 @@
 import { Phone } from 'lucide-react';
-import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ContactLink } from '@/components/layout/ContactLink';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { QuoteFormIsland } from '@/components/form/QuoteFormIsland';
@@ -45,19 +44,13 @@ export function ContactoHero() {
       className="relative bg-cream pt-[calc(var(--header-h)+8px)] pb-[clamp(72px,9vw,140px)] lg:pt-[calc(var(--header-h)+32px)]"
     >
       <div className="container-site">
-        <Breadcrumbs
-          items={[
-            { name: 'Inicio', path: '/' },
-            { name: 'Contacto', path: '/contacto' },
-          ]}
-        />
         {/*
          * Móviles en horizontal (poca altura, misma consulta que el héroe de
          * Inicio): título y entradilla en una línea cada uno y menos aire hasta
          * el formulario, para que su cabecera ("Paso 1 de 4" y la barra) se vea
          * sin hacer scroll.
          */}
-        <div className="mt-4 grid grid-cols-1 gap-x-16 gap-y-8 lg:mt-6 lg:grid-cols-12 max-lg:low-landscape:gap-y-6">
+        <div className="mt-10 grid grid-cols-1 gap-x-16 gap-y-8 lg:mt-12 lg:grid-cols-12 max-lg:low-landscape:gap-y-6">
           <div className="@container lg:col-span-6">
             <Label className="hidden lg:inline-flex">{h.label}</Label>
             {/*

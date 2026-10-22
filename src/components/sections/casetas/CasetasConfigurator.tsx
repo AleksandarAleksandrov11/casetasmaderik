@@ -1,12 +1,18 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { ButtonLink } from '@/components/ui/Button';
+import { useRef, useState, type ReactNode } from 'react';
 import { CasetaLineup } from '@/components/form/CasetaLineup';
+import { CtaActions, CtaNote } from '@/components/sections/shared/CtaParts';
 import { casetasConfigurator } from '@/content/casetas';
 
-/** Selector de número de casetas con la ilustración isométrica. */
-export function CasetasConfigurator() {
+/**
+ * Selector de número de casetas con la ilustración isométrica, en el orden del
+ * CTA común: bloque de texto (intro), selector, acciones y nota. En móvil y
+ * tablet, una columna centrada con la ilustración entre el texto y el selector
+ * (el cambio se ve sin que lo tape el dedo); desde lg, la ilustración ocupa la
+ * columna derecha a toda la altura del bloque y centrada en vertical.
+ */
+export function CasetasConfigurator({ intro, note }: { intro: ReactNode; note: ReactNode }) {
   const c = casetasConfigurator;
   const [selected, setSelected] = useState(c.options[0].id);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -23,12 +29,21 @@ export function CasetasConfigurator() {
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
-      <div className="lg:col-span-5">
+    <div
+      data-cta-block
+      className="grid grid-cols-1 text-center lg:grid-cols-12 lg:grid-rows-[auto_auto_auto_auto] lg:gap-x-12 lg:text-left"
+    >
+      <div className="lg:col-span-6">{intro}</div>
+
+      <div className="mt-10 lg:col-span-6 lg:col-start-7 lg:row-span-4 lg:row-start-1 lg:mt-0 lg:self-center">
+        <CasetaLineup count={option.value} max={12} zoom tone="dark" className="mx-auto max-w-[30rem] lg:max-w-none" />
+      </div>
+
+      <div className="lg:col-span-6 lg:row-start-2">
         <div
           role="radiogroup"
           aria-label="Número de casetas"
-          className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2"
+          className="mx-auto mt-10 grid max-w-[34rem] grid-cols-2 gap-3 sm:grid-cols-4 lg:mx-0"
         >
           {c.options.map((o, i) => {
             const active = o.id === selected;
@@ -45,8 +60,10 @@ export function CasetasConfigurator() {
                 onClick={() => setSelected(o.id)}
                 onKeyDown={(e) => onKeyDown(e, i)}
                 className={[
-                  'flex min-h-[64px] items-center justify-center rounded-sm border px-4 font-display text-[1.25rem] transition-colors duration-300',
-                  active ? 'border-cream bg-cream text-ink' : 'border-cream/25 text-cream hover:border-cream/60',
+                  'flex min-h-[60px] items-center justify-center rounded-sm border px-3 font-display text-[1.125rem] whitespace-nowrap transition-colors duration-300',
+                  active
+                    ? 'border-cream bg-cream text-ink'
+                    : 'border-cream/30 bg-ink/35 text-cream hover:border-cream/70',
                 ].join(' ')}
               >
                 {o.label}
@@ -54,16 +71,19 @@ export function CasetasConfigurator() {
             );
           })}
         </div>
-        <ButtonLink href={`/contacto?casetas=${option.value}`} variant="light" size="lg" className="mt-10">
-          {c.cta}
-        </ButtonLink>
-        <p className="mt-4 text-[0.9375rem] text-mist" aria-live="polite">
-          {`Te llevamos al formulario con ${option.value} ${option.value === 1 ? 'caseta' : 'casetas'}, y lo ajustas allí.`}
-        </p>
       </div>
-      {/* En móvil, la ilustración va encima de las opciones: se ve el cambio sin que lo tape el dedo */}
-      <div className="order-first lg:order-none lg:col-span-6 lg:col-start-7">
-        <CasetaLineup count={option.value} max={12} zoom tone="dark" className="mx-auto max-w-[40rem]" />
+
+      <div className="lg:col-span-6 lg:row-start-3">
+        <CtaActions
+          split
+          place="cta-configurador"
+          actions={['presupuesto', 'llamar', 'whatsapp']}
+          presupuestoHref={`/contacto?casetas=${option.value}`}
+        />
+      </div>
+
+      <div className="lg:col-span-6 lg:row-start-4">
+        <CtaNote>{note}</CtaNote>
       </div>
     </div>
   );

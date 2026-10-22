@@ -848,24 +848,6 @@ html.js-motion .wordmark:not(.is-in) .wordmark__letter path {
   transform: translateY(125%);
 }
 
-html.js-motion .wordmark__iso path {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 1.2s var(--ease-brand);
-}
-
-html.js-motion .wordmark__iso path:nth-child(2) {
-  transition-delay: 0.15s;
-}
-
-html.js-motion .wordmark__iso path:nth-child(3) {
-  transition-delay: 0.3s;
-}
-
-.wordmark.is-in .wordmark__iso path {
-  stroke-dashoffset: 0;
-}
-
 @media (hover: hover) and (pointer: fine) {
   .wordmark.is-in .wordmark__letter:hover path {
     transform: translateY(-7%);
