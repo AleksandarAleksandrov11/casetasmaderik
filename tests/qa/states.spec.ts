@@ -47,8 +47,16 @@ test('header transparente, compacto y sobre oscuro', async ({ page }) => {
   await page.evaluate(() => window.scrollTo(0, 650));
   await page.waitForTimeout(900);
   await shot(page, 'header-compacto-casetas');
+  // Temporada alta de Nosotros: el hero interior es claro, esta sección es oscura
   await page.goto('/nosotros');
   await page.waitForTimeout(800);
+  await page.evaluate(() => {
+    const season = document.getElementById('temporada-titulo')!.closest('section')!;
+    window.scrollTo({ top: season.getBoundingClientRect().top + window.scrollY + 40, behavior: 'instant' });
+  });
+  await page.waitForTimeout(1500);
+  await page.evaluate(() => window.scrollBy({ top: -40, behavior: 'instant' }));
+  await page.waitForTimeout(900);
   await shot(page, 'header-sobre-oscuro-nosotros');
 });
 

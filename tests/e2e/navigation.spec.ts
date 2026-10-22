@@ -31,7 +31,76 @@ test('header: página activa, compacto al bajar y oculto/visible según el scrol
 test('header cambia a la versión clara sobre secciones oscuras', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/nosotros');
-  await expect(page.locator('header').first()).toHaveAttribute('data-theme', 'dark');
+  const header = page.locator('header').first();
+  // El hero interior es claro; Temporada alta, oscura
+  await expect(header).toHaveAttribute('data-theme', 'light');
+  await page.waitForFunction(() => document.documentElement.classList.contains('reveal-ready'));
+  await page.evaluate(() => {
+    const season = document.getElementById('temporada-titulo')!.closest('section')!;
+    window.scrollTo({ top: season.getBoundingClientRect().top + window.scrollY + 40, behavior: 'instant' });
+  });
+  await expect(header).toHaveAttribute('data-theme', 'dark');
+});
+
+test.describe('mapa de provincias de Nosotros', () => {
+  const MAP = 'Mapa de España por provincias';
+
+  test('cada provincia enlaza al formulario con ella ya elegida', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/nosotros');
+    const map = page.getByRole('group', { name: MAP });
+    await expect(map.getByRole('link')).toHaveCount(52);
+    await expect(map.getByRole('link', { name: 'Madrid', exact: true })).toHaveAttribute(
+      'href',
+      '/contacto?provincia=Madrid',
+    );
+    await expect(map.getByRole('link', { name: 'A Coruña', exact: true })).toHaveAttribute(
+      'href',
+      '/contacto?provincia=A%20Coru%C3%B1a',
+    );
+  });
+
+  test('ratón y teclado: el rótulo muestra la provincia y Intro lleva al formulario', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/nosotros');
+    const map = page.getByRole('group', { name: MAP });
+    const madrid = map.getByRole('link', { name: 'Madrid', exact: true });
+    await madrid.scrollIntoViewIfNeeded();
+    await madrid.hover();
+    await expect(page.getByRole('link', { name: 'Pedir presupuesto en Madrid' })).toBeVisible();
+    await page.mouse.move(0, 0);
+    await map.getByRole('link', { name: 'A Coruña', exact: true }).focus();
+    await page.keyboard.press('Tab');
+    await expect(map.getByRole('link', { name: 'Álava', exact: true })).toBeFocused();
+    await expect(page.getByRole('link', { name: 'Pedir presupuesto en Álava' })).toBeVisible();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/contacto\?provincia=%C3%81lava$/);
+  });
+
+  test('el desplegable del rótulo elige cualquier provincia', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/nosotros');
+    await page.getByRole('combobox', { name: 'Provincia del evento' }).selectOption('Gipuzkoa');
+    await expect(page.getByRole('link', { name: 'Pedir presupuesto en Gipuzkoa' })).toHaveAttribute(
+      'href',
+      '/contacto?provincia=Gipuzkoa',
+    );
+  });
+
+  test.describe('táctil', () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+    test('el primer toque elige la provincia y el segundo lleva al formulario @mobile', async ({ page }) => {
+      await page.goto('/nosotros');
+      const madrid = page.getByRole('group', { name: MAP }).getByRole('link', { name: 'Madrid', exact: true });
+      await madrid.scrollIntoViewIfNeeded();
+      await madrid.tap();
+      await expect(page.getByRole('link', { name: 'Pedir presupuesto en Madrid' })).toBeVisible();
+      await expect(page).toHaveURL(/\/nosotros$/);
+      await madrid.tap();
+      await expect(page).toHaveURL(/\/contacto\?provincia=Madrid$/);
+    });
+  });
 });
 
 test('menú móvil: abre, atrapa el foco, Esc cierra y devuelve el foco @mobile', async ({ page }) => {
