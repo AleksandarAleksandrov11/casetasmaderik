@@ -13,7 +13,7 @@ import {
 } from '@/components/three/hooks';
 import { createCasetaState, DPR_DESKTOP, DPR_MOBILE, type Quality, type SceneHandle } from '@/components/three/state';
 import { MEDIA } from '@/lib/motion';
-import { markTooSlowFor3D } from '@/lib/device';
+import { force3D, markTooSlowFor3D } from '@/lib/device';
 import { ASSEMBLY_FRAMES, assemblyPose, STEP_TARGET } from './assemblyShots';
 import { ASSEMBLY_FRAMES_MANIFEST } from './assemblyFrames';
 import type { AssemblyAnim } from './AssemblyScene';
@@ -117,6 +117,8 @@ export function AssemblyStage({
   const onFirstFrame = useCallback(() => setLive(true), []);
   const onError = useCallback(() => setFailed(true), []);
   const onTooSlow = useCallback(() => {
+    // Con el 3D forzado (pruebas sin GPU) se queda el 3D aunque vaya lento
+    if (force3D()) return;
     markTooSlowFor3D();
     setTooSlow(true);
   }, []);

@@ -36,7 +36,7 @@ export function CtaBackdrop({ image, focus = 'center' }: { image: CtaImage; focu
           alt=""
           fill
           sizes="(max-width: 639px) 300vw, (max-width: 1023px) 130vw, 100vw"
-          quality={65}
+          quality={60}
           className="object-cover"
           style={{ objectPosition: focus }}
         />

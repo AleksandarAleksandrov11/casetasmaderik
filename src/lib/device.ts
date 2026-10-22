@@ -55,7 +55,7 @@ export function supportsWebGL(): boolean {
  * Con sessionStorage "cm:3d-forzar" = "1" el 3D se usa aunque el WebGL sea por
  * software o vaya lento. Lo usan las pruebas, que no tienen GPU.
  */
-function force3D(): boolean {
+export function force3D(): boolean {
   try {
     return window.sessionStorage.getItem('cm:3d-forzar') === '1';
   } catch {

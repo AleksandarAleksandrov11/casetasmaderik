@@ -38,10 +38,10 @@ export const viewerCss = /* css */ `
 
 .viewer__title {
   margin: 0;
-  max-width: 15ch;
+  max-width: 17ch;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(2.5rem, 1.4rem + 4.6vw, 5.25rem);
+  font-size: clamp(2.25rem, 1.2rem + 3.6vw, 4.5rem);
   line-height: 0.96;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -69,6 +69,25 @@ export const viewerCss = /* css */ `
   margin: 0 auto;
 }
 
+.viewer .ic__visual {
+  transform: scale(1.12);
+  transform-origin: 50% 55%;
+}
+
+/* Móvil: las seis partes en dos columnas ordenadas */
+@media (max-width: 559.98px) {
+  .viewer .ic__chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .viewer .ic__chip {
+    width: 100%;
+    height: 100%;
+    text-align: left;
+  }
+}
+
 .viewer .ic__features {
   margin-top: 6px;
 }
@@ -80,6 +99,11 @@ export const viewerCss = /* css */ `
 }
 
 @media (min-width: 1024px) {
+  /* Caseta y botonera dentro del primer pantallazo */
+  .viewer .ic__stage {
+    width: min(100%, max(440px, 100svh - var(--header-h) - 330px) * 1.5);
+  }
+
   .viewer__head {
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   }

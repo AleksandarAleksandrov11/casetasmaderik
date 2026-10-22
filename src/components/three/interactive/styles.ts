@@ -61,6 +61,18 @@ export const interactiveCss = /* css */ `
   pointer-events: none;
 }
 
+/* El lienzo de R3F activa sus eventos: aquí los recibe el escenario (y la
+   parte ampliada del visual nunca tapa la botonera) */
+.ic__visual * {
+  pointer-events: none !important;
+}
+
+.ic__dock,
+.ic__features {
+  position: relative;
+  z-index: 1;
+}
+
 .ic__frame {
   position: absolute;
   inset: 0;

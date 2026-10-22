@@ -6,7 +6,7 @@ import { DoorOpen, Lightbulb, PanelTopOpen, Rotate3d, Ruler, X } from 'lucide-re
 import { useCanInteractive3D, useDevFlag, useIdleReady, useInView, useMedia, usePosterKey } from '../hooks';
 import { createCasetaState, DPR_DESKTOP, DPR_MOBILE, type Quality, type SceneHandle } from '../state';
 import { MEDIA } from '@/lib/motion';
-import { markTooSlowFor3D } from '@/lib/device';
+import { force3D, markTooSlowFor3D } from '@/lib/device';
 import { onFirstIntent } from '@/lib/intent';
 import { ANCHORS } from './anchors';
 import { clampOrbit, createOrbit, nearestAngle, START_VIEW, wrap360, type InteractiveTargets } from './orbit';
@@ -149,6 +149,8 @@ export function InteractiveCaseta({
   const onError = useCallback(() => setFailed(true), []);
   const onSlow = useCallback(() => setSlow(true), []);
   const onTooSlow = useCallback(() => {
+    // Con el 3D forzado (pruebas sin GPU) se queda el 3D aunque vaya lento
+    if (force3D()) return;
     markTooSlowFor3D();
     setTooSlow(true);
   }, []);
@@ -421,9 +423,10 @@ export function InteractiveCaseta({
               onTooSlow={forceHigh ? undefined : onTooSlow}
             />
           ) : null}
+          {/* Dentro del visual: comparte su escala (el hero y el visor la amplían) */}
+          {live3D ? <div ref={markerRef} className="ic__marker" data-hidden="1" /> : null}
         </div>
 
-        {live3D ? <div ref={markerRef} className="ic__marker" data-hidden="1" aria-hidden="true" /> : null}
 
         {mode === 'frames' && on.dims ? (
           <p className="ic__dims" aria-hidden="true">
