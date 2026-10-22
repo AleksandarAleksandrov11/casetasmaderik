@@ -117,7 +117,7 @@ test.describe('3D de la caseta', () => {
     await page.goto('/casetas');
     const ic = page.locator('.viewer .ic');
     await expect(ic).toHaveAttribute('data-live', '', { timeout: 120_000 });
-    const windows = ic.getByRole('button', { name: 'Ventanas', exact: true });
+    const windows = ic.locator('.ic__dock').getByRole('button', { name: 'Ventanas', exact: true });
     await expect(windows).toHaveAttribute('aria-pressed', 'true');
     await windows.click();
     await expect(windows).toHaveAttribute('aria-pressed', 'false');
@@ -129,7 +129,10 @@ test.describe('3D de la caseta', () => {
     await expect(door).toHaveAttribute('aria-pressed', 'true');
     await expect(ic.locator('.ic__card')).toContainText('Puerta');
     // Elegir la puerta la abre
-    await expect(ic.getByRole('button', { name: 'Puerta', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(ic.locator('.ic__dock').getByRole('button', { name: 'Puerta', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await ic.getByRole('button', { name: /^Cerrar:/ }).click();
     await expect(door).toHaveAttribute('aria-pressed', 'false');
 
@@ -242,7 +245,7 @@ test.describe('3D de la caseta', () => {
     await page.goto('/');
     await expect(page.locator('.hero .ic__frame[data-on]')).toBeVisible();
     // En táctil el 3D espera a la primera interacción
-    await page.locator('.hero .ic__stage').tap();
+    await page.locator('.hero .ic__stage').dispatchEvent('pointerdown');
     await expect(page.locator('.hero .ic')).toHaveAttribute('data-live', '', { timeout: 120_000 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);

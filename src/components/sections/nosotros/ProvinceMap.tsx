@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { MAP_SPRITE, provinceHref, provinceSlug } from './province-link';
-import './province-map.css';
+import { InlineStyle } from '@/components/three/InlineStyle';
+import { provinceMapCss } from './provinceMapStyles';
 
 type ProvinceMapProps = {
   /** Nombres exactos de PROVINCIAS (src/lib/quote-data.ts), en orden alfabético */
@@ -79,6 +80,7 @@ export function ProvinceMap({ provinces, zone, viewBox, canarias, idle }: Provin
 
   return (
     <>
+      <InlineStyle id="mapa-provincias" css={provinceMapCss} />
       <div className="col-span-4 md:col-span-6 lg:col-span-8 lg:col-start-5 lg:row-span-2 lg:row-start-1 lg:self-center">
         <svg
           data-equivalent-control=""

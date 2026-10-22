@@ -1,3 +1,9 @@
+/**
+ * Estilos del mapa de provincias. En línea con <style precedence> (ver
+ * three/styles.ts): una hoja CSS importada generaba un chunk por ruta que el
+ * prefetch de los enlaces precargaba en otras páginas sin usarlo.
+ */
+export const provinceMapCss = /* css */ `
 /* Mapa de provincias de Nosotros (ProvinceMap). Cada provincia es un <a> con un
    <use> del sprite /mapa-espana.svg: el relleno y el trazo se heredan del <use>. */
 .province-map .province {
@@ -50,3 +56,4 @@
     transition: none;
   }
 }
+`;
