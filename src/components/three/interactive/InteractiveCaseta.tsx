@@ -233,7 +233,11 @@ export function InteractiveCaseta({
       const [a, b] = [...pointers.current.values()];
       pinch.current = Math.hypot(a.x - b.x, a.y - b.y);
     }
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Puntero sintético o ya liberado: el arrastre sigue sin captura
+    }
     stopAuto();
     if (mode === 'frames') wantKey(key);
   };

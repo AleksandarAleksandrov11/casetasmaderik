@@ -295,10 +295,10 @@ export const interactiveCss = /* css */ `
 
 .ic__chip {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
-  min-height: 40px;
-  padding: 9px 14px;
+  min-height: 44px;
+  padding: 10px 14px;
   border: 1px solid var(--ic-line);
   border-radius: var(--radius-sm);
   background: color-mix(in oklab, var(--color-cream) 60%, transparent);

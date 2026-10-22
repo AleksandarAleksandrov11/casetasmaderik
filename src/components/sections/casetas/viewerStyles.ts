@@ -4,6 +4,8 @@
 export const viewerCss = /* css */ `
 .viewer {
   position: relative;
+  /* El visual de la caseta se amplía un poco por encima del escenario */
+  overflow-x: clip;
   padding-top: calc(var(--header-h) + var(--safe-top) + clamp(16px, 3vw, 40px));
   padding-bottom: clamp(48px, 7vw, 104px);
   background:

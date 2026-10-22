@@ -50,7 +50,11 @@ export function CtaActions({
     const wide = lead || (i === actions.length - 1 && (actions.length - 1) % 2 === 1) ? 'col-span-2' : '';
     const primary = buttonClasses({ variant: 'light', size: 'lg', className: wide });
     // Contorno sobre la foto: un fondo tinta translúcido para que el borde y el texto no dependan de la foto
-    const secondary = buttonClasses({ variant: 'outline-light', size: 'lg', className: `bg-ink/35 ${wide}` });
+    const secondary = buttonClasses({
+      variant: 'outline-light',
+      size: 'lg',
+      className: `bg-ink/35 max-[22rem]:gap-2 max-[22rem]:px-3 ${wide}`,
+    });
     if (a === 'presupuesto') {
       return (
         <ButtonLink

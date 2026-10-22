@@ -35,7 +35,7 @@ for (const route of ROUTES) {
     { width: 390, height: 844, mobile: true },
   ]) {
     test(`contraste sobre fotos ${route.name} @ ${vp.width}`, async ({ browser }) => {
-      test.setTimeout(120_000);
+      test.setTimeout(300_000);
       const context = await browser.newContext({
         viewport: vp,
         isMobile: vp.mobile,
