@@ -5,10 +5,12 @@ export const nosotrosMeta = {
 };
 
 export const nosotrosHero = {
-  label: 'Sobre nosotros',
   title: 'Casetas Maderik: montajes cuidados y fechas cumplidas',
   text: 'Alquilamos casetas de madera para ferias, mercados y eventos. Nos ocupamos de que todo esté listo a tiempo.',
-  image: { src: '/images/stock/taller-carpinteria-madera.jpg', width: 2560, height: 1706, alt: '' },
+  image: {
+    src: '/images/stock/taller-carpinteria-madera.jpg',
+    alt: 'Tablones de madera apilados a secar en un aserradero, con luz cálida de tarde',
+  },
 };
 
 export const nosotrosAbout = {
@@ -19,12 +21,7 @@ export const nosotrosAbout = {
     'Cada caseta se revisa antes de salir y se instala con el cuidado que pide tu evento.',
     'Antes de confirmar, revisamos contigo medidas, distribución y lo que necesita tu espacio.',
   ],
-  image: {
-    src: '/images/stock/detalle-madera-pino.jpg',
-    width: 2560,
-    height: 1715,
-    alt: 'Detalle de tablones de madera de pino con la veta a la vista',
-  },
+  logo: { src: '/brand/logo-stacked.svg', width: 245, height: 194, alt: 'Casetas Maderik' },
 };
 
 export const nosotrosCommitments = {
@@ -65,9 +62,11 @@ export const nosotrosSeason = {
 export const nosotrosArea = {
   label: 'Zona de servicio',
   title: 'Dónde trabajamos',
+  text: 'Montamos casetas en toda España. Elige la provincia de tu evento y te preparamos el presupuesto con transporte y montaje.',
 };
 
 export const nosotrosCta = {
-  title: '¿Tienes dudas de transporte o montaje?',
-  text: 'Cuéntanos qué estás organizando y revisamos contigo medidas y accesos al recinto.',
+  title: 'Reserva tus casetas para tu próximo evento',
+  text: 'Dinos fecha, lugar y número de casetas. Planificamos transporte y montaje y te enviamos el presupuesto.',
+  image: { src: '/images/stock/mercado-navideno-luces-calidas.jpg', alt: '' },
 };

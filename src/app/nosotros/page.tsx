@@ -41,7 +41,13 @@ export default function NosotrosPage() {
       <NosotrosSeason />
       {/* Máximo seis secciones: con reseñas reales, sustituyen al mapa (la zona sigue en el pie) */}
       {site.features.reviews && reviews.length > 0 ? <Reviews /> : <NosotrosArea />}
-      <CtaFinal variant="dudas" title={nosotrosCta.title} text={nosotrosCta.text} actions={['presupuesto', 'llamar']} />
+      <CtaFinal
+        variant="temporada"
+        title={nosotrosCta.title}
+        text={nosotrosCta.text}
+        image={nosotrosCta.image}
+        actions={['presupuesto', 'llamar']}
+      />
     </>
   );
 }

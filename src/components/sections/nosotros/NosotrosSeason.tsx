@@ -41,26 +41,54 @@ export function NosotrosSeason() {
             {s.text}
           </p>
         </div>
-        <ol data-draw-scope className="relative mt-16 grid gap-10 sm:grid-cols-3 md:mt-24">
-          <span aria-hidden="true" className="absolute top-[5px] right-0 left-0 hidden h-px bg-mist/30 sm:block">
+        {/*
+         * Línea temporal de octubre a diciembre. Desde sm, horizontal: octubre al
+         * inicio, noviembre en el centro exacto y diciembre al final, con la línea
+         * de punto a punto (nada después de diciembre). En móvil, vertical: un
+         * tramo de cada punto al siguiente y ninguno tras el último.
+         */}
+        <ol
+          data-draw-scope
+          className="relative mt-16 grid gap-10 [--m:clamp(1.75rem,1.4rem+1.4vw,2.5rem)] sm:grid-cols-3 sm:gap-6 md:mt-24"
+        >
+          <span
+            aria-hidden="true"
+            className="absolute top-[5px] right-[5.5px] left-[5.5px] hidden h-px bg-mist/30 sm:block"
+          >
             <span data-draw-line="x" className="block h-px w-full origin-left bg-wood-light" />
           </span>
-          {s.timeline.map((t, i) => (
-            <li
-              key={t.month}
-              className="relative sm:pt-10"
-              data-reveal
-              style={{ ['--reveal-delay' as string]: `${i * 0.1}s` }}
-            >
-              <span
-                aria-hidden="true"
-                className="absolute top-0 left-0 hidden size-[11px] rounded-full bg-wood-light sm:block"
-              />
-              <p className="font-display text-[clamp(1.75rem,1.4rem+1.4vw,2.5rem)] leading-none">{t.month}</p>
-              {/* Crema al 80 % y no mist: sobre las luces de la foto, mist bajaba de 4,5:1 en móvil */}
-              <p className="mt-3 text-cream/80">{t.text}</p>
-            </li>
-          ))}
+          {s.timeline.map((t, i) => {
+            const last = i === s.timeline.length - 1;
+            const align =
+              i === 0
+                ? 'sm:items-start sm:text-left'
+                : last
+                  ? 'sm:items-end sm:text-right'
+                  : 'sm:items-center sm:text-center';
+            return (
+              <li
+                key={t.month}
+                className={`relative grid grid-cols-[11px_1fr] gap-x-5 sm:flex sm:flex-col ${align}`}
+                data-reveal
+                style={{ ['--reveal-delay' as string]: `${i * 0.1}s` }}
+              >
+                {/* Tramo vertical (móvil) hasta el punto siguiente: del centro de este punto al centro del otro */}
+                {!last ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-[calc(var(--m)/2)] -bottom-[calc(2.5rem+var(--m)/2)] left-[5px] w-px bg-wood-light/60 sm:hidden"
+                  />
+                ) : null}
+                <span
+                  aria-hidden="true"
+                  className="relative size-[11px] self-center rounded-full bg-wood-light ring-4 ring-ink/60 sm:self-auto"
+                />
+                <p className="font-display text-(length:--m) leading-none sm:mt-8">{t.month}</p>
+                {/* Crema al 80 % y no mist: sobre las luces de la foto, mist bajaba de 4,5:1 en móvil */}
+                <p className="col-start-2 mt-3 text-cream/80">{t.text}</p>
+              </li>
+            );
+          })}
         </ol>
       </div>
     </Section>

@@ -7,7 +7,7 @@ import { nosotrosCommitments } from '@/content/nosotros';
 export function NosotrosCommitments() {
   const c = nosotrosCommitments;
   return (
-    <Section surface="paper" aria-labelledby="compromisos-titulo">
+    <Section surface="cream" aria-labelledby="compromisos-titulo">
       <div className="container-site">
         <Label>{c.label}</Label>
         <Heading id="compromisos-titulo" className="mt-6 max-w-[16ch]">
