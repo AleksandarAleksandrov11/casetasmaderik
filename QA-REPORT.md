@@ -203,19 +203,51 @@ Sobre el build final de la entrega (con las mejoras de rendimiento de la secció
 | Consola, red y CSP                   | Sin errores, sin peticiones fallidas y sin violaciones de CSP en ninguna captura                                                                                                                                                           |
 | JavaScript inicial (gzip, sin el 3D) | Inicio 160,6 KB · Casetas 164,7 KB · Nosotros 155,3 KB · Contacto 156,6 KB (límite 170 KB)                                                                                                                                                 |
 
+## Rediseño (octubre de 2026)
+
+Cambios pedidos por el cliente tras la primera entrega y cómo se verificaron.
+
+### Qué cambió
+
+- **Fallo de scroll al pasar de claro a oscuro**: la transición entre páginas dejaba un `transform` en el contenedor de la página (animación con `fill: both`). Ese `transform` convertía el contenedor en el bloque de referencia de los elementos fijados y, tras navegar dentro de la web, el carril de Eventos y las secciones fijadas se quedaban en blanco o se cortaban. Ahora la animación no deja nada al terminar. Además, el montaje de /casetas ya no se fija con scroll, y el header cambia de tono en 150 ms cuando el borde entre secciones llega a su pie, sin banda gris a medias.
+- **Caseta interactiva** en el hero de Inicio y en el visor de /casetas: se gira y tiene botones de ventanas, puerta (nueva, practicable en el modelo), luces (la sección pasa a noche) y medidas. Sin 3D usa 96 fotogramas pregenerados que también se giran y se abren. Las seis partes de la caseta del visor son botones que la giran hasta cada una y la explican (sustituyen a la lista 01 a 06).
+- **Montaje interactivo**: control deslizante plegada ↔ montada, tres pasos y reproducción completa.
+- **Sin migas de pan visibles** (se mantiene el JSON-LD) y sin etiquetas encima de los H1 de las páginas interiores. Sin guionado automático.
+- **Líneas de tiempo** (Cómo trabajamos, Temporada alta, Qué pasa después): primer punto al inicio, el del medio en el centro exacto y la línea termina en el último.
+- **Footer** sin el isotipo encima del nombre en grande.
+- **CTA final común**: la misma estructura en todas las páginas (foto a sangre con velo, etiqueta, H2, texto, acciones y nota), con foto y textos propios en cada una. El configurador de /casetas sigue ese orden, con las casetas grandes a la derecha.
+- **/casetas**: ficha técnica en tres bandas con fondo propio (veta, degradado cálido y cuadrícula de plano), aviso de medidas aproximadas en un recuadro con icono y galería de cuatro fotos en una fila.
+- **/nosotros**: hero estructurado (título arriba, foto contenida), logo en Quiénes somos y mapa de provincias interactivo que lleva al formulario con la provincia elegida.
+- **/contacto**: hero, formulario, canales y siguientes pasos rediseñados, con fotos. Admite `?provincia=` y lo muestra en un aviso animado.
+
+### Resultados automáticos
+
+| Prueba                               | Resultado                                                                                                                                                                                                          |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Lint, tipos y formato                | Sin errores                                                                                                                                                                                                        |
+| Unitarios                            | 125 de 125                                                                                                                                                                                                         |
+| End to end                           | 79 correctos y 2 omitidos (el de fps, que necesita GPU, y uno solo de móvil en el proyecto de escritorio). Incluye la caseta interactiva en 3D y con fotogramas, el montaje, el mapa de provincias y `?provincia=` |
+| Capturas, estados, axe y contraste   | 202 de 202 (14 anchuras de 320 a 2560 y móvil en horizontal en todas las páginas, axe y contraste medido en píxeles a 390, 768, 1024 y 1440)                                                                       |
+| Enlaces internos                     | 416 comprobados, ninguno roto                                                                                                                                                                                      |
+| JavaScript inicial (gzip, sin el 3D) | Inicio 164,4 KB · Casetas 169,8 KB · Nosotros 158,3 KB · Contacto 157,6 KB (límite 170 KB)                                                                                                                         |
+
+Corregido durante esta QA: el lienzo 3D (que R3F deja con eventos activos) tapaba la botonera en el hero, la medición de fps pasaba a fotogramas aunque el 3D estuviera forzado en las pruebas, la hoja CSS del mapa de provincias se precargaba en otras páginas sin usarse (ahora va en línea), los botones de las partes de la caseta medían 42 px de alto (ahora 44), el visual ampliado del visor desbordaba en móvil y "WhatsApp" se cortaba a 320 px en el CTA final.
+
 ## Lighthouse
 
 `pnpm qa:lighthouse` (Lighthouse CI 12, 3 ejecuciones por URL y modo, servidor de QA en local, throttling simulado por defecto: Moto G Power con 4G lenta y CPU ×4 en móvil, preset de escritorio en escritorio). **Todas las aserciones pasan.** Rendimiento: mediana y, entre paréntesis, las tres ejecuciones.
 
 | Página                 | Móvil           | Escritorio          | Accesibilidad | Buenas prácticas | SEO     |
 | ---------------------- | --------------- | ------------------- | ------------- | ---------------- | ------- |
-| Inicio                 | 91 (90, 91, 92) | 100 (99, 100, 100)  | 100           | 100              | 100     |
-| Casetas                | 91 (87, 91, 93) | 99 (99, 99, 100)    | 100           | 100              | 100     |
-| Nosotros               | 90 (88, 90, 91) | 99 (99, 99, 99)     | 100           | 100              | 100     |
-| Contacto               | 92 (92, 92, 92) | 100 (100, 100, 100) | 100           | 100              | 100     |
-| Aviso legal            | 91 (88, 91, 96) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
-| Política de privacidad | 91 (86, 91, 92) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
-| Política de cookies    | 91 (89, 91, 93) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Inicio                 | 91 (87, 91, 91) | 99 (99, 99, 99)     | 100           | 100              | 100     |
+| Casetas                | 87 (85, 87, 93) | 99 (99, 99, 99)     | 100           | 100              | 100     |
+| Nosotros               | 91 (91, 91, 93) | 100 (100, 100, 100) | 100           | 100              | 100     |
+| Contacto               | 93 (92, 93, 93) | 99 (99, 99, 100)    | 100           | 100              | 100     |
+| Aviso legal            | 93 (92, 93, 94) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Política de privacidad | 93 (93, 93, 94) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Política de cookies    | 95 (93, 95, 97) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+
+Medición repetida tras el rediseño (octubre de 2026). Casetas en móvil baja de 91 a 87 de mediana, con mucha dispersión entre ejecuciones (85 a 93): ahora el LCP es el primer fotograma de la caseta interactiva, que pinta en la traza real a la vez que el resto, pero la simulación le suma el tiempo de CPU de los scripts de la página, que es la más cargada (visor, montaje, galería y configurador). En escritorio todas las páginas siguen entre 99 y 100.
 
 (\*) Las páginas legales llevan `noindex, follow` por el brief (sección 10.5): Lighthouse descuenta la auditoría de indexabilidad. La configuración comprueba una a una todas las demás auditorías SEO (título, descripción, canonical, enlaces, robots.txt, hreflang, alt) y pasan todas.
 
