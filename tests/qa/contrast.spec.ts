@@ -58,10 +58,24 @@ for (const route of ROUTES) {
 
       const failures: string[] = [];
       for (const target of targets) {
+        // Lenis (escritorio) suaviza también los saltos programáticos: se mide cuando el scroll
+        // ya se ha asentado, si no los rectángulos no coinciden con la captura
+        await page.evaluate(
+          (sel) => document.querySelector(sel)?.scrollIntoView({ block: 'center', behavior: 'instant' }),
+          target,
+        );
+        await page.waitForTimeout(600);
+        let lastY = -1;
+        let still = 0;
+        for (let k = 0; k < 40 && still < 3; k++) {
+          await page.waitForTimeout(80);
+          const y = await page.evaluate(() => Math.round(window.scrollY));
+          still = y === lastY ? still + 1 : 0;
+          lastY = y;
+        }
         const info = await page.evaluate((sel) => {
           const el = document.querySelector(sel);
           if (!el) return null;
-          el.scrollIntoView({ block: 'center', behavior: 'instant' });
           const cs = getComputedStyle(el);
           // El color calculado puede venir en oklab o color(srgb): se pasa por un canvas
           const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;

@@ -36,18 +36,22 @@ export const casetasHero = {
 export const casetasSpecs = {
   label: 'Ficha técnica',
   title: 'Medidas y características',
-  rows: [
-    { term: 'Largo', value: '2,90 m' },
-    { term: 'Ancho', value: '2,00 m' },
-    { term: 'Alto', value: '2,47 m' },
-    { term: 'Superficie', value: 'Aprox. 5,8 m²' },
-    { term: 'Material', value: 'Pino tratado para exterior' },
-    { term: 'Ventanas', value: '3 ventanas con mostrador' },
-    { term: 'Acceso', value: 'Puerta lateral' },
-    { term: 'Cubierta', value: 'Impermeabilizada' },
-    { term: 'Formato', value: 'Plegable' },
+  /** Cifras grandes del primer bloque. `spoken`: la unidad para lectores de pantalla. */
+  dimensions: [
+    { id: 'largo', term: 'Largo', value: '2,90', unit: 'm', spoken: 'metros' },
+    { id: 'ancho', term: 'Ancho', value: '2,00', unit: 'm', spoken: 'metros' },
+    { id: 'alto', term: 'Alto', value: '2,47', unit: 'm', spoken: 'metros' },
+    { id: 'superficie', term: 'Superficie aprox.', value: '5,8', unit: 'm²', spoken: 'metros cuadrados' },
+  ],
+  featuresTitle: 'Características',
+  features: [
+    { id: 'material', term: 'Material', value: 'Pino tratado para exterior' },
+    { id: 'ventanas', term: 'Ventanas', value: '3 ventanas con mostrador' },
+    { id: 'acceso', term: 'Acceso', value: 'Puerta lateral' },
+    { id: 'cubierta', term: 'Cubierta', value: 'Impermeabilizada' },
+    { id: 'formato', term: 'Formato', value: 'Plegable' },
     // PENDIENTE: confirmar que el montaje lo hace siempre su equipo
-    { term: 'Montaje', value: 'Lo hace nuestro equipo' },
+    { id: 'montaje', term: 'Montaje', value: 'Lo hace nuestro equipo' },
   ],
   plansTitle: 'Planos acotados',
   plans: [
@@ -77,7 +81,8 @@ export const casetasAssembly = {
 export const casetasGallery = {
   label: 'La caseta, en uso',
   title: 'Así trabaja en la calle',
-  // En móvil van de dos en dos: primero las dos cuadradas y luego las dos verticales
+  // Las cuatro en el mismo formato (4:5, recortadas): en una fila en escritorio y 2 × 2 en tablet y móvil.
+  // `position`: encuadre del recorte para que la caseta quede centrada.
   images: [
     {
       src: '/images/real/caseta-madera-alquiler-feria-abierta.jpg',
@@ -96,6 +101,7 @@ export const casetasGallery = {
       width: 683,
       height: 1024,
       alt: 'Caseta de madera cerrada en una plaza al atardecer, con cubierta a dos aguas',
+      position: '50% 70%',
     },
     {
       src: '/images/real/caseta-madera-montada-exterior-dia.jpg',
