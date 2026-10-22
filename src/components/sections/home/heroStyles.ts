@@ -23,6 +23,7 @@ export const heroCss = /* css */ `
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: 'title' 'media' 'sub' 'ctas';
   align-content: start;
+  container-type: inline-size;
   padding-top: clamp(12px, 3vw, 32px);
   padding-bottom: clamp(28px, 5vw, 48px);
 }
@@ -32,7 +33,7 @@ export const heroCss = /* css */ `
   margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(2.75rem, 14.6vw, 5.75rem);
+  font-size: clamp(2.5rem, 15.4cqi, 6.5rem);
   line-height: 0.9;
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -43,7 +44,17 @@ export const heroCss = /* css */ `
   display: block;
 }
 
-.hero__line--accent {
+/* "Alquiler de" como antetítulo dentro del H1; "casetas de madera" en grande */
+.hero__line {
+  white-space: nowrap;
+}
+
+.hero__line--kicker {
+  margin-bottom: 0.35em;
+  font-size: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1;
   color: var(--color-wood);
   transition: color 0.8s var(--ease-brand);
 }
@@ -52,6 +63,11 @@ export const heroCss = /* css */ `
   grid-area: media;
   margin-top: clamp(8px, 3vw, 24px);
   min-width: 0;
+}
+
+.hero__media .ic__visual {
+  transform: scale(1.18);
+  transform-origin: 50% 55%;
 }
 
 .hero__sub {
@@ -135,7 +151,7 @@ export const heroCss = /* css */ `
   color: var(--color-cream);
 }
 
-.hero[data-header='dark'] .hero__line--accent {
+.hero[data-header='dark'] .hero__line--kicker {
   color: var(--color-wood-light);
 }
 
@@ -165,7 +181,7 @@ export const heroCss = /* css */ `
   }
 
   .hero__inner {
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     grid-template-rows: 1fr auto auto auto 1fr;
     grid-template-areas: '. media' 'title media' 'sub media' 'ctas media' '. media';
     column-gap: clamp(24px, 3vw, 56px);
@@ -173,7 +189,7 @@ export const heroCss = /* css */ `
   }
 
   .hero__title {
-    font-size: clamp(3rem, min(7vw, 13.5svh), 8.25rem);
+    font-size: clamp(3rem, min(6.8cqi, 14svh), 8.75rem);
   }
 
   .hero__media {
@@ -194,7 +210,7 @@ export const heroCss = /* css */ `
 /* Móvil en horizontal: todo más compacto */
 @media (orientation: landscape) and (max-height: 520px) and (min-width: 600px) {
   .hero__title {
-    font-size: min(6.4vw, 14svh);
+    font-size: min(6.6cqi, 15svh);
   }
 
   .hero__sub {

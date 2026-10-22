@@ -24,7 +24,7 @@ export function HomeHero() {
       <div className="hero__inner container-site">
         <h1 id="hero-titulo" className="hero__title">
           {h.title.map((line, i) => (
-            <span key={line} className={`hero__line${i === 1 ? 'hero__line--accent' : ''}`}>
+            <span key={line} className={i === 0 ? 'hero__line hero__line--kicker' : 'hero__line'}>
               {line}
               {i < h.title.length - 1 ? ' ' : null}
             </span>

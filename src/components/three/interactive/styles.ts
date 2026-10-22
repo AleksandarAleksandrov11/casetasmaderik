@@ -246,11 +246,22 @@ export const interactiveCss = /* css */ `
   color: var(--color-cream);
 }
 
-@media (max-width: 379.98px) {
-  .ic__toggle {
-    padding: 0 12px;
+/* Móvil: los cuatro botones en una fila, icono sobre el texto */
+@media (max-width: 559.98px) {
+  .ic__dock {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
-    font-size: 0.8125rem;
+  }
+
+  .ic__toggle {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-height: 58px;
+    padding: 6px 4px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
   }
 }
 
