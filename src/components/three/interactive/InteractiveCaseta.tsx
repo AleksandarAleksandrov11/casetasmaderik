@@ -427,7 +427,6 @@ export function InteractiveCaseta({
           {live3D ? <div ref={markerRef} className="ic__marker" data-hidden="1" /> : null}
         </div>
 
-
         {mode === 'frames' && on.dims ? (
           <p className="ic__dims" aria-hidden="true">
             <Ruler aria-hidden="true" strokeWidth={1.5} />
