@@ -1,6 +1,5 @@
 import { Fragment } from 'react';
 import { casetasHero } from '@/content/casetas';
-import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ButtonLink } from '@/components/ui/Button';
 import { Poster } from '@/components/three/Poster';
 import { posters } from '@/components/three/posters';
@@ -24,13 +23,7 @@ export function CasetasViewerHero() {
         labels={{ ...h.controls, hint: h.hint, sceneDescription: h.sceneDescription }}
         copy={
           <>
-            <Breadcrumbs
-              items={[
-                { name: 'Inicio', path: '/' },
-                { name: 'Casetas', path: '/casetas' },
-              ]}
-            />
-            <h1 id="casetas-titulo" className="viewer__title text-h1 mt-5">
+            <h1 id="casetas-titulo" className="viewer__title text-h1">
               {/* Frases enteras: el espacio entre ellas es el único punto de corte */}
               {h.title.map((phrase, i) => (
                 <Fragment key={phrase}>

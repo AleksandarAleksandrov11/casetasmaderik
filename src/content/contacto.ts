@@ -38,13 +38,12 @@ export const contactoFaqIntro = {
   title: 'Sobre el presupuesto',
 };
 
-/*
- * Cierre con foto (variante temporada de CtaFinal): una sección propia antes del
- * footer tinta. El horario ya está en la tarjeta Llamar, aquí no se repite.
- */
+/* Cierre con foto (CtaFinal). La nota recuerda el horario de la llamada. */
 export const contactoCta = {
+  label: 'Atención directa',
   title: '¿Prefieres hablarlo?',
   // \u00a0: sin una "o" suelta al final de línea
   text: 'Para fechas cercanas o\u00a0dudas rápidas, lo más directo es una llamada o\u00a0un WhatsApp.',
   image: { src: '/images/stock/jardin-celebracion-luces.jpg', alt: '' },
+  note: `Teléfono y WhatsApp: ${site.hours.charAt(0).toLowerCase()}${site.hours.slice(1)}.`,
 };

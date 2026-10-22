@@ -68,6 +68,9 @@ export const nosotrosArea = {
 };
 
 export const nosotrosCta = {
+  label: 'Antes de reservar',
   title: '¿Tienes dudas de transporte o montaje?',
   text: 'Cuéntanos qué estás organizando y revisamos contigo medidas y accesos al recinto.',
+  // Foto real de la caseta en el cierre (CtaFinal)
+  image: { src: '/images/real/caseta-madera-alquiler-feria-abierta.jpg', alt: '' },
 };

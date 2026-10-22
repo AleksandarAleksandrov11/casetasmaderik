@@ -1,4 +1,3 @@
-import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Label } from '@/components/ui/Label';
 import { nosotrosHero } from '@/content/nosotros';
 import { CoverPhoto, photoSizes } from './CoverPhoto';
@@ -30,14 +29,7 @@ export function NosotrosHero() {
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-ink/40" />
       </div>
       <div className="container-site relative pt-[calc(var(--header-h)+48px)] pb-[clamp(56px,8vw,112px)]">
-        <Breadcrumbs
-          tone="dark"
-          items={[
-            { name: 'Inicio', path: '/' },
-            { name: 'Nosotros', path: '/nosotros' },
-          ]}
-        />
-        <Label className="mt-8">{h.label}</Label>
+        <Label>{h.label}</Label>
         <h1 className="text-h1 mt-6 max-w-[18ch]">{h.title}</h1>
         <p className="text-lead mt-6 max-w-[48ch] text-cream/85">{h.text}</p>
       </div>

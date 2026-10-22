@@ -122,5 +122,6 @@ export const casetasConfigurator = {
     { id: '6-10', label: '6 a 10', value: 8 },
     { id: '10+', label: 'Más de 10', value: 12 },
   ],
-  cta: 'Pedir presupuesto',
+  // Fondo del cierre (misma estructura que CtaFinal): un mercado lleno de casetas
+  image: { src: '/images/stock/mercado-navideno-luces-calidas.jpg', alt: '' },
 };
