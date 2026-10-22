@@ -1,0 +1,50 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["cdg1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.casetasmaderik.es" }],
+      "destination": "https://casetasmaderik.es/:path*",
+      "statusCode": 301
+    },
+    { "source": "/product-category/:path*", "destination": "/casetas", "statusCode": 301 },
+    { "source": "/product/:path*", "destination": "/casetas", "statusCode": 301 },
+    { "source": "/tienda/:path*", "destination": "/casetas", "statusCode": 301 },
+    { "source": "/shop/:path*", "destination": "/casetas", "statusCode": 301 },
+    { "source": "/mi-cuenta/:path*", "destination": "/contacto", "statusCode": 301 },
+    { "source": "/carrito/:path*", "destination": "/contacto", "statusCode": 301 },
+    { "source": "/pago/:path*", "destination": "/contacto", "statusCode": 301 },
+    { "source": "/feed/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/comments/feed/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/inicio/:path*", "destination": "/", "statusCode": 301 },
+    { "source": "/wp-login.php", "destination": "/", "statusCode": 301 },
+    { "source": "/wp-admin/:path*", "destination": "/", "statusCode": 301 }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com; font-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/(images|textures|brand|icons)/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=86400" }]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+    }
+  ]
+}

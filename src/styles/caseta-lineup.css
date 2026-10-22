@@ -1,0 +1,175 @@
+/* Ilustración isométrica de casetas (CasetaLineup) */
+/* Sin display: lo deciden las utilidades (hidden, sm:hidden...) y la base */
+.cm-lineup {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Escenario con zoom: en reposo todo cabe con margen; durante el zoom, lo que sobra se recorta */
+.cm-lineup--zoom {
+  overflow: hidden;
+}
+
+.cm-lineup--light {
+  --cl-line: #8a5a3c;
+  --cl-front: #f1e3cf;
+  --cl-side: #e2cbac;
+  --cl-plank: rgb(110 67 41 / 0.22);
+  --cl-door: #d6b994;
+  --cl-window: #2a2320;
+  --cl-counter: #c49a76;
+  --cl-counter-edge: #98603e;
+  --cl-visor: #c99f7b;
+  --cl-roof: #2a2e2c;
+  --cl-roof-back: #3c423f;
+  --cl-roof-end: #98603e;
+  --cl-ridge: #0e1615;
+  --cl-shadow: rgb(14 22 21 / 0.07);
+  --cl-plus: #6e4329;
+}
+
+.cm-lineup--dark {
+  --cl-line: #c49a76;
+  --cl-front: #2c2723;
+  --cl-side: #221f1c;
+  --cl-plank: rgb(196 154 118 / 0.22);
+  --cl-door: #1a1816;
+  --cl-window: #ffb36b;
+  --cl-counter: #98603e;
+  --cl-counter-edge: #6e4329;
+  --cl-visor: #7d4f33;
+  --cl-roof: #0b100f;
+  --cl-roof-back: #151b19;
+  --cl-roof-end: #6e4329;
+  --cl-ridge: #c49a76;
+  --cl-shadow: rgb(0 0 0 / 0.35);
+  --cl-plus: #c49a76;
+}
+
+.cm-lineup polygon,
+.cm-lineup path {
+  stroke: var(--cl-line);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.cm-lineup .cl-shadow {
+  fill: var(--cl-shadow);
+  stroke: none;
+}
+
+.cm-lineup .cl-side {
+  fill: var(--cl-side);
+}
+
+.cm-lineup .cl-front {
+  fill: var(--cl-front);
+}
+
+.cm-lineup .cl-plank {
+  fill: none;
+  stroke: var(--cl-plank);
+}
+
+.cm-lineup .cl-door {
+  fill: var(--cl-door);
+}
+
+.cm-lineup .cl-window {
+  fill: var(--cl-window);
+}
+
+.cm-lineup .cl-counter {
+  fill: var(--cl-counter);
+}
+
+.cm-lineup .cl-counter-edge {
+  fill: var(--cl-counter-edge);
+}
+
+.cm-lineup .cl-visor {
+  fill: var(--cl-visor);
+}
+
+.cm-lineup .cl-roof {
+  fill: var(--cl-roof);
+}
+
+.cm-lineup .cl-roof-back {
+  fill: var(--cl-roof-back);
+}
+
+.cm-lineup .cl-roof-end {
+  fill: var(--cl-roof-end);
+}
+
+.cm-lineup .cl-ridge {
+  fill: none;
+  stroke: var(--cl-ridge);
+}
+
+.cm-lineup--dark .cl-window {
+  stroke: #e0955a;
+}
+
+.cm-lineup__plus {
+  fill: var(--cl-plus);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Recolocación suave al cambiar el número de filas */
+.cm-lineup__slot {
+  transition: transform 0.7s var(--ease-brand, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* Escenario con zoom: la vista se aleja o se acerca al mismo ritmo que la recolocación */
+html.js-motion .cm-lineup__stage {
+  transition: transform 0.7s var(--ease-brand, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* Entrada de cada caseta nueva: solo con JavaScript y sin movimiento reducido */
+html.js-motion .cm-lineup__stall {
+  animation: cm-lineup-in 0.65s var(--ease-brand, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+html.js-motion .cm-lineup__plus {
+  animation: cm-lineup-fade 0.5s var(--ease-brand, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes cm-lineup-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cm-lineup-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-lineup__slot,
+  html.js-motion .cm-lineup__stage {
+    transition: none;
+  }
+
+  html .cm-lineup__stall,
+  html .cm-lineup__plus {
+    animation: none;
+  }
+}

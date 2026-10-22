@@ -1,0 +1,1188 @@
+@import 'tailwindcss';
+@import './caseta-lineup.css';
+
+/* Móvil en horizontal: poca altura, todo se reparte a lo ancho */
+@custom-variant short-landscape (@media (orientation: landscape) and (max-height: 500px));
+
+/* Misma consulta que el hero de Inicio (hero/styles.ts): poca altura y apaisado */
+@custom-variant low-landscape (@media (max-height: 520px) and (min-aspect-ratio: 5/4));
+
+/* Carril de eventos de Inicio fijado con scroll: escritorio con alto suficiente,
+   con movimiento y sin la marca data-unfit (HorizontalRail). rail-fit-self es
+   para el propio elemento [data-rail]. */
+@custom-variant rail-fit {
+  @media (width >= 64rem) and (min-height: 37.5rem) {
+    html.js-motion [data-rail]:not([data-unfit]) & {
+      @slot;
+    }
+  }
+}
+
+@custom-variant rail-fit-self {
+  @media (width >= 64rem) and (min-height: 37.5rem) {
+    html.js-motion &:not([data-unfit]) {
+      @slot;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Tokens de marca                                                     */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-*: initial;
+  --color-cream: #fbf8f3;
+  --color-paper: #f3ede4;
+  --color-sand: #e6dccf;
+  --color-wood: #98603e;
+  --color-wood-dark: #6e4329;
+  --color-wood-light: #c49a76;
+  --color-ink: #0e1615;
+  --color-charcoal: #1f2523;
+  --color-stone: #5e6461;
+  --color-mist: #a3a7a4;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-error: #a3271b;
+  --color-error-light: #f2a99f;
+  --color-success: #2f6b3f;
+
+  --font-display: var(--font-outfit), 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+
+  --breakpoint-xs: 26rem;
+  --breakpoint-3xl: 120rem;
+
+  --text-label: 0.8125rem;
+  --text-label--letter-spacing: 0.18em;
+  --text-label--line-height: 1.3;
+
+  --animate-scroll-line: scroll-line 2.2s var(--ease-brand) infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/* Variables de layout                                                 */
+/* ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --gutter: clamp(20px, 4vw, 56px);
+  --section-y: clamp(88px, 12vw, 184px);
+  --header-h: 88px;
+  --header-h-compact: 68px;
+  --container: 1440px;
+  --fs-hero: clamp(2.6rem, 1.4rem + 6vw, 7.5rem);
+  --fs-h1: clamp(2.4rem, 1.5rem + 4vw, 5.5rem);
+  --fs-h2: clamp(2rem, 1.35rem + 3.2vw, 4.5rem);
+  --fs-h3: clamp(1.375rem, 1.1rem + 1vw, 2rem);
+  --fs-lead: clamp(1.0625rem, 0.98rem + 0.4vw, 1.3125rem);
+  --fs-body: clamp(1rem, 0.96rem + 0.18vw, 1.125rem);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  /* Franja inferior que tapa el aviso de cookies mientras está abierto */
+  --consent-h: 0px;
+  --consent-lift: 0px;
+}
+
+/* Móviles en horizontal: el H2 se limita por el alto, para que nunca supere al
+   título del hero ni a los H1 en una pantalla de 360 a 430 px de alto */
+@media (max-height: 520px) and (min-aspect-ratio: 5/4) {
+  :root {
+    --fs-h2: clamp(2rem, 9svh, 4.5rem);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h-compact) + 16px);
+  }
+
+  /* Desplazamiento suave nativo sin JS y donde Lenis no entra (táctil). Con    */
+  /* puntero fino lo hace Lenis: una animación nativa lanzada antes de que     */
+  /* arranque se quedaba a medias al recalcular ScrollTrigger tras la carga.  */
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.js) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (hover: none),
+    (prefers-reduced-motion: no-preference) and (pointer: coarse) {
+    html:not(.lenis) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    min-height: 100svh;
+    background-color: var(--color-cream);
+    font-family: var(--font-sans);
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'kern' 1;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  p,
+  li,
+  dd,
+  figcaption {
+    text-wrap: pretty;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  ::selection {
+    background-color: var(--color-wood);
+    color: var(--color-cream);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-wood);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  [data-surface='dark'] :focus-visible,
+  .surface-dark :focus-visible {
+    outline-color: var(--color-wood-light);
+  }
+
+  /* Campos: 16 px mínimo para evitar el zoom de iOS */
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1rem);
+  }
+
+  button,
+  [role='button'],
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
+  summary {
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Componentes de tipografía y layout                                  */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .container-site {
+    width: 100%;
+    max-width: calc(var(--container) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: max(var(--gutter), var(--safe-left)) max(var(--gutter), var(--safe-right));
+  }
+
+  .section-y {
+    padding-block: var(--section-y);
+  }
+
+  .grid-site {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+  }
+
+  @media (min-width: 48rem) {
+    .grid-site {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid-site {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+  }
+
+  .text-hero {
+    font-family: var(--font-display);
+    font-size: var(--fs-hero);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+
+  .text-h1 {
+    font-family: var(--font-display);
+    font-size: var(--fs-h1);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 400;
+  }
+
+  .text-h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-h2);
+    line-height: 1.02;
+    letter-spacing: -0.028em;
+    font-weight: 400;
+  }
+
+  .text-h3 {
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-weight: 400;
+  }
+
+  .text-lead {
+    font-size: var(--fs-lead);
+    line-height: 1.55;
+  }
+
+  /* Etiqueta de sección: mayúsculas con línea de 24 px dibujada con CSS */
+  /* La línea va siempre a la altura de la primera línea, también si la etiqueta se parte */
+  .label {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--color-wood);
+  }
+
+  .label::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    margin-top: calc(0.65em - 0.5px);
+    margin-top: calc(0.5lh - 0.5px);
+    background-color: currentColor;
+    flex: none;
+    transform-origin: left center;
+  }
+
+  /* En fondos papel el marrón de marca no llega a AA en texto pequeño */
+  .surface-paper .label,
+  .label-on-paper {
+    color: var(--color-wood-dark);
+  }
+
+  .surface-dark .label,
+  .label-on-dark {
+    color: var(--color-wood-light);
+  }
+
+  /* Enlace secundario con subrayado animado */
+  .link-underline {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 44px;
+    font-weight: 600;
+    color: var(--color-wood);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 calc(50% + 0.85em);
+    background-size: 100% 1px;
+    transition:
+      background-size 0.6s var(--ease-brand),
+      color 0.3s var(--ease-brand);
+  }
+
+  .surface-paper .link-underline {
+    color: var(--color-wood-dark);
+  }
+
+  .surface-dark .link-underline {
+    color: var(--color-cream);
+  }
+
+  @media (hover: hover) {
+    .link-underline:hover {
+      background-size: 0% 1px;
+      background-position: 100% calc(50% + 0.85em);
+    }
+  }
+
+  .link-inline {
+    color: var(--color-wood);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color 0.3s var(--ease-brand);
+  }
+
+  .link-inline:hover {
+    color: var(--color-wood-dark);
+  }
+
+  .surface-paper .link-inline {
+    color: var(--color-wood-dark);
+  }
+
+  .surface-dark .link-inline {
+    color: var(--color-wood-light);
+  }
+
+  .hairline {
+    border-color: var(--color-sand);
+  }
+
+  .surface-dark .hairline {
+    border-color: rgb(163 167 164 / 0.28);
+  }
+
+  .prose-legal {
+    color: var(--color-ink);
+  }
+
+  /* Medida de lectura de unos 70 caracteres. En Manrope 1ch (el ancho del "0")
+     es mucho mayor que el carácter medio y 70ch daban casi 100 caracteres por
+     línea; por eso la medida va en em. El listado de cookies comparte la
+     misma medida: un solo borde derecho para toda la columna. */
+  .prose-legal :is(p, ul, .cookie-table) {
+    max-width: 32em;
+  }
+
+  /* Los títulos, con la medida del texto: en em contarían su propio tamaño
+     (casi el doble) y el H2 largo pasaría del borde derecho de la columna */
+  .prose-legal :is(h2, h3) {
+    max-width: calc(32 * var(--fs-body));
+  }
+
+  .prose-legal h2 {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2.125rem);
+    margin-top: 3.5rem;
+    margin-bottom: 1rem;
+    scroll-margin-top: calc(var(--header-h-compact) + 24px);
+  }
+
+  .prose-legal h3 {
+    font-size: 1.25rem;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose-legal p,
+  .prose-legal li {
+    color: var(--color-ink);
+  }
+
+  /* Como en el resto de la web (brief 5.2): sin palabras sueltas al final */
+  .prose-legal :is(p, li, .cookie-purpose) {
+    text-wrap: pretty;
+  }
+
+  /* Ritmo entre bloques: 1rem entre párrafos y listas, también cuando un
+     párrafo sigue a una lista. La lista que sigue a su frase de entrada va
+     algo más pegada. */
+  .prose-legal :is(p, ul) + :is(p, ul) {
+    margin-top: 1rem;
+  }
+
+  .prose-legal p + ul {
+    margin-top: 0.75rem;
+  }
+
+  .prose-legal ul {
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .prose-legal li + li {
+    margin-top: 0.5rem;
+  }
+
+  .prose-legal a {
+    color: var(--color-wood);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .prose-legal a:hover {
+    color: var(--color-wood-dark);
+  }
+
+  /* Listado de cookies: tabla semántica sobre una rejilla por áreas, igual en
+     todas las tablas y con la misma medida que el texto, así su borde derecho
+     coincide con el de los párrafos. El marcado sigue el orden del brief
+     (nombre, proveedor, finalidad, duración y tipo); la rejilla solo decide
+     dónde se ve cada celda.
+     Estrecho: una ficha por cookie con nombre, finalidad y pares etiqueta y
+     valor; la cabecera queda solo para los lectores de pantalla.
+     Desde 32.5rem: tabla con una sola fila de cabecera. Nombre, proveedor,
+     duración y tipo en columnas y la finalidad debajo, a todo el ancho. La
+     cabecera "Finalidad" solo la oyen los lectores de pantalla: a la vista
+     se leía como continuación de "Nombre". */
+  .prose-legal .cookie-table {
+    container-type: inline-size;
+    margin-top: 1.25rem;
+  }
+
+  .prose-legal .cookie-table :where(table, thead, tbody, tr, th, td) {
+    display: block;
+    padding: 0;
+    text-align: left;
+  }
+
+  .prose-legal .cookie-table table {
+    width: 100%;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--color-sand);
+  }
+
+  .prose-legal .cookie-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'nombre' 'finalidad' 'proveedor' 'duracion' 'tipo';
+    row-gap: 0.375rem;
+  }
+
+  .prose-legal .cookie-table [data-col='nombre'] {
+    grid-area: nombre;
+  }
+
+  .prose-legal .cookie-table [data-col='proveedor'] {
+    grid-area: proveedor;
+  }
+
+  .prose-legal .cookie-table [data-col='finalidad'] {
+    grid-area: finalidad;
+  }
+
+  .prose-legal .cookie-table [data-col='duracion'] {
+    grid-area: duracion;
+  }
+
+  .prose-legal .cookie-table [data-col='tipo'] {
+    grid-area: tipo;
+  }
+
+  /* Cabecera oculta a la vista en las fichas (cada dato lleva su etiqueta) */
+  .prose-legal .cookie-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .prose-legal .cookie-table tbody tr {
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--color-sand);
+  }
+
+  .prose-legal .cookie-table tbody th {
+    font-weight: 600;
+    color: var(--color-ink);
+    overflow-wrap: anywhere;
+  }
+
+  .prose-legal .cookie-table td {
+    color: var(--color-ink);
+  }
+
+  .prose-legal .cookie-purpose {
+    margin-bottom: 0.5rem;
+  }
+
+  .prose-legal .cookie-meta {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: baseline;
+    text-wrap: balance;
+  }
+
+  .prose-legal :is(.cookie-label, .cookie-table thead th) {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--color-stone);
+  }
+
+  /* Pistas fijas (rem y fr, nunca según el contenido): todas las tablas se
+     alinean. Los mínimos evitan cortes absurdos ("Casetas Maderik", "No
+     instala cookies" y "De terceros" en una línea, la duración de sesión en
+     dos) y el sobrante va sobre todo al nombre. */
+  @container (min-width: 32.5rem) {
+    .prose-legal .cookie-table tr {
+      grid-template-columns:
+        minmax(8.5rem, 1.5fr) minmax(7.5rem, 1fr) minmax(8rem, 1fr)
+        minmax(5.25rem, 0.6fr);
+      grid-template-areas:
+        'nombre proveedor duracion tipo'
+        'finalidad finalidad finalidad finalidad';
+      column-gap: 1rem;
+      row-gap: 0.5rem;
+      align-items: start;
+    }
+
+    .prose-legal .cookie-table thead {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip-path: none;
+      white-space: normal;
+      padding-bottom: 0.875rem;
+    }
+
+    .prose-legal .cookie-table thead tr {
+      row-gap: 0;
+    }
+
+    .prose-legal .cookie-table thead th[data-col='finalidad'] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .prose-legal .cookie-purpose {
+      margin-bottom: 0;
+    }
+
+    .prose-legal .cookie-meta {
+      display: block;
+    }
+
+    .prose-legal .cookie-label {
+      display: none;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Animaciones: solo con la clase .js en <html> y sin movimiento        */
+/* reducido. Sin JavaScript todo el contenido es visible.               */
+/* ------------------------------------------------------------------ */
+@layer utilities {
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+html.js-motion [data-reveal]:not(.is-in) {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+html.js-motion [data-reveal] {
+  transition:
+    opacity 0.9s var(--ease-brand),
+    transform 1.1s var(--ease-brand);
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+html.js-motion [data-reveal='fade']:not(.is-in) {
+  transform: none;
+}
+
+/* Revelado de imágenes con clip-path y escala interior. El clip va en los
+   hijos: IntersectionObserver ignora los elementos recortados por completo. */
+html.js-motion [data-reveal-image] > * {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.2s var(--ease-brand);
+}
+
+html.js-motion [data-reveal-image]:not(.is-in) > * {
+  clip-path: inset(100% 0 0 0);
+}
+
+html.js-motion [data-reveal-image] img {
+  transition:
+    transform 1.2s var(--ease-brand),
+    clip-path 1.2s var(--ease-brand);
+}
+
+html.js-motion [data-reveal-image]:not(.is-in) img {
+  transform: scale(1.15);
+}
+
+/* Si el script de revelado no llega a ejecutarse, se muestra todo */
+html.js-motion:not(.reveal-ready) [data-reveal],
+html.js-motion:not(.reveal-ready) [data-reveal-image] > * {
+  animation: cm-reveal-fallback 0.01s linear 3.5s forwards;
+}
+
+@keyframes cm-reveal-fallback {
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes scroll-line {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+/* Máscara para líneas de SplitText (mask: 'lines' añade "-mask" a linesClass) */
+.split-line-mask {
+  overflow: clip;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Intro de carga: rápida y limpia. Solo una vez por sesión, solo con   */
+/* JavaScript y sin movimiento reducido. Se retira sola por CSS.        */
+/* ------------------------------------------------------------------ */
+.intro {
+  display: none;
+}
+
+html.js-intro .intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background-color: var(--color-cream);
+  pointer-events: none;
+  animation: intro-curtain 0.6s var(--ease-expo) 1s forwards;
+}
+
+html.js-intro .intro__mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: intro-draw 0.7s var(--ease-brand) forwards;
+}
+
+html.js-intro .intro__mark path:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+html.js-intro .intro__mark path:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+html.js-intro .intro__word {
+  overflow: clip;
+}
+
+html.js-intro .intro__word g {
+  transform: translateY(110%);
+  animation: intro-rise 0.65s var(--ease-expo) 0.35s forwards;
+}
+
+html.js-intro .intro__rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: intro-rule 0.7s var(--ease-brand) 0.25s forwards;
+}
+
+@keyframes intro-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes intro-rise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes intro-rule {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes intro-curtain {
+  to {
+    transform: translate3d(0, -100%, 0);
+    visibility: hidden;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Movimiento reducido: todo en su estado final                         */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Titulares con SplitText                                             */
+/* ------------------------------------------------------------------ */
+/* Los titulares se ven desde el primer pintado: SplitText (que llega con la
+   primera interacción) solo anima los que aún están por debajo de la pantalla */
+
+/* El H1 es el LCP: entra con un desplazamiento corto, nunca desde opacidad cero
+   (brief 7). Solo CSS, sin esperar a JavaScript; con la intro, al retirarse la
+   cortina. "backwards": al terminar no fija ningún transform. */
+html.js-motion main h1 {
+  animation: cm-h1-in 0.9s var(--ease-brand) backwards;
+}
+
+html.js-intro main h1 {
+  animation-delay: 1.05s;
+}
+
+@keyframes cm-h1-in {
+  from {
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Wordmark del footer                                                 */
+/* ------------------------------------------------------------------ */
+.wordmark__letter path {
+  transform-box: fill-box;
+  transition: transform 1.15s var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 45ms);
+}
+
+html.js-motion .wordmark:not(.is-in) .wordmark__letter path {
+  transform: translateY(125%);
+}
+
+html.js-motion .wordmark__iso path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.2s var(--ease-brand);
+}
+
+html.js-motion .wordmark__iso path:nth-child(2) {
+  transition-delay: 0.15s;
+}
+
+html.js-motion .wordmark__iso path:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+.wordmark.is-in .wordmark__iso path {
+  stroke-dashoffset: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .wordmark.is-in .wordmark__letter:hover path {
+    transform: translateY(-7%);
+    transition-duration: 0.45s;
+    transition-delay: 0s;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Transición entre páginas: fundido y desplazamiento corto (300 ms)   */
+/* ------------------------------------------------------------------ */
+html.js-motion .page-enter {
+  animation: page-enter 0.3s var(--ease-brand) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Formulario de presupuesto: transiciones solo con CSS (opacity y transform) */
+.q-progress {
+  transition: transform 0.7s var(--ease-brand);
+}
+
+html.js-motion .q-enter {
+  animation: q-enter 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-step[data-dir='1'] {
+  animation: q-step-forward 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-step[data-dir='-1'] {
+  animation: q-step-back 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-drop {
+  animation: q-drop 0.6s var(--ease-brand) both;
+}
+
+html.js-motion .q-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: q-draw 0.7s var(--ease-brand) forwards;
+}
+
+html.js-motion .q-draw--late {
+  animation-duration: 0.6s;
+  animation-delay: 0.45s;
+}
+
+@keyframes q-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes q-step-forward {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+@keyframes q-step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes q-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes q-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Antes de hidratar (o sin JS) el header toma el tono de la primera sección. */
+/* first-of-type: el JSON-LD de la página va antes, como <script>.            */
+html:not(.js) header:not([data-ready]) {
+  background-color: var(--color-cream);
+  border-bottom-color: var(--color-sand);
+}
+
+html.js body:has(#contenido > div > section:first-of-type[data-header='dark']) header:not([data-ready]) {
+  color: var(--color-cream);
+}
+
+html.js
+  body:has(#contenido > div > section:first-of-type[data-header='dark'])
+  header:not([data-ready])
+  svg
+  > g:first-child {
+  color: var(--color-wood-light);
+}
+
+/* El CTA ya en su versión sobre oscuro (crema con texto tinta) */
+html.js body:has(#contenido > div > section:first-of-type[data-header='dark']) header:not([data-ready]) .header-cta {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+}
+
+html.js
+  body:has(#contenido > div > section:first-of-type[data-header='dark'])
+  header:not([data-ready])
+  .header-cta::before {
+  background-color: var(--color-wood-light);
+}
+
+/* ------------------------------------------------------------------ */
+/* Aviso de cookies pendiente (html.cc-pending, ver consent/pending.ts) */
+/* La página reserva la franja del aviso desde el primer pintado: sin  */
+/* saltos al aparecer y con el final de la página siempre libre.       */
+/* ConsentProvider sustituye la estimación por la medida real en       */
+/* --consent-h y, en pantallas bajas, no muestra el aviso mientras     */
+/* tape un CTA o el título.                                            */
+/* ------------------------------------------------------------------ */
+html.cc-pending {
+  --consent-h: calc(77px + var(--safe-bottom));
+  /* El foco del teclado nunca queda debajo del aviso (WCAG 2.4.11) */
+  scroll-padding-bottom: calc(var(--consent-h) + 16px);
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  html.cc-pending {
+    --consent-h: calc(107px + var(--safe-bottom));
+  }
+}
+
+@media (max-width: 640px) {
+  html.cc-pending {
+    --consent-h: calc(173px + var(--safe-bottom));
+  }
+}
+
+/* Móvil en horizontal: tarjeta de unos 191 px apoyada en el borde inferior */
+@media (orientation: landscape) and (max-height: 500px) {
+  html.cc-pending {
+    --consent-h: calc(191px + var(--safe-bottom));
+  }
+}
+
+/* El final de cada página queda por encima del aviso. La franja la pone el
+   footer (tinta), no el body (crema): en móvil horizontal el aviso es una
+   tarjeta a la derecha y el resto de la franja queda a la vista */
+html.cc-pending #pie {
+  padding-bottom: var(--consent-h);
+}
+
+/* Aviso apartado (ConsentProvider): de vuelta arriba en una pantalla baja,
+   se retira mientras taparía el título o un CTA */
+html.cc-tucked #cc-main .cm {
+  visibility: hidden;
+  transform: translateY(calc(100% + 24px)) !important;
+  transition:
+    transform 0.45s var(--ease-brand),
+    visibility 0s linear 0.45s !important;
+}
+
+/* Lo que sube el botón flotante de WhatsApp: solo con el aviso a la vista */
+html.cc-pending.show--consent {
+  --consent-lift: var(--consent-h);
+}
+
+/* Enlace "Saltar al contenido" */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  padding: 12px 18px;
+  border-radius: 4px;
+  background: var(--color-ink);
+  color: var(--color-cream);
+  font-weight: 600;
+  transform: translateY(-160%);
+  transition: transform 0.3s var(--ease-brand);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------------ */
+/* Planos técnicos                                                     */
+/* ------------------------------------------------------------------ */
+.plan-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  color: var(--color-ink);
+}
+
+.plan-svg .plan-ground {
+  stroke: var(--color-ink);
+  stroke-width: 1.2;
+}
+
+.plan-svg .plan-base {
+  fill: var(--color-sand);
+  stroke: var(--color-ink);
+  stroke-width: 0.8;
+}
+
+.plan-svg .plan-wall {
+  fill: var(--color-cream);
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-roof {
+  fill: var(--color-charcoal);
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-opening {
+  fill: var(--color-paper);
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-solid {
+  fill: var(--color-ink);
+}
+
+.plan-svg .plan-walls {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 6;
+  stroke-linecap: square;
+}
+
+.plan-svg .plan-window {
+  stroke: var(--color-ink);
+  stroke-width: 1.2;
+}
+
+.plan-svg .plan-counter {
+  fill: var(--color-sand);
+  stroke: var(--color-ink);
+  stroke-width: 0.8;
+}
+
+.plan-svg .plan-door,
+.plan-svg .plan-door-arc {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-door-arc {
+  stroke-dasharray: 3 3;
+}
+
+.plan-svg .plan-dashed {
+  fill: none;
+  stroke: var(--color-stone);
+  stroke-width: 0.8;
+  stroke-dasharray: 6 4;
+}
+
+.plan-svg .plan-area {
+  font-family: var(--font-display);
+  font-size: 22px;
+  fill: var(--color-stone);
+}
+
+.plan-svg .plan-dim__tick {
+  stroke: var(--color-wood);
+  stroke-width: 1;
+}
+
+.plan-svg .plan-dim__line {
+  stroke: var(--color-wood);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.plan-svg .plan-dim__label {
+  font-family: var(--font-sans);
+  /* En unidades del viewBox: los tres planos comparten escala, así que las cotas miden lo mismo */
+  font-size: 20px;
+  font-weight: 600;
+  fill: var(--color-wood-dark);
+  letter-spacing: 0.02em;
+}
+
+html.js-motion .plan:not(.is-in) .plan-dim__line {
+  stroke-dashoffset: 1;
+}
+
+html.js-motion .plan:not(.is-in) .plan-dim__label,
+html.js-motion .plan:not(.is-in) .plan-dim__tick {
+  opacity: 0;
+}
+
+html.js-motion .plan .plan-dim__line {
+  transition: stroke-dashoffset 1.2s var(--ease-brand) 0.3s;
+}
+
+html.js-motion .plan .plan-dim__label,
+html.js-motion .plan .plan-dim__tick {
+  transition: opacity 0.6s var(--ease-brand) 1s;
+}
