@@ -13,10 +13,41 @@ type FaqSectionProps = {
   faqs: Faq[];
   surface?: Surface;
   aside?: ReactNode;
+  /** center: título centrado y el acordeón debajo, en una columna centrada (Contacto). */
+  align?: 'split' | 'center';
 };
 
 /** Preguntas frecuentes. El JSON-LD FAQPage lo añade la página en su grafo. */
-export function FaqSection({ id, label, title, faqs, surface = 'cream', aside }: FaqSectionProps) {
+export function FaqSection({ id, label, title, faqs, surface = 'cream', aside, align = 'split' }: FaqSectionProps) {
+  const titleId = id ? `${id}-titulo` : undefined;
+  const items = faqs.map((f) => (
+    <AccordionItem key={f.q} question={f.q}>
+      <p>{noOrphans(f.a)}</p>
+    </AccordionItem>
+  ));
+  if (align === 'center') {
+    return (
+      <Section
+        id={id}
+        surface={surface}
+        aria-labelledby={titleId}
+        className="scroll-mt-[calc(-1*(var(--header-h-compact)+16px))]"
+      >
+        <div className="container-site">
+          <div className="mx-auto flex max-w-[48rem] flex-col items-center text-center">
+            <Label>{label}</Label>
+            <Heading id={titleId} className="mt-6">
+              {title}
+            </Heading>
+            {aside ? <div className="mt-8">{aside}</div> : null}
+          </div>
+          <div className="mx-auto mt-12 max-w-[48rem] sm:mt-14" data-reveal>
+            {items}
+          </div>
+        </div>
+      </Section>
+    );
+  }
   return (
     <Section
       id={id}
@@ -36,11 +67,7 @@ export function FaqSection({ id, label, title, faqs, surface = 'cream', aside }:
         </div>
         {/* En dos columnas, la primera línea del acordeón cae sobre la raya de la etiqueta */}
         <div className="col-span-4 md:col-span-6 lg:col-span-7 lg:col-start-6 lg:mt-5" data-reveal>
-          {faqs.map((f) => (
-            <AccordionItem key={f.q} question={f.q}>
-              <p>{noOrphans(f.a)}</p>
-            </AccordionItem>
-          ))}
+          {items}
         </div>
       </div>
     </Section>

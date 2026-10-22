@@ -52,7 +52,7 @@ export function StepWhenWhere({ idPrefix, showErrors }: { idPrefix: string; show
   return (
     <fieldset>
       <StepLegend step={1} id={`${idPrefix}-title`} />
-      <div className="clear-both grid gap-x-4 gap-y-5 sm:grid-cols-2">
+      <div className="clear-both grid gap-x-4 gap-y-6 sm:grid-cols-2">
         <Field id={ids.inicio} label={FORM_COPY.fechaInicio} error={err('fechaInicio')}>
           <input
             id={ids.inicio}
@@ -118,7 +118,7 @@ export function StepWhenWhere({ idPrefix, showErrors }: { idPrefix: string; show
         <span>{FORM_COPY.unDia}</span>
       </label>
 
-      <div className="mt-6 grid gap-x-4 gap-y-5 sm:grid-cols-2">
+      <div className="mt-6 grid gap-x-4 gap-y-6 border-t border-sand pt-7 sm:grid-cols-2">
         <Field id={ids.localidad} label={FORM_COPY.localidad} error={err('localidad')}>
           <input
             id={ids.localidad}

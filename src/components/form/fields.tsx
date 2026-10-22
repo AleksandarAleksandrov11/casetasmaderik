@@ -21,7 +21,7 @@ export const inputClass = (invalid: boolean, full = true) =>
     `block ${full ? 'w-full' : ''} min-h-14 rounded-sm border bg-cream px-4 text-base text-ink`,
     'placeholder:text-stone/75 transition-[border-color,background-color] duration-300 ease-brand',
     'disabled:cursor-not-allowed disabled:border-sand disabled:bg-sand disabled:text-stone',
-    invalid ? 'border-error' : 'border-sand hover:border-ink/35 focus:border-wood',
+    invalid ? 'border-error' : 'border-ink/20 hover:border-ink/40 focus:border-wood',
   ].join(' ');
 
 export function FieldError({ id, message }: { id: string; message?: string }) {
@@ -50,7 +50,7 @@ export function Field({ id, label, error, hint, optional, className = '', childr
     <div className={className}>
       <label
         htmlFor={id}
-        className="mb-2 flex items-baseline justify-between gap-3 text-[0.9375rem] font-semibold text-ink"
+        className="mb-2.5 flex items-baseline justify-between gap-3 text-[0.9375rem] font-semibold text-ink"
       >
         <span>{label}</span>
         {optional ? <span className="text-[0.8125rem] font-normal text-stone">{FORM_COPY.optional}</span> : null}

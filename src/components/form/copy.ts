@@ -42,6 +42,8 @@ export const FORM_COPY = {
   localidadPlaceholder: 'Ciudad o pueblo',
   provincia: 'Provincia',
   provinciaPlaceholder: 'Elige una provincia',
+  provinceNoticeLabel: 'Provincia elegida',
+  provinceNotice: (provincia: string) => `Tu evento en ${provincia}`,
   casetas: 'Número de casetas',
   casetasLess: 'Quitar una caseta',
   casetasMore: 'Añadir una caseta',

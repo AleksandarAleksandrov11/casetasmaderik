@@ -38,7 +38,8 @@ export default function ContactoPage() {
       <ContactoNext />
       <FaqSection
         id="preguntas-presupuesto"
-        surface="paper"
+        surface="cream"
+        align="center"
         label={contactoFaqIntro.label}
         title={contactoFaqIntro.title}
         faqs={contactoFaqs}

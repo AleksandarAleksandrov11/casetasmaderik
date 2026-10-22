@@ -957,6 +957,37 @@ html.js-motion .q-draw--late {
   }
 }
 
+/* Aviso "Tu evento en <provincia>" (?provincia=): entra, cae la chincheta y late una vez */
+html.js-motion .q-notice {
+  animation: q-enter 0.7s var(--ease-brand) both;
+}
+
+html.js-motion .q-notice-pin {
+  animation: q-pin 0.9s var(--ease-brand) 0.15s both;
+}
+
+html.js-motion .q-notice-ring {
+  animation: q-ring 1.6s var(--ease-brand) 0.6s 2 both;
+}
+
+@keyframes q-pin {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.8);
+  }
+}
+
+@keyframes q-ring {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
 /* Antes de hidratar (o sin JS) el header toma el tono de la primera sección. */
 /* first-of-type: el JSON-LD de la página va antes, como <script>.            */
 html:not(.js) header:not([data-ready]) {
