@@ -26,6 +26,7 @@ export function prefersSaveData(): boolean {
 }
 
 let webglSupport: boolean | null = null;
+let webglAny: boolean | null = null;
 
 /** WebGL por software (sin GPU): el 3D iría a pocos fps. */
 const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render/i;
@@ -87,6 +88,45 @@ export function markTooSlowFor3D(): void {
 }
 
 let tooSlowThisPage = false;
+
+/**
+ * WebGL con GPU aunque el navegador avise de bajo rendimiento
+ * (failIfMajorPerformanceCaveat dejaba fuera portátiles con gráficos
+ * integrados en modo ahorro). El WebGL por software sigue fuera salvo forzado.
+ */
+export function supportsAnyWebGL(): boolean {
+  if (webglAny !== null) return webglAny;
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = (canvas.getContext('webgl2') ?? canvas.getContext('webgl')) as WebGLRenderingContext | null;
+    let ok = Boolean(gl);
+    if (gl && !force3D()) {
+      const info = gl.getExtension('WEBGL_debug_renderer_info');
+      const renderer = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+      if (SOFTWARE_RENDERER.test(renderer)) ok = false;
+    }
+    webglAny = ok;
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+  } catch {
+    webglAny = false;
+  }
+  return webglAny;
+}
+
+/**
+ * Caseta interactiva (la persona la gira y la abre): el movimiento lo provoca
+ * ella, así que se usa también con movimiento reducido (sin autorrotación).
+ * Fuera quedan el ahorro de datos, ?no3d, el WebGL por software y los
+ * dispositivos que ya demostraron no poder moverla; en todos esos casos se
+ * usa la versión con fotogramas, que también se gira y se abre.
+ */
+export function canUseInteractive3D(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (prefersSaveData()) return false;
+  if (new URLSearchParams(window.location.search).has('no3d')) return false;
+  if (tooSlowThisPage || isTooSlowFor3D()) return false;
+  return supportsAnyWebGL();
+}
 
 /** El 3D solo se carga si hay WebGL, no hay movimiento reducido ni ahorro de datos. */
 export function canUse3D(): boolean {

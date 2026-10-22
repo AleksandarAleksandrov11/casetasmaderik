@@ -11,10 +11,16 @@ export const casetasHero = {
   title: ['Caseta', 'de madera', 'para ferias', 'y eventos'],
   text: '2,90 × 2,00 × 2,47 m. Tres ventanas con mostrador, puerta de acceso y cubierta impermeabilizada.',
   primary: { label: 'Pedir presupuesto', href: '/contacto' },
-  hint: 'Arrastra para girar',
-  controls: { open: 'Abrir', close: 'Cerrar', day: 'Día', night: 'Noche' },
+  controls: {
+    hint: 'Arrastra para girarla',
+    windows: 'Ventanas',
+    door: 'Puerta',
+    lights: 'Luces',
+    dims: 'Medidas',
+    toolbar: 'Controles de la caseta',
+  },
   sceneDescription:
-    'Visor 3D de la caseta de madera. Puedes girarla, abrir y cerrar las contraventanas y cambiar entre día y noche. Los puntos de interés explican cada parte.',
+    'Visor de la caseta de madera. Puedes girarla arrastrando o con las flechas, abrir y cerrar ventanas y puerta, encender las luces y ver sus medidas. Los botones de cada parte la giran hasta ella y la explican.',
   hotspots: [
     {
       id: 'ventanas',
@@ -70,8 +76,15 @@ export const casetasAssembly = {
     { title: 'Montaje', text: 'Desplegamos paredes, frente y cubierta, y la dejamos lista para abrir.' },
     { title: 'Recogida', text: 'Al terminar, la desmontamos y dejamos el espacio despejado.' },
   ],
+  controls: {
+    slider: 'Montaje de la caseta',
+    folded: 'Plegada',
+    assembled: 'Montada',
+    play: 'Ver el montaje',
+    pause: 'Pausar',
+  },
   sceneDescription:
-    'Animación 3D del montaje: las piezas de la caseta llegan plegadas, se despliegan y encajan hasta formar la caseta completa.',
+    'Caseta en 3D que se despliega y se monta. Mueve el control para plegarla o montarla, o elige un paso: transporte, montaje o recogida.',
 };
 
 export const casetasGallery = {

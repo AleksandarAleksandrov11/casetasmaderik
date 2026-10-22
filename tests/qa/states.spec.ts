@@ -4,7 +4,7 @@ import { dismissCookies, prepare } from './helpers';
 /**
  * Capturas de estados concretos para la revisión visual (sección 20.2):
  * header compacto, menú móvil, foco, aviso de cookies, lightbox, acordeón,
- * hero de día y de noche, formulario con errores y éxito, y footer.
+ * hero con la caseta interactiva (de día, abierta y de noche), formulario con errores y éxito, y footer.
  */
 const OUT = 'tests/qa/output/states';
 
@@ -114,7 +114,7 @@ test('acordeón abierto y lightbox', async ({ browser }) => {
   }
 });
 
-test('hero de inicio a lo largo del scroll', async ({ browser }) => {
+test('hero de inicio: caseta interactiva de día, abierta y de noche', async ({ browser }) => {
   for (const vp of [
     { width: 1440, height: 900, mobile: false },
     { width: 390, height: 844, mobile: true },
@@ -122,18 +122,23 @@ test('hero de inicio a lo largo del scroll', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: vp, isMobile: vp.mobile, hasTouch: vp.mobile });
     const page = await ctx.newPage();
     await prepare(page);
-    // WebGL por software va a pocos fps: se fuerza el 3D para ver la coreografía
+    // WebGL por software va a pocos fps: se fuerza el 3D
     await page.addInitScript(() => sessionStorage.setItem('cm:3d-forzar', '1'));
     await page.goto('/');
     await dismissCookies(page);
     await page.waitForTimeout(3500);
-    const hero = page.locator('main section').first();
-    const box = await hero.boundingBox();
-    const total = Math.max(1, (box?.height ?? vp.height) - vp.height);
-    for (const p of [0, 0.2, 0.4, 0.55, 0.75, 0.95]) {
-      await page.evaluate((y) => window.scrollTo(0, y), Math.round(total * p));
-      await page.waitForTimeout(1600);
-      await shot(page, `hero-${vp.width}-${Math.round(p * 100)}`);
+    await shot(page, `hero-${vp.width}-inicial`);
+    const ic = page.locator('.hero .ic');
+    for (const [name, tag] of [
+      ['Ventanas', 'ventanas'],
+      ['Puerta', 'puerta'],
+      ['Luces', 'noche'],
+      ['Medidas', 'medidas'],
+    ]) {
+      const b = ic.getByRole('button', { name, exact: true });
+      if ((await b.getAttribute('aria-pressed')) !== 'true') await b.click();
+      await page.waitForTimeout(2500);
+      await shot(page, `hero-${vp.width}-${tag}`);
     }
     await ctx.close();
   }

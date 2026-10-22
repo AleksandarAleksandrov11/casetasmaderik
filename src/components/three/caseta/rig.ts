@@ -29,6 +29,12 @@ export function bracketAngle(open: number): number {
   return (1 - easeInOut(segment(open, 0.45, 1))) * (Math.PI / 2);
 }
 
+/** La puerta gira hacia fuera sobre sus bisagras (negativo = hacia el exterior). */
+export const DOOR_OPEN = (96 * Math.PI) / 180;
+export function doorAngle(open: number): number {
+  return -easeInOut(open) * DOOR_OPEN;
+}
+
 /** Orden de apilado (de abajo arriba) y tramo de despliegue de cada pared. */
 export const WALL_STACK: Record<string, { layer: number; from: number; to: number }> = {
   right: { layer: 0, from: 0.42, to: 0.62 },

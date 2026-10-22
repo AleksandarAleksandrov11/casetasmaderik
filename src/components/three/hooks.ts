@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useSyncExternalStore, type RefObject } from 'react';
-import { EVT_3D_SLOW, canUse3D } from '@/lib/device';
+import { EVT_3D_SLOW, canUse3D, canUseInteractive3D } from '@/lib/device';
 
 /**
  * Hooks de carga del 3D: decidir si se usa (WebGL, sin movimiento reducido ni
@@ -24,6 +24,11 @@ function subscribe(cb: () => void) {
 /** true si el 3D se puede usar. En el servidor y en la hidratación es false. */
 export function useCan3D(): boolean {
   return useSyncExternalStore(subscribe, canUse3D, () => false);
+}
+
+/** true si la caseta interactiva puede usar 3D (si no, va con fotogramas). */
+export function useCanInteractive3D(): boolean {
+  return useSyncExternalStore(subscribe, canUseInteractive3D, () => false);
 }
 
 /** Media query reactiva (false en el servidor). */

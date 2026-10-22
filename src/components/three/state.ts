@@ -16,6 +16,8 @@ export interface CasetaState {
   exploded: number;
   /** Cotas 2,90 / 2,00 / 2,47 m. */
   dims: number;
+  /** Puerta del testero izquierdo: 0 cerrada, 1 abierta hacia fuera. */
+  door: number;
 }
 
 /**
@@ -88,7 +90,7 @@ export interface SceneHandle {
 }
 
 export function createCasetaState(partial: Partial<CasetaState> = {}): CasetaState {
-  return { shutters: 0, night: 0, exploded: 0, dims: 0, ...partial };
+  return { shutters: 0, night: 0, exploded: 0, dims: 0, door: 0, ...partial };
 }
 
 export function copyShot(s: CameraShot): CameraShot {

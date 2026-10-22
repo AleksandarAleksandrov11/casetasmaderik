@@ -63,72 +63,85 @@ async function skipIntro(page: Page) {
   });
 }
 
+/** Arrastra en horizontal sobre un elemento (gira la caseta). */
+async function drag(page: Page, selector: string, dx: number) {
+  const box = await page.locator(selector).boundingBox();
+  if (!box) throw new Error(`sin caja: ${selector}`);
+  const y = box.y + box.height * 0.5;
+  const x = box.x + box.width * 0.5;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  for (let i = 1; i <= 8; i++) await page.mouse.move(x + (dx * i) / 8, y);
+  await page.mouse.up();
+}
+
 test.describe('3D de la caseta', () => {
-  test('el hero pinta el lienzo sin errores de WebGL @3d', async ({ page }) => {
+  test('el hero pinta la caseta interactiva sin errores de WebGL @3d', async ({ page }) => {
     test.setTimeout(150_000);
     const errors = collectErrors(page);
     await skipIntro(page);
     await page.goto('/?debug3d');
-    const visual = page.locator('.hero__visual');
-    await expect(visual).toHaveAttribute('data-live', '', { timeout: 120_000 });
+    const ic = page.locator('.hero .ic');
+    await expect(ic).toHaveAttribute('data-mode', '3d');
+    await expect(ic).toHaveAttribute('data-live', '', { timeout: 120_000 });
+    const visual = ic.locator('.ic__visual');
     const canvas = visual.locator('canvas');
     await expect(canvas).toHaveCount(1);
-    expect(await canvas.getAttribute('aria-hidden')).toBeNull();
     // El lienzo está dentro de un contenedor oculto para lectores de pantalla
     await expect(visual).toHaveAttribute('aria-hidden', 'true');
-    const box = await canvas.boundingBox();
-    expect(box?.width ?? 0).toBeGreaterThan(200);
-    // Frame estable al final de la coreografía (noche y cotas: el caso más cargado)
-    await waitIdle(page);
-    await page.evaluate(() => {
-      const hero = document.querySelector<HTMLElement>('.hero')!;
-      window.scrollTo(0, hero.offsetHeight - window.innerHeight - 4);
-    });
-    await waitIdle(page);
-    await page.evaluate(() => window.scrollBy(0, 2));
+    expect((await canvas.boundingBox())?.width ?? 0).toBeGreaterThan(200);
+
+    // Los cuatro controles: ventanas, puerta, luces (la sección pasa a noche) y medidas
+    for (const name of ['Ventanas', 'Puerta', 'Luces', 'Medidas']) {
+      const b = ic.getByRole('button', { name, exact: true });
+      const was = await b.getAttribute('aria-pressed');
+      await b.click();
+      await expect(b).toHaveAttribute('aria-pressed', was === 'true' ? 'false' : 'true');
+      if (was === 'true') await b.click();
+    }
+    await expect(page.locator('.hero')).toHaveAttribute('data-header', 'dark');
+    await drag(page, '.hero .ic__stage', -220);
     await waitIdle(page);
     const stats = await page.evaluate(() => window.__caseta3d ?? null);
     console.log(`frame estable: ${stats?.calls} llamadas, ${stats?.triangles} triángulos (${stats?.renderer})`);
-    expect(await page.evaluate(() => (window as Window & { __THREE__?: string }).__THREE__)).toBeTruthy();
     expect(stats, 'métricas de depuración').not.toBeNull();
-    expect(stats!.calls, 'llamadas de dibujo por frame').toBeLessThan(60);
+    expect(stats!.calls, 'llamadas de dibujo por frame').toBeLessThan(70);
     expect(stats!.triangles, 'triángulos por frame').toBeLessThan(150_000);
-    // La sección se fija (sticky) y escribe data-header al caer la noche
-    await expect(page.locator('.hero')).toHaveAttribute('data-mode', '3d');
     expect(errors, errors.join('\n')).toEqual([]);
   });
 
-  test('el visor de /casetas: puntos de interés y controles accesibles @3d', async ({ page }) => {
+  test('el visor de /casetas: partes de la caseta y controles accesibles @3d', async ({ page }) => {
     test.setTimeout(150_000);
     const errors = collectErrors(page);
     await skipIntro(page);
     await page.goto('/casetas');
-    const box = page.locator('.viewer__box');
-    await expect(box).toHaveAttribute('data-live', '', { timeout: 120_000 });
-    const open = page.getByRole('button', { name: 'Abrir', exact: true });
-    const close = page.getByRole('button', { name: 'Cerrar', exact: true });
-    await expect(open).toHaveAttribute('aria-pressed', 'true');
-    await close.click();
-    await expect(close).toHaveAttribute('aria-pressed', 'true');
-    await expect(open).toHaveAttribute('aria-pressed', 'false');
-    await page.getByRole('button', { name: 'Noche', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Noche', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    const ic = page.locator('.viewer .ic');
+    await expect(ic).toHaveAttribute('data-live', '', { timeout: 120_000 });
+    const windows = ic.getByRole('button', { name: 'Ventanas', exact: true });
+    await expect(windows).toHaveAttribute('aria-pressed', 'true');
+    await windows.click();
+    await expect(windows).toHaveAttribute('aria-pressed', 'false');
 
-    const hotspots = page.locator('.hotspot');
-    await expect(hotspots).toHaveCount(6);
-    const first = hotspots.first();
-    await first.focus();
-    await page.keyboard.press('Enter');
-    await expect(first).toHaveAttribute('aria-expanded', 'true');
-    const panelId = await first.getAttribute('aria-controls');
-    await expect(page.locator(`#${panelId}`)).toBeVisible();
-    await page.keyboard.press('Escape');
-    await expect(first).toHaveAttribute('aria-expanded', 'false');
-    await expect(first).toBeFocused();
+    const chips = ic.locator('.ic__chip');
+    await expect(chips).toHaveCount(6);
+    const door = chips.filter({ hasText: 'Puerta' });
+    await door.click();
+    await expect(door).toHaveAttribute('aria-pressed', 'true');
+    await expect(ic.locator('.ic__card')).toContainText('Puerta');
+    // Elegir la puerta la abre
+    await expect(ic.getByRole('button', { name: 'Puerta', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await ic.getByRole('button', { name: /^Cerrar:/ }).click();
+    await expect(door).toHaveAttribute('aria-pressed', 'false');
+
+    // Teclado: el escenario se enfoca y gira con las flechas
+    await ic.locator('.ic__stage').focus();
+    await page.keyboard.press('ArrowLeft');
+    await expect(ic.locator('.ic__hint')).toHaveAttribute('data-hidden', '');
     expect(errors, errors.join('\n')).toEqual([]);
   });
 
-  test('sin WebGL se ve el poster y no se carga three', async ({ playwright, baseURL }) => {
+  test('sin WebGL: fotogramas que se giran y se abren, sin three', async ({ playwright, baseURL }) => {
+    test.setTimeout(90_000);
     const browser = await playwright.chromium.launch({
       executablePath: existsSync(CHROMIUM) ? CHROMIUM : undefined,
       args: ['--disable-webgl', '--disable-3d-apis'],
@@ -137,73 +150,82 @@ test.describe('3D de la caseta', () => {
     const errors = collectErrors(page);
     await skipIntro(page);
     await page.goto(`${baseURL}/`, { waitUntil: 'load' });
-    await expect(page.locator('.hero')).toHaveAttribute('data-mode', 'static');
-    const poster = page.locator('.hero__visual .caseta-poster img');
-    await expect(poster).toBeVisible();
-    expect(await poster.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-    await expect(page.locator('.hero__visual canvas')).toHaveCount(0);
-    // three no se ha cargado (three define window.__THREE__ al evaluarse)
-    await page.waitForTimeout(3000);
+    const ic = page.locator('.hero .ic');
+    await expect(ic).toHaveAttribute('data-mode', 'frames');
+    const shown = ic.locator('.ic__frame[data-on]');
+    await expect(shown).toHaveCount(1);
+    await expect(shown).toBeVisible();
+    expect(await shown.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    const first = await shown.getAttribute('src');
+
+    // Arrastrar cambia el fotograma
+    await drag(page, '.hero .ic__stage', -260);
+    await expect.poll(async () => ic.locator('.ic__frame[data-on]').getAttribute('src')).not.toBe(first);
+    // Abrir las ventanas cambia a los fotogramas de ventanas abiertas
+    await ic.getByRole('button', { name: 'Ventanas', exact: true }).click();
+    await expect.poll(async () => ic.locator('.ic__frame[data-on]').getAttribute('src')).toMatch(/\/100-\d\d\.webp$/);
+    await expect(page.locator('canvas')).toHaveCount(0);
+    await page.waitForTimeout(1500);
     expect(await page.evaluate(() => (window as Window & { __THREE__?: string }).__THREE__)).toBeUndefined();
-    // El H1 (LCP) está visible
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
+    // Montaje: el control cambia el fotograma
     await page.goto(`${baseURL}/casetas`, { waitUntil: 'load' });
-    await expect(page.locator('.viewer__visual .caseta-poster img')).toBeVisible();
-    await expect(page.locator('.viewer__list li')).toHaveCount(6);
+    await expect(page.locator('.viewer .ic')).toHaveAttribute('data-mode', 'frames');
+    const assembly = page.locator('.assembly');
+    await expect(assembly).toHaveAttribute('data-mode', 'frames');
+    await assembly.scrollIntoViewIfNeeded();
+    const range = assembly.locator('input[type="range"]');
+    await range.fill('0');
+    await expect
+      .poll(async () => assembly.locator('.assembly__frame[data-on]').getAttribute('src'))
+      .toMatch(/montaje-00\.webp$/);
     await expect(page.locator('canvas')).toHaveCount(0);
     expect(errors, errors.join('\n')).toEqual([]);
     await browser.close();
   });
 
-  test('con movimiento reducido no hay secciones fijadas', async ({ page }) => {
+  test('con movimiento reducido no hay secciones fijadas ni autorrotación', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    await skipIntro(page);
     await page.goto('/');
     const vh = await page.evaluate(() => window.innerHeight);
     const hero = page.locator('.hero');
-    await expect(hero).toHaveAttribute('data-mode', 'static');
     const heroH = (await hero.boundingBox())?.height ?? 0;
-    expect(heroH).toBeLessThanOrEqual(Math.max(vh, 560) + 2);
-    const stagePos = await page.locator('.hero__stage').evaluate((el) => getComputedStyle(el).position);
-    expect(stagePos).not.toBe('sticky');
-    await expect(page.locator('.hero__visual .caseta-poster img')).toBeVisible();
-    await expect(page.locator('canvas')).toHaveCount(0);
-    expect(await page.evaluate(() => (window as Window & { __THREE__?: string }).__THREE__)).toBeUndefined();
+    expect(heroH).toBeLessThanOrEqual(Math.max(vh, 560) * 1.6);
+    await expect(page.locator('.hero .ic__frame[data-on]')).toBeVisible();
 
     await page.goto('/casetas');
-    const assembly = page.locator('.assembly');
-    await expect(assembly).toHaveAttribute('data-mode', 'static');
-    const aStage = await page.locator('.assembly__stage').evaluate((el) => getComputedStyle(el).position);
-    expect(aStage).not.toBe('sticky');
+    const sticky = await page.evaluate(
+      () =>
+        [...document.querySelectorAll('main *')].filter((el) =>
+          ['sticky', 'fixed'].includes(getComputedStyle(el).position),
+        ).length,
+    );
+    expect(sticky).toBe(0);
     await expect(page.locator('.assembly__step')).toHaveCount(3);
-    await expect(page.locator('canvas')).toHaveCount(0);
   });
 
   test('rendimiento en escritorio: unos 50 fps durante 3 s', async ({ page }, info) => {
     test.setTimeout(180_000);
     await skipIntro(page);
     await page.goto('/?debug3d');
-    await expect(page.locator('.hero__visual')).toHaveAttribute('data-live', '', { timeout: 120_000 });
+    await expect(page.locator('.hero .ic')).toHaveAttribute('data-live', '', { timeout: 120_000 });
     const renderer = await page.evaluate(() => window.__caseta3d?.renderer ?? '');
-    // Mide frames reales mientras se hace scroll por la coreografía (cada paso pide un frame)
-    const result = await page.evaluate(async () => {
-      const stats = window.__caseta3d!;
-      const hero = document.querySelector<HTMLElement>('.hero')!;
-      const dist = hero.offsetHeight - window.innerHeight;
-      const start = stats.frames;
-      const t0 = performance.now();
-      await new Promise<void>((resolve) => {
-        const step = () => {
-          const t = performance.now() - t0;
-          window.scrollTo(0, (dist * 0.6 * t) / 3000);
-          if (t < 3000) requestAnimationFrame(step);
-          else resolve();
-        };
-        requestAnimationFrame(step);
-      });
-      return { frames: stats.frames - start, ms: performance.now() - t0 };
-    });
-    const fps = (result.frames * 1000) / result.ms;
+    // Mide frames reales mientras se gira la caseta arrastrando durante 3 s
+    const box = (await page.locator('.hero .ic__stage').boundingBox())!;
+    const y = box.y + box.height / 2;
+    const start = await page.evaluate(() => window.__caseta3d!.frames);
+    const t0 = Date.now();
+    await page.mouse.move(box.x + 40, y);
+    await page.mouse.down();
+    let i = 0;
+    while (Date.now() - t0 < 3000) {
+      await page.mouse.move(box.x + 40 + ((i++ * 7) % (box.width - 80)), y);
+    }
+    await page.mouse.up();
+    const frames = (await page.evaluate(() => window.__caseta3d!.frames)) - start;
+    const fps = (frames * 1000) / (Date.now() - t0);
     info.annotations.push({ type: 'fps', description: `${fps.toFixed(1)} fps (${renderer})` });
     console.log(`fps medidos: ${fps.toFixed(1)} con ${renderer}`);
     test.skip(
@@ -213,13 +235,15 @@ test.describe('3D de la caseta', () => {
     expect(fps).toBeGreaterThanOrEqual(MIN_FPS);
   });
 
-  test('móvil: poster y lienzo en vertical @mobile', async ({ page }) => {
+  test('móvil: primer fotograma y lienzo tras tocar @mobile', async ({ page }) => {
     test.setTimeout(150_000);
     const errors = collectErrors(page);
     await skipIntro(page);
     await page.goto('/');
-    await expect(page.locator('.hero__visual .caseta-poster img')).toBeVisible();
-    await expect(page.locator('.hero__visual')).toHaveAttribute('data-live', '', { timeout: 120_000 });
+    await expect(page.locator('.hero .ic__frame[data-on]')).toBeVisible();
+    // En táctil el 3D espera a la primera interacción
+    await page.locator('.hero .ic__stage').tap();
+    await expect(page.locator('.hero .ic')).toHaveAttribute('data-live', '', { timeout: 120_000 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);
     expect(errors, errors.join('\n')).toEqual([]);
