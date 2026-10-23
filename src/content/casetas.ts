@@ -9,7 +9,12 @@ export const casetasMeta = {
 export const casetasHero = {
   /** Por frases: el titular solo se parte entre ellas ("Caseta de madera para ferias y eventos"). */
   title: ['Caseta', 'de madera', 'para ferias', 'y eventos'],
-  text: '2,90 × 2,00 × 2,47 m. Tres ventanas con mostrador, puerta de acceso y cubierta impermeabilizada.',
+  text: 'Tres ventanas con mostrador, puerta de acceso y cubierta impermeabilizada. Llega plegada y la montamos en tu recinto.',
+  measures: [
+    { label: 'Largo', value: '2,90', unit: 'm' },
+    { label: 'Ancho', value: '2,00', unit: 'm' },
+    { label: 'Alto', value: '2,47', unit: 'm' },
+  ],
   primary: { label: 'Pedir presupuesto', href: '/contacto' },
   controls: {
     hint: 'Arrastra para girarla',

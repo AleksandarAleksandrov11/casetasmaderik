@@ -32,6 +32,11 @@ export const interactiveCss = /* css */ `
   outline: none;
 }
 
+.ic[data-mode='3d'] .ic__stage {
+  /* En 3D el dedo gira la caseta en las dos direcciones */
+  touch-action: none;
+}
+
 .ic__stage:active {
   cursor: grabbing;
 }
