@@ -91,6 +91,8 @@ test.describe('3D de la caseta', () => {
     await expect(visual).toHaveAttribute('aria-hidden', 'true');
     expect((await canvas.boundingBox())?.width ?? 0).toBeGreaterThan(200);
 
+    // La demostración abre las ventanas sola a los 1,6 s: se espera a que pase
+    await page.waitForTimeout(2500);
     // Los cuatro controles: ventanas, puerta, luces (la sección pasa a noche) y medidas
     for (const name of ['Ventanas', 'Puerta', 'Luces', 'Medidas']) {
       const b = ic.getByRole('button', { name, exact: true });
