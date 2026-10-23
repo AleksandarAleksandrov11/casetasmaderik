@@ -109,7 +109,8 @@
     color: var(--color-ink);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    scroll-padding-top: calc(var(--header-h-compact) + 16px);
+    /* El header está siempre fijo arriba: anclas y foco quedan por debajo de él */
+    scroll-padding-top: calc(var(--header-h-compact) + var(--safe-top) + 16px);
   }
 
   /* Desplazamiento suave nativo sin JS y donde Lenis no entra (táctil). Con    */
