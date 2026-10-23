@@ -30,16 +30,24 @@ export function useConsent(): ConsentContextValue {
 type CC = typeof import('vanilla-cookieconsent');
 
 /**
- * Publica en --consent-h la franja inferior que ocupa el aviso: del borde
- * superior del aviso al borde inferior de la ventana. Sustituye a la
- * estimación de globals.css. offsetTop no incluye la transformación de entrada.
+ * Franja inferior que ocupa el aviso: su alto más su separación del borde
+ * inferior. Sale de la caja del propio aviso (offsetHeight no incluye la
+ * transformación de entrada) y no del alto de la ventana: en móvil
+ * window.innerHeight cambia al esconderse la barra del navegador y la franja
+ * reservada (el relleno del footer, el botón de WhatsApp) saltaba con el scroll.
  */
+function bannerBand(banner: HTMLElement): number {
+  const bottom = parseFloat(getComputedStyle(banner).bottom) || 0;
+  return Math.max(0, Math.ceil(banner.offsetHeight + bottom));
+}
+
+/** Publica en --consent-h la franja del aviso. Sustituye a la estimación de globals.css. */
 function measureBanner() {
   const root = document.documentElement;
   const banner = document.querySelector<HTMLElement>('#cc-main .cm');
   if (!banner || !root.classList.contains(CONSENT_PENDING_CLASS)) return;
-  const band = Math.max(0, Math.ceil(window.innerHeight - banner.offsetTop));
-  root.style.setProperty('--consent-h', `${band}px`);
+  const band = `${bannerBand(banner)}px`;
+  if (root.style.getPropertyValue('--consent-h') !== band) root.style.setProperty('--consent-h', band);
 }
 
 /** El aviso ya no está: la página recupera todo su alto. */
@@ -175,7 +183,7 @@ function showWhenClear(lib: CC) {
       stop();
       return;
     }
-    const share = (window.innerHeight - banner.offsetTop) / window.innerHeight;
+    const share = bannerBand(banner) / window.innerHeight;
     const short = share >= SHORT_SCREEN_SHARE;
     const atEnd = window.scrollY + window.innerHeight >= root.scrollHeight - 2;
     const y = Math.max(0, window.scrollY);

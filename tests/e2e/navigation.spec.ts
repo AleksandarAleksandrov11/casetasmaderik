@@ -13,7 +13,11 @@ test('enlace "Saltar al contenido" es el primer elemento enfocable', async ({ pa
   await expect(page).toHaveURL(/#contenido$/);
 });
 
-test('header: página activa, compacto al bajar y oculto/visible según el scroll', async ({ page }) => {
+/** Borde superior del header en pantalla (0 si está fijo arriba y a la vista). */
+const headerTop = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => Math.round(document.querySelector('header')!.getBoundingClientRect().top));
+
+test('header: página activa, compacto al bajar y siempre visible', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/nosotros');
   await expect(
@@ -21,11 +25,27 @@ test('header: página activa, compacto al bajar y oculto/visible según el scrol
   ).toHaveAttribute('aria-current', 'page');
   const header = page.locator('header').first();
   await expect(header).not.toHaveAttribute('data-scrolled', '');
-  await page.evaluate(() => window.scrollTo(0, 900));
-  await expect(header).toHaveAttribute('data-scrolled', '');
-  await expect(header).toHaveClass(/-translate-y-full/);
-  await page.evaluate(() => window.scrollTo(0, 600));
-  await expect(header).toHaveClass(/translate-y-0/);
+  // Bajando y subiendo, el header sigue fijo arriba
+  for (const y of [900, 1800, 1200, 600]) {
+    await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y);
+    await expect(header).toHaveAttribute('data-scrolled', '');
+    await expect.poll(() => headerTop(page)).toBe(0);
+    await expect(header).toBeInViewport();
+  }
+});
+
+test.describe('header en móvil', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test('fijo y visible al bajar por toda la página @mobile', async ({ page }) => {
+    await page.goto('/');
+    const total = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let y = 400; y < total; y += 900) {
+      await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y);
+      await expect.poll(() => headerTop(page)).toBe(0);
+      await expect(page.getByRole('button', { name: 'Abrir menú' })).toBeInViewport();
+    }
+  });
 });
 
 test('header cambia a la versión clara sobre secciones oscuras', async ({ page }) => {
@@ -124,6 +144,41 @@ test('menú móvil: abre, atrapa el foco, Esc cierra y devuelve el foco @mobile'
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   await expect(page.getByRole('button', { name: 'Abrir menú' })).toBeFocused();
+});
+
+test('menú móvil tras bajar: se abre con todos los enlaces a la vista, Inicio el primero @mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.evaluate(() => window.scrollTo({ top: 1600, behavior: 'instant' }));
+  const scrollY = await page.evaluate(() => window.scrollY);
+  await page.getByRole('button', { name: 'Abrir menú' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Menú' });
+  await expect(dialog.getByRole('link', { name: 'Inicio' })).toBeFocused();
+  // Terminada la entrada, cada enlace queda dentro de su fila y en orden (sin desplazamientos internos)
+  await page.waitForTimeout(900);
+  const rows = await dialog.locator('nav li').evaluateAll((lis) =>
+    lis.map((li) => {
+      const a = li.querySelector('a')!.getBoundingClientRect();
+      const r = li.getBoundingClientRect();
+      return {
+        text: li.textContent!.trim(),
+        scroll: li.scrollTop,
+        inside: a.top >= r.top - 1 && a.bottom <= r.bottom + 1,
+      };
+    }),
+  );
+  expect(rows.map((r) => r.text)).toEqual(['Inicio', 'Casetas', 'Nosotros', 'Contacto']);
+  for (const r of rows) expect(r, r.text).toMatchObject({ scroll: 0, inside: true });
+  for (const name of ['Inicio', 'Casetas', 'Nosotros', 'Contacto']) {
+    await expect(dialog.getByRole('link', { name, exact: true })).toBeInViewport();
+  }
+  // El fondo no se mueve con el menú abierto y vuelve a su sitio al cerrar
+  await page.mouse.wheel(0, 600);
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
 });
 
 test('menú móvil se cierra al navegar @mobile', async ({ page }) => {

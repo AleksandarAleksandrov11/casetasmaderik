@@ -8,29 +8,26 @@ import { ButtonLink } from '@/components/ui/Button';
 import { nav } from '@/content/site';
 import { onFirstIntent } from '@/lib/intent';
 
-// El menú móvil (con motion) se descarga después de la carga inicial
+// El menú móvil se descarga después de la carga inicial
 const loadMenu = () => import('./MobileMenu').then((m) => m.MobileMenu);
 const MobileMenu = dynamic(loadMenu, { ssr: false });
 
 type Theme = 'light' | 'dark';
 
 const SCROLL_THRESHOLD = 40;
-const HIDE_AFTER = 160;
 
 /**
- * Header sticky: transparente sobre el hero, compacto y con fondo al bajar
- * 40 px, se oculta al bajar y reaparece al subir, y cambia a su versión clara
- * sobre las secciones con data-header="dark".
+ * Header fijo arriba y siempre visible: transparente sobre el hero, compacto y
+ * con fondo al bajar 40 px, y en su versión clara sobre las secciones con
+ * data-header="dark".
  */
 export function Header({ logo }: { logo: ReactNode }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [theme, setTheme] = useState<Theme>('light');
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuMounted, setMenuMounted] = useState(false);
   const [ready, setReady] = useState(false);
-  const lastY = useRef(0);
   const headerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -56,32 +53,18 @@ export function Header({ logo }: { logo: ReactNode }) {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Scroll: estado compacto y ocultar al bajar (nunca con el foco dentro)
+  // Scroll: versión compacta a partir de 40 px
   useEffect(() => {
     let frame = 0;
-    lastY.current = window.scrollY;
     const onScroll = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const y = window.scrollY;
-        setScrolled(y > SCROLL_THRESHOLD);
-        const delta = y - lastY.current;
-        if (Math.abs(delta) > 6) {
-          const focusInside = headerRef.current?.contains(document.activeElement) ?? false;
-          setHidden(delta > 0 && y > HIDE_AFTER && !focusInside);
-          lastY.current = y;
-        }
-      });
+      frame = requestAnimationFrame(() => setScrolled(window.scrollY > SCROLL_THRESHOLD));
     };
-    const onFocusIn = () => setHidden(false);
-    const header = headerRef.current;
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    header?.addEventListener('focusin', onFocusIn);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', onScroll);
-      header?.removeEventListener('focusin', onFocusIn);
     };
   }, []);
 
@@ -144,8 +127,7 @@ export function Header({ logo }: { logo: ReactNode }) {
         data-scrolled={scrolled ? '' : undefined}
         data-ready={ready ? '' : undefined}
         className={[
-          `fixed inset-x-0 top-0 ${menuOpen ? 'z-[80]' : 'z-50'} pt-[var(--safe-top)] [transition:transform_500ms_var(--ease-brand),background-color_150ms_linear,border-color_150ms_linear,color_150ms_linear]`,
-          hidden && !menuOpen ? '-translate-y-full has-[:focus-visible]:translate-y-0' : 'translate-y-0',
+          `fixed inset-x-0 top-0 ${menuOpen ? 'z-[80]' : 'z-50'} pt-[var(--safe-top)] [transition:background-color_150ms_linear,border-color_150ms_linear,color_150ms_linear]`,
           menuOpen ? 'text-cream' : dark ? 'text-cream' : 'text-ink',
           showBar
             ? dark
