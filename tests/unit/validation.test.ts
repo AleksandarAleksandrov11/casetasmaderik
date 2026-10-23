@@ -180,11 +180,6 @@ describe('petición a la API', () => {
     id: '3f1c2b7e-8a4d-4c1e-9f2a-5b6c7d8e9f01',
     startedAt: 1_000,
     sentAt: 60_000,
-    pagina: '/contacto',
-    landing: '/',
-    referrer: 'google.com',
-    utm: { utm_source: 'instagram', utm_campaign: 'navidad' },
-    dispositivo: 'móvil' as const,
   };
 
   it('convierte el borrador y pasa la validación del servidor', () => {
@@ -196,8 +191,6 @@ describe('petición a la API', () => {
       casetas: 4,
       email: 'lucia@example.com',
       localidad: 'Madrid centro',
-      utmSource: 'instagram',
-      utmCampaign: 'navidad',
       consentimiento: true,
       tipoEventoOtro: undefined,
     });

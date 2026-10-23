@@ -189,7 +189,6 @@ export function stepOfField(field: string): number {
   return index === -1 ? STEP_COUNT - 1 : index;
 }
 
-export const DISPOSITIVOS = ['móvil', 'tablet', 'escritorio'] as const;
 
 /* ------------------------------------------------------------------ */
 /* Contratos de la API                                                 */
@@ -212,17 +211,6 @@ export type LeadPayload = {
   email: string;
   empresa?: string;
   consentimiento: true;
-  consentimientoFecha: string;
-  politicaVersion: string;
-  pagina: string;
-  landing?: string;
-  referrer?: string;
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
-  utmTerm?: string;
-  utmContent?: string;
-  dispositivo: (typeof DISPOSITIVOS)[number];
   website?: string;
 };
 
@@ -291,18 +279,12 @@ export type LeadContext = {
   id: string;
   startedAt: number;
   sentAt: number;
-  pagina: string;
-  landing?: string;
-  referrer?: string;
-  utm?: Partial<Record<'utm_source' | 'utm_medium' | 'utm_campaign' | 'utm_term' | 'utm_content', string>>;
-  dispositivo: (typeof DISPOSITIVOS)[number];
 };
 
 const collapse = (value: string) => value.trim().replace(/\s+/g, ' ');
 
 /** Convierte el borrador validado en el cuerpo que se envía a la API. */
 export function draftToLeadRequest(draft: QuoteDraft, ctx: LeadContext): LeadRequestBody {
-  const utm = ctx.utm ?? {};
   return {
     id: ctx.id,
     tipoEvento: draft.tipoEvento as TipoEvento,
@@ -319,15 +301,6 @@ export function draftToLeadRequest(draft: QuoteDraft, ctx: LeadContext): LeadReq
     email: draft.email.trim().toLowerCase(),
     empresa: optionalText(draft.empresa) ? collapse(draft.empresa) : undefined,
     consentimiento: true,
-    pagina: ctx.pagina.slice(0, 300),
-    landing: ctx.landing?.slice(0, 300),
-    referrer: ctx.referrer?.slice(0, 200),
-    utmSource: utm.utm_source,
-    utmMedium: utm.utm_medium,
-    utmCampaign: utm.utm_campaign,
-    utmTerm: utm.utm_term,
-    utmContent: utm.utm_content,
-    dispositivo: ctx.dispositivo,
     startedAt: Math.max(0, Math.round(ctx.startedAt)),
     sentAt: Math.max(0, Math.round(ctx.sentAt)),
     website: draft.website,

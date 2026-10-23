@@ -3,7 +3,6 @@
  * handler (y desde los tests). Valida con zod, aplica el antispam, añade el
  * secreto y reenvía la solicitud a Google Apps Script.
  */
-import { site } from '@/content/site';
 import {
   LIMITS,
   leadRequestSchema,
@@ -139,7 +138,7 @@ async function readBody(request: Request, limit: number): Promise<string | null>
 }
 
 /** Construye la carga para Apps Script a partir de la petición validada. */
-export function buildLeadPayload(req: LeadRequest, secret: string, now: Date = new Date()): LeadPayload {
+export function buildLeadPayload(req: LeadRequest, secret: string): LeadPayload {
   return {
     secret,
     id: req.id,
@@ -156,17 +155,6 @@ export function buildLeadPayload(req: LeadRequest, secret: string, now: Date = n
     email: req.email.trim().toLowerCase(),
     empresa: req.empresa,
     consentimiento: true,
-    consentimientoFecha: now.toISOString(),
-    politicaVersion: site.privacyPolicyVersion,
-    pagina: req.pagina,
-    landing: req.landing,
-    referrer: req.referrer,
-    utmSource: req.utmSource,
-    utmMedium: req.utmMedium,
-    utmCampaign: req.utmCampaign,
-    utmTerm: req.utmTerm,
-    utmContent: req.utmContent,
-    dispositivo: req.dispositivo,
     website: '',
   };
 }
@@ -189,9 +177,6 @@ export function maskPayload(p: LeadPayload): Record<string, unknown> {
     email: `${maskText(user)}@${domain}`,
     empresa: p.empresa ? maskText(p.empresa) : undefined,
     comentarios: p.comentarios ? `${p.comentarios.length} caracteres` : undefined,
-    pagina: p.pagina,
-    dispositivo: p.dispositivo,
-    utmSource: p.utmSource,
   };
 }
 
@@ -274,7 +259,7 @@ export async function handleLeadRequest(request: Request, options: HandlerOption
 
   const url = env.APPS_SCRIPT_URL?.trim();
   const secret = env.APPS_SCRIPT_SECRET?.trim() ?? '';
-  const payload = buildLeadPayload(lead, secret, new Date(now()));
+  const payload = buildLeadPayload(lead, secret);
 
   // 8. Sin Apps Script: modo de prueba en desarrollo o con LEADS_MOCK=1
   if (!url) {

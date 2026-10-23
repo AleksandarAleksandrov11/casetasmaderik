@@ -3,7 +3,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { CookieConsentConfig } from 'vanilla-cookieconsent';
 import { CONSENT_COOKIE, CONSENT_DAYS, CONSENT_REVISION, consentTexts, cookieCategories } from '@/content/cookies';
-import { captureEntry, forgetAttribution, rememberAttribution } from '@/lib/utm';
 import { EVT } from '@/lib/events';
 import { BOT_UA, CONSENT_PENDING_CLASS } from './pending';
 import { setConsentState } from './trackEvent';
@@ -296,7 +295,6 @@ function buildConfig(cc: CC, update: () => void): CookieConsentConfig {
         const w = window as unknown as { gtag?: (...a: unknown[]) => void; fbq?: (...a: unknown[]) => void };
         if (revoked.includes('analytics')) {
           w.gtag?.('consent', 'update', { analytics_storage: 'denied' });
-          forgetAttribution();
         }
         if (revoked.includes('marketing')) {
           w.gtag?.('consent', 'update', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
@@ -351,7 +349,6 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    captureEntry();
     window.addEventListener('keydown', releaseBannerFocus, true);
     window.addEventListener('resize', measureBanner);
     const isBot = BOT_UA.test(navigator.userAgent);
@@ -367,7 +364,6 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         };
         setConsentState(next);
         setState(next);
-        rememberAttribution(next.analytics);
         document.documentElement.dataset.consent =
           [next.analytics ? 'analytics' : '', next.marketing ? 'marketing' : ''].filter(Boolean).join(' ') || 'none';
         window.dispatchEvent(new CustomEvent(EVT.consent, { detail: next }));
