@@ -21,8 +21,12 @@ async function sideImage(): Promise<{ src: string; poster: boolean }> {
     const data = await readFile(poster);
     return { src: `data:image/png;base64,${data.toString('base64')}`, poster: true };
   }
-  const photo = await readFile(join(root, 'public/images/real/caseta-madera-alquiler-feria-abierta.jpg'));
-  return { src: `data:image/jpeg;base64,${photo.toString('base64')}`, poster: false };
+  // Satori no lee WebP: la foto se pasa a PNG
+  const { default: sharp } = await import('sharp');
+  const photo = await sharp(join(root, 'public/images/real/caseta-madera-alquiler-feria-abierta.webp'))
+    .png()
+    .toBuffer();
+  return { src: `data:image/png;base64,${photo.toString('base64')}`, poster: false };
 }
 
 export async function renderOg({ title, eyebrow = 'Casetas Maderik' }: { title: string; eyebrow?: string }) {

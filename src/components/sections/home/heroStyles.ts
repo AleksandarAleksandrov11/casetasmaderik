@@ -107,7 +107,12 @@ export const heroCss = /* css */ `
 .hero__track {
   display: flex;
   width: max-content;
-  animation: hero-ticker 48s linear infinite;
+  animation: hero-ticker 90s linear infinite;
+}
+
+.hero__group {
+  display: flex;
+  flex: none;
 }
 
 .hero__tick {
@@ -123,6 +128,10 @@ export const heroCss = /* css */ `
   white-space: nowrap;
   color: var(--color-stone);
   transition: color 0.8s var(--ease-brand);
+}
+
+.hero__tick::before {
+  content: attr(data-t);
 }
 
 .hero__tick::after {

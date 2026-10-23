@@ -39,7 +39,7 @@ export type LegalPage = {
 /** Lo común del CTA final de las páginas legales. */
 export const legalCta = {
   label: 'Te ayudamos',
-  image: { src: '/images/real/caseta-madera-cerrada-plaza.jpg', alt: '' },
+  image: { src: '/images/real/caseta-madera-cerrada-plaza.webp', alt: '' },
 };
 
 const domicilio = site.address

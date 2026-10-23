@@ -98,26 +98,26 @@ export const casetasGallery = {
   // `position`: encuadre del recorte para que la caseta quede centrada.
   images: [
     {
-      src: '/images/real/caseta-madera-alquiler-feria-abierta.jpg',
+      src: '/images/real/caseta-madera-alquiler-feria-abierta.webp',
       width: 682,
       height: 682,
       alt: 'Caseta de madera abierta en una plaza, con mostrador de café y contraventanas como visera',
     },
     {
-      src: '/images/real/caseta-madera-mostrador-ventanas-abiertas.jpg',
+      src: '/images/real/caseta-madera-mostrador-ventanas-abiertas.webp',
       width: 682,
       height: 682,
       alt: 'Caseta de madera con dos ventanas con mostrador abiertas y luces interiores',
     },
     {
-      src: '/images/real/caseta-madera-cerrada-plaza.jpg',
+      src: '/images/real/caseta-madera-cerrada-plaza.webp',
       width: 683,
       height: 1024,
       alt: 'Caseta de madera cerrada en una plaza al atardecer, con cubierta a dos aguas',
       position: '50% 70%',
     },
     {
-      src: '/images/real/caseta-madera-montada-exterior-dia.jpg',
+      src: '/images/real/caseta-madera-montada-exterior-dia.webp',
       width: 480,
       height: 629,
       alt: 'Caseta de madera montada al aire libre a pleno día, con las ventanas abiertas',
@@ -142,5 +142,5 @@ export const casetasConfigurator = {
     { id: '10+', label: 'Más de 10', value: 12 },
   ],
   // Fondo del cierre (misma estructura que CtaFinal): un mercado lleno de casetas
-  image: { src: '/images/stock/mercado-navideno-luces-calidas.jpg', alt: '' },
+  image: { src: '/images/stock/mercado-navideno-luces-calidas.webp', alt: '' },
 };

@@ -22,7 +22,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
-    formats: ['image/avif', 'image/webp'],
+    // Todo en WebP: rápido de generar en el primer acceso y compatible con todos los navegadores
+    formats: ['image/webp'],
     qualities: [60, 70, 75, 80, 85],
     deviceSizes: [360, 414, 640, 750, 828, 1080, 1200, 1440, 1920, 2560],
     imageSizes: [96, 160, 256, 320, 384, 480, 560, 680],
