@@ -29,9 +29,17 @@ export type LegalPage = {
   description: string;
   intro: string;
   sections: LegalSection[];
-  /** CTA final propio: la última idea de la página sigue de su contenido. */
-  /** CTA final de la página. Sin actions: llamar y WhatsApp. */
+  /**
+   * CTA final propio: la última idea de la página sigue de su contenido. Sin
+   * actions: llamar y WhatsApp. La foto y la etiqueta son comunes (legalCta).
+   */
   cta: { title: string; text: string; actions?: ('email' | 'llamar' | 'whatsapp')[] };
+};
+
+/** Lo común del CTA final de las páginas legales. */
+export const legalCta = {
+  label: 'Te ayudamos',
+  image: { src: '/images/real/caseta-madera-cerrada-plaza.jpg', alt: '' },
 };
 
 const domicilio = site.address
@@ -171,7 +179,7 @@ export const avisoLegal: LegalPage = {
   ],
   cta: {
     title: '¿Tienes alguna duda sobre estas condiciones?',
-    text: `Llámanos o escríbenos por WhatsApp. Te respondemos en ${site.responseTime}.`,
+    text: 'Llámanos o escríbenos por WhatsApp y te lo aclaramos.',
   },
 };
 
@@ -315,7 +323,7 @@ export const politicaPrivacidad: LegalPage = {
   ],
   cta: {
     title: '¿Tienes alguna duda sobre tus datos?',
-    text: `Escríbenos y te explicamos cómo los tratamos o atendemos tu solicitud. Te respondemos en ${site.responseTime}.`,
+    text: 'Escríbenos y te explicamos cómo los tratamos o atendemos tu solicitud.',
     actions: ['email', 'llamar', 'whatsapp'],
   },
 };

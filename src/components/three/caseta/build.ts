@@ -57,6 +57,13 @@ export interface WindowBuild {
   counterLength: number;
 }
 
+export interface DoorBuild {
+  /** Hoja en coordenadas de su bisagra (canto vertical del lado de las bisagras). */
+  leaf: THREE.BufferGeometry;
+  /** Bisagra en coordenadas de la pared. */
+  pivot: [number, number, number];
+}
+
 export interface WallBuild {
   id: WallId;
   /** Bisagra de plegado (canto inferior exterior) en el mundo. */
@@ -64,6 +71,7 @@ export interface WallBuild {
   rotY: number;
   wood: THREE.BufferGeometry;
   window: WindowBuild | null;
+  door: DoorBuild | null;
 }
 
 export interface RoofHalfBuild {
@@ -194,57 +202,82 @@ function longWall(id: 'front' | 'back', r: () => number): WallBuild {
     rotY: id === 'front' ? 0 : Math.PI,
     wood: merge(parts),
     window: buildWindow(id, winW, r),
+    door: null,
   };
 }
 
-function gableOutline(): [number, number][] {
+function gableOutline(door: boolean): [number, number][] {
   const hw = HALF_W - WALL_T;
   const yEdge = EAVE_Y - BASE_H + WALL_T * Math.tan(PITCH);
   const yApex = RIDGE_UNDER_Y - BASE_H;
-  return [
-    [-hw, 0],
-    [hw, 0],
-    [hw, yEdge],
-    [0, yApex],
-    [-hw, yEdge],
-  ];
+  const dw = DOOR_W / 2;
+  // El hueco de la puerta llega al suelo: se recorta del contorno, no como agujero
+  const notch: [number, number][] = door
+    ? [
+        [-dw, 0],
+        [-dw, DOOR_H],
+        [dw, DOOR_H],
+        [dw, 0],
+      ]
+    : [];
+  return [[-hw, 0], ...notch, [hw, 0], [hw, yEdge], [0, yApex], [-hw, yEdge]];
+}
+
+/** Hoja de la puerta: bisagras en x = 0, se abre hacia fuera girando sobre Y. */
+function buildDoorLeaf(r: () => number): THREE.BufferGeometry {
+  const w = DOOR_W - 0.012;
+  const h = DOOR_H - 0.01;
+  const t = 0.034;
+  const parts: THREE.BufferGeometry[] = [];
+  parts.push(
+    box([w, h, t], [w / 2, h / 2, -t / 2], {
+      uv: { kind: 'boards', offsetU: 0.7 },
+      color: (n) => (n.z < -0.5 ? [0.74, 0.72, 0.7] : n.z > 0.5 ? WHITE : [0.7, 0.7, 0.7]),
+    }),
+  );
+  // Travesaños interiores (cara de dentro)
+  for (const y of [0.18, h - 0.18])
+    parts.push(trim([w - 0.08, 0.09, 0.016], [w / 2, y, -t - 0.008], r, [0.7, 0.68, 0.66]));
+  // Bisagras
+  for (const y of [0.22, h - 0.22]) parts.push(box([0.07, 0.11, 0.006], [0.03, y, 0.003], { color: DARK_METAL }));
+  // Tiradores a ambos lados
+  const hx = w - 0.09;
+  for (const side of [1, -1]) {
+    const z0 = side > 0 ? 0 : -t;
+    parts.push(box([0.038, 0.17, 0.008], [hx, 0.98, z0 + side * 0.004], { color: DARK_METAL }));
+    parts.push(box([0.02, 0.02, 0.045], [hx, 1.02, z0 + side * 0.03], { color: DARK_METAL }));
+    parts.push(box([0.13, 0.02, 0.02], [hx - 0.055, 1.02, z0 + side * 0.052], { color: DARK_METAL }));
+  }
+  parts.push(box([0.03, 0.05, 0.01], [hx, 0.93, 0.009], { color: DARK_METAL }));
+  return merge(parts);
 }
 
 function endWall(id: 'left' | 'right', r: () => number): WallBuild {
   const parts: THREE.BufferGeometry[] = [];
   const holes: [number, number][][] = [];
   if (id === 'right') holes.push(rectHole(-SIDE_WIN_W / 2, WIN_Y0 - BASE_H, SIDE_WIN_W / 2, WIN_Y1 - BASE_H));
-  parts.push(panel(gableOutline(), holes, WALL_T, shadeIn, r() * 2));
+  parts.push(panel(gableOutline(id === 'left'), holes, WALL_T, shadeIn, r() * 2));
   for (const s of [-1, 1]) {
     parts.push(trim([TRIM_W, WALL_H, TRIM_T], [s * (HALF_W - TRIM_W / 2), WALL_H / 2, TRIM_T / 2], r));
   }
   let win: WindowBuild | null = null;
+  let door: DoorBuild | null = null;
   if (id === 'right') {
     windowFrame(SIDE_WIN_W, r, parts);
     win = buildWindow('right', SIDE_WIN_W, r);
   } else {
-    // Puerta: hoja de tablones algo saliente, junta oscura, marco y tirador
+    // Marco de la puerta en la cara exterior
     const hw = DOOR_W / 2;
-    parts.push(
-      box([DOOR_W - 0.012, DOOR_H - 0.012, 0.012], [0, DOOR_H / 2, 0.006], {
-        uv: { kind: 'boards', offsetU: 0.7 },
-        color: WHITE,
-      }),
-    );
-    const gap: RGB = [0.16, 0.12, 0.1];
-    parts.push(box([0.008, DOOR_H, 0.014], [-hw + 0.002, DOOR_H / 2, 0.007], { color: gap }));
-    parts.push(box([0.008, DOOR_H, 0.014], [hw - 0.002, DOOR_H / 2, 0.007], { color: gap }));
-    parts.push(box([DOOR_W, 0.008, 0.014], [0, DOOR_H - 0.002, 0.007], { color: gap }));
     const fw = 0.06;
     parts.push(trim([fw, DOOR_H + fw, TRIM_T], [-hw - fw / 2, (DOOR_H + fw) / 2, TRIM_T / 2], r));
     parts.push(trim([fw, DOOR_H + fw, TRIM_T], [hw + fw / 2, (DOOR_H + fw) / 2, TRIM_T / 2], r));
     parts.push(trim([DOOR_W + fw * 2, fw, TRIM_T], [0, DOOR_H + fw / 2, TRIM_T / 2], r));
-    // Tirador
-    const hx = hw - 0.09;
-    parts.push(box([0.038, 0.17, 0.008], [hx, 0.98, 0.016], { color: DARK_METAL }));
-    parts.push(box([0.02, 0.02, 0.045], [hx, 1.02, 0.04], { color: DARK_METAL }));
-    parts.push(box([0.13, 0.02, 0.02], [hx - 0.055, 1.02, 0.062], { color: DARK_METAL }));
-    parts.push(box([0.03, 0.05, 0.01], [hx, 0.93, 0.024], { color: DARK_METAL }));
+    // Cantos del hueco, en penumbra
+    const jamb: RGB = [0.62, 0.6, 0.58];
+    parts.push(trim([0.012, DOOR_H, WALL_T], [-hw - 0.006, DOOR_H / 2, -WALL_T / 2], r, jamb));
+    parts.push(trim([0.012, DOOR_H, WALL_T], [hw + 0.006, DOOR_H / 2, -WALL_T / 2], r, jamb));
+    parts.push(trim([DOOR_W + 0.024, 0.012, WALL_T], [0, DOOR_H + 0.006, -WALL_T / 2], r, jamb));
+    door = { leaf: buildDoorLeaf(r), pivot: [-hw + 0.004, 0.004, 0.004] };
   }
   const x = id === 'right' ? HALF_L : -HALF_L;
   return {
@@ -253,6 +286,7 @@ function endWall(id: 'left' | 'right', r: () => number): WallBuild {
     rotY: id === 'right' ? Math.PI / 2 : -Math.PI / 2,
     wood: merge(parts),
     window: win,
+    door,
   };
 }
 
@@ -453,6 +487,7 @@ export function buildCaseta(): CasetaBuild {
   for (const w of walls) {
     all.push(w.wood);
     if (w.window) all.push(w.window.shutter, w.window.counter);
+    if (w.door) all.push(w.door.leaf);
   }
   return {
     baseMetal: base.metal,

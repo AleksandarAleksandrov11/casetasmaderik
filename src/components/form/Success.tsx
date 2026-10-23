@@ -14,7 +14,7 @@ type SuccessProps = {
 /** Pantalla de éxito: check que se dibuja, número de solicitud y siguientes pasos. */
 export function Success({ nombre, numero, headingRef }: SuccessProps) {
   return (
-    <div className="py-4 sm:py-8">
+    <div className="py-2 sm:py-4">
       <svg viewBox="0 0 64 64" className="size-16 text-wood" fill="none" aria-hidden="true">
         <circle
           cx="32"

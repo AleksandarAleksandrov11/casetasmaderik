@@ -38,18 +38,20 @@ export default function ContactoPage() {
       <ContactoNext />
       <FaqSection
         id="preguntas-presupuesto"
-        surface="paper"
+        surface="cream"
+        align="center"
         label={contactoFaqIntro.label}
         title={contactoFaqIntro.title}
         faqs={contactoFaqs}
       />
-      {/* Con foto, para que el cierre no se funda con el footer tinta */}
       <CtaFinal
-        variant="temporada"
+        place="cta-contacto"
+        image={contactoCta.image}
+        label={contactoCta.label}
         title={contactoCta.title}
         text={contactoCta.text}
-        image={contactoCta.image}
         actions={['llamar', 'whatsapp']}
+        note={contactoCta.note}
       />
     </>
   );

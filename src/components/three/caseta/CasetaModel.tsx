@@ -11,6 +11,7 @@ import { BASE_H, COUNTER_T, FRAME_W, HALF_W, WIN_Y0 } from './spec';
 import {
   bracketAngle,
   counterAngle,
+  doorAngle,
   roofPose,
   shutterAngle,
   uprightFactor,
@@ -29,12 +30,16 @@ export interface CasetaModelProps {
   night?: number;
   /** Despiece: 1 = plegada, 0 = montada. */
   exploded?: number;
+  /** Puerta abierta (0..1), con transición suave. */
+  doorOpen?: number;
   /**
    * Cotas 2,90 / 2,00 / 2,47 m. Con props se animan solas; con `stateRef`
    * solo se montan y su aparición la marca `stateRef.current.dims`.
    */
   showDimensions?: boolean;
   quality?: Quality;
+  /** Color de las líneas de cota (claro sobre fondos oscuros, oscuro sobre crema). */
+  dimsColor?: string;
   /** Sombra suave bajo la base que se mueve con la caseta (escenas de montaje). */
   blobShadow?: boolean;
   /** Avisa de que hace falta otro frame (transiciones suaves con frameloop demand). */
@@ -53,8 +58,10 @@ export function CasetaModel({
   shuttersOpen = 0,
   night = 0,
   exploded = 0,
+  doorOpen = 0,
   showDimensions = false,
   quality = 'high',
+  dimsColor,
   blobShadow = false,
   onChange,
 }: CasetaModelProps) {
@@ -77,18 +84,19 @@ export function CasetaModel({
 
   // Estado interno cuando se controla por props (visor)
   const internal = useRef<CasetaState>(
-    createCasetaState({ shutters: shuttersOpen, night, exploded, dims: showDimensions ? 1 : 0 }),
+    createCasetaState({ shutters: shuttersOpen, night, exploded, dims: showDimensions ? 1 : 0, door: doorOpen }),
   );
-  const targets = useRef({ shutters: shuttersOpen, night, exploded, dims: showDimensions ? 1 : 0 });
+  const targets = useRef({ shutters: shuttersOpen, night, exploded, dims: showDimensions ? 1 : 0, door: doorOpen });
   useEffect(() => {
-    targets.current = { shutters: shuttersOpen, night, exploded, dims: showDimensions ? 1 : 0 };
+    targets.current = { shutters: shuttersOpen, night, exploded, dims: showDimensions ? 1 : 0, door: doorOpen };
     invalidate();
-  }, [shuttersOpen, night, exploded, showDimensions, invalidate]);
+  }, [shuttersOpen, night, exploded, showDimensions, doorOpen, invalidate]);
 
   const wallGroups = useRef<Partial<Record<WallId, THREE.Group>>>({});
   const foldGroups = useRef<Partial<Record<WallId, THREE.Group>>>({});
   const shutterGroups = useRef<Partial<Record<WallId, THREE.Group>>>({});
   const counterGroups = useRef<Partial<Record<WallId, THREE.Group>>>({});
+  const doorGroup = useRef<THREE.Group>(null);
   const roofFrontPos = useRef<THREE.Group>(null);
   const roofFrontRot = useRef<THREE.Group>(null);
   const roofBackPos = useRef<THREE.Group>(null);
@@ -193,7 +201,7 @@ export function CasetaModel({
       const t = targets.current;
       const k = 1 - Math.exp(-Math.min(delta, 0.05) * 4.2);
       let moving = false;
-      for (const key of ['shutters', 'night', 'exploded', 'dims'] as const) {
+      for (const key of ['shutters', 'night', 'exploded', 'dims', 'door'] as const) {
         const diff = t[key] - cur[key];
         if (Math.abs(diff) > 0.0015) {
           cur[key] += diff * k;
@@ -220,6 +228,8 @@ export function CasetaModel({
       f.rotation.x = angle;
       f.position.y = lift;
     }
+
+    if (doorGroup.current) doorGroup.current.rotation.y = doorAngle((s.door ?? 0) * upright);
 
     // Ventanas: contraventana, mostrador y escuadras
     const so = tmp.o;
@@ -318,7 +328,7 @@ export function CasetaModel({
 
   return (
     <group name="caseta">
-      {showDimensions ? <Dimensions stateRef={stateRef ?? internal} /> : null}
+      {showDimensions ? <Dimensions stateRef={stateRef ?? internal} color={dimsColor} /> : null}
       <group name="base">
         <mesh name="base-metal" geometry={build.baseMetal} material={mats.metal} receiveShadow />
         <mesh name="floor" geometry={build.baseWood} material={mats.wood} receiveShadow />
@@ -347,6 +357,11 @@ export function CasetaModel({
                 castShadow={castShadow}
                 receiveShadow
               />
+              {w.door ? (
+                <group name="door" position={w.door.pivot} ref={doorGroup}>
+                  <mesh geometry={w.door.leaf} material={mats.wood} castShadow={castShadow} receiveShadow />
+                </group>
+              ) : null}
               {w.window ? (
                 <>
                   <group

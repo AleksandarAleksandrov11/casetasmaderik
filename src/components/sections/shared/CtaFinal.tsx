@@ -1,34 +1,91 @@
 import Image from 'next/image';
+import type { ReactNode } from 'react';
 import { blurFor } from '@/content/image-blur';
-import { ArrowRight, Mail, Phone } from 'lucide-react';
-import { ButtonLink, buttonClasses } from '@/components/ui/Button';
 import { Heading } from '@/components/ui/Heading';
 import { Label } from '@/components/ui/Label';
 import { Section } from '@/components/ui/Section';
-import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
 import { ContactLink } from '@/components/layout/ContactLink';
-import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
+import { emailHref, site } from '@/content/site';
 import { noOrphans } from '@/lib/typography';
+import { CtaActions, CtaNote, ctaResponseNote, type CtaAction } from './CtaParts';
 
-type Action = 'presupuesto' | 'email' | 'llamar' | 'whatsapp';
+export { CtaActions, CtaNote, ctaResponseNote, type CtaAction };
 
-type CtaFinalProps = {
-  variant: 'temporada' | 'general' | 'dudas';
-  label?: string;
+export type CtaImage = { src: string; alt: string };
+
+/*
+ * Piezas del CTA final. Todas las páginas cierran con la misma estructura y en
+ * el mismo orden (foto a sangre con velo, etiqueta, H2, texto, acciones y nota);
+ * cada una cambia la foto, los textos y las acciones. El configurador de
+ * /casetas usa estas mismas piezas y añade el selector y la ilustración.
+ */
+
+/**
+ * Foto a sangre con parallax y velo tinta. El velo es más denso en el centro,
+ * donde va el texto, y se funde con tinta abajo para enlazar con el footer.
+ * Por debajo de lg la foto se dibuja varias veces más ancha que la pantalla
+ * (object-cover en una caja más alta que ancha): más velo para el AA.
+ */
+export function CtaBackdrop({ image, focus = 'center' }: { image: CtaImage; focus?: string }) {
+  return (
+    <div className="absolute inset-0" aria-hidden="true">
+      <div data-parallax className="absolute inset-x-0 -top-[12%] -bottom-[12%]">
+        <Image
+          src={image.src}
+          {...blurFor(image.src)}
+          alt=""
+          fill
+          sizes="(max-width: 639px) 300vw, (max-width: 1023px) 130vw, 100vw"
+          quality={60}
+          className="object-cover"
+          style={{ objectPosition: focus }}
+        />
+      </div>
+      <div className="absolute inset-0 bg-ink/80 lg:bg-ink/70" />
+      <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_50%,rgb(14_22_21/0.55),transparent)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-ink/50 via-transparent to-ink" />
+    </div>
+  );
+}
+
+/** Etiqueta, H2 y texto. Centrado, o a la izquierda desde lg con `split`. */
+export function CtaIntro({
+  label,
+  title,
+  text,
+  id,
+  split = false,
+  textNode,
+}: {
+  label: string;
   title: string;
   text: string;
-  actions?: Action[];
-  image?: { src: string; alt: string };
-  note?: string;
-};
-
-function Arrow() {
+  id?: string;
+  /** Composición a dos columnas desde lg (configurador): el bloque se alinea a la izquierda. */
+  split?: boolean;
+  /** Texto ya maquetado (p. ej. con el email enlazado); si no, `text` con noOrphans. */
+  textNode?: ReactNode;
+}) {
   return (
-    <ArrowRight
-      aria-hidden="true"
-      strokeWidth={1.5}
-      className="size-[18px] transition-transform duration-500 ease-brand group-hover/btn:translate-x-1"
-    />
+    <>
+      {/* Línea a cada lado de la etiqueta: marca el eje del bloque centrado */}
+      <Label
+        className={`${split ? 'lg:after:hidden' : ''} after:mt-[calc(0.5lh-0.5px)] after:block after:h-px after:w-6 after:flex-none after:bg-current after:content-['']`}
+      >
+        {label}
+      </Label>
+      <Heading id={id} size="h1" className={`mt-6 max-w-[18ch] ${split ? 'mx-auto lg:mx-0' : 'mx-auto'}`}>
+        {title}
+      </Heading>
+      {/* data-cta-lead: con el aviso de cookies pendiente en móvil horizontal, el bloque se queda a su izquierda (consent.css) */}
+      <p
+        data-reveal
+        data-cta-lead
+        className={`text-lead mt-6 max-w-[42ch] text-cream/85 ${split ? 'mx-auto lg:mx-0' : 'mx-auto'}`}
+      >
+        {textNode ?? noOrphans(text)}
+      </p>
+    </>
   );
 }
 
@@ -52,161 +109,48 @@ function withEmailLink(text: string, place: string) {
   );
 }
 
+type CtaFinalProps = {
+  /** Foto de fondo de esta página (el alt va vacío: es decorativa). */
+  image: CtaImage;
+  /** Punto de la foto que se mantiene a la vista (object-position). */
+  focus?: string;
+  label: string;
+  title: string;
+  text: string;
+  actions?: CtaAction[];
+  note?: string;
+  /** Ubicación para la medición de clics (cta-temporada, cta-dudas...). */
+  place?: string;
+};
+
 /**
- * CTA final reutilizable. La última sección de cada página es siempre un CTA.
- * - temporada: foto nocturna a todo el ancho con overlay tinta.
- * - general: fondo tinta.
- * - dudas: fondo papel.
- * La primera acción es siempre el botón primario con flecha (madera sobre
- * claro, crema sobre oscuro), también cuando solo hay llamada o WhatsApp.
+ * CTA final común: la última sección de cada página antes del footer. Bloque
+ * centrado sobre la foto: etiqueta, H2 grande, texto corto, acciones y nota.
  */
 export function CtaFinal({
-  variant,
+  image,
+  focus,
   label,
   title,
   text,
   actions = ['presupuesto', 'llamar', 'whatsapp'],
-  image,
-  note,
+  note = ctaResponseNote,
+  place = 'cta-final',
 }: CtaFinalProps) {
-  const dark = variant !== 'dudas';
-  const surface = variant === 'temporada' ? 'photo' : variant === 'general' ? 'dark' : 'paper';
-  const place = `cta-${variant}`;
-  const primary = buttonClasses({ variant: dark ? 'light' : 'primary', size: 'lg' });
-  const secondaryLink = `link-underline gap-2 ${dark ? '!text-cream' : ''}`;
-
-  const buttons = actions.map((a, i) => {
-    const lead = i === 0;
-    if (a === 'presupuesto') {
-      return (
-        <ButtonLink key={a} href="/contacto" variant={dark ? 'light' : 'primary'} size="lg">
-          Pedir presupuesto
-        </ButtonLink>
-      );
-    }
-    if (a === 'llamar') {
-      return lead ? (
-        <ContactLink
-          key={a}
-          href={phoneHref}
-          event="click_phone"
-          place={place}
-          magnetic
-          ariaLabel={`Llamar al ${site.phone.display}`}
-          className={primary}
-        >
-          <span>Llamar</span>
-          <Arrow />
-        </ContactLink>
-      ) : (
-        <ContactLink
-          key={a}
-          href={phoneHref}
-          event="click_phone"
-          place={place}
-          magnetic
-          ariaLabel={`Llamar al ${site.phone.display}`}
-          className={buttonClasses({ variant: dark ? 'outline-light' : 'outline', size: 'lg' })}
-        >
-          <span className="-ml-1 flex size-5 items-center justify-center" aria-hidden="true">
-            <Phone strokeWidth={1.5} className="size-[18px]" />
-          </span>
-          <span>Llamar</span>
-        </ContactLink>
-      );
-    }
-    if (a === 'email') {
-      return lead ? (
-        <ContactLink key={a} href={emailHref} event="click_email" place={place} magnetic className={primary}>
-          <span>Escribir un email</span>
-          <Arrow />
-        </ContactLink>
-      ) : (
-        <ContactLink key={a} href={emailHref} event="click_email" place={place} className={secondaryLink}>
-          <Mail aria-hidden="true" strokeWidth={1.5} className="size-5" />
-          Escribir un email
-        </ContactLink>
-      );
-    }
-    return lead ? (
-      <ContactLink
-        key={a}
-        href={whatsappHref()}
-        event="click_whatsapp"
-        place={place}
-        external
-        magnetic
-        className={primary}
-      >
-        <span>Escribir por WhatsApp</span>
-        <Arrow />
-      </ContactLink>
-    ) : (
-      <ContactLink
-        key={a}
-        href={whatsappHref()}
-        event="click_whatsapp"
-        place={place}
-        external
-        className={secondaryLink}
-      >
-        <WhatsAppIcon className="size-5" />
-        Escribir por WhatsApp
-      </ContactLink>
-    );
-  });
-
+  const lead = noOrphans(text);
   return (
-    <Section surface={surface} spacing={false} className="overflow-hidden">
-      {variant === 'temporada' && image ? (
-        <div className="absolute inset-0" aria-hidden="true">
-          <div data-parallax className="absolute inset-x-0 -top-[12%] -bottom-[12%]">
-            <Image
-              src={image.src}
-              {...blurFor(image.src)}
-              alt=""
-              fill
-              // object-cover en una caja más alta que ancha (y un 24 % más alta por el
-              // parallax): en móvil la foto se dibuja a unas tres veces el ancho
-              sizes="(max-width: 639px) 300vw, (max-width: 1023px) 130vw, 100vw"
-              quality={70}
-              className="object-cover object-center"
-            />
-          </div>
-          {/* Por debajo de lg la foto se dibuja más ancha que la pantalla (hasta tres veces en
-              móvil) y las luces de la guirnalda crecen detrás de la etiqueta: más velo para el AA */}
-          <div className="absolute inset-0 bg-ink/82 lg:bg-ink/72" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-ink/30" />
-        </div>
-      ) : null}
-      <div
-        className={`container-site relative ${
-          variant === 'temporada' ? 'py-[clamp(120px,16vw,240px)]' : 'py-[clamp(96px,13vw,200px)]'
-        }`}
-      >
-        <div className="max-w-[56rem]">
-          {label ? <Label>{label}</Label> : null}
-          <Heading className={label ? 'mt-6' : ''}>{title}</Heading>
-          {/* data-cta-lead y data-cta-actions: en móvil horizontal, con el aviso de cookies pendiente,
-              se quedan a la izquierda de su tarjeta (consent.css) */}
-          <p
-            data-reveal
-            data-cta-lead
-            className={`text-lead mt-6 max-w-[44ch] ${dark ? 'text-cream/85' : 'text-stone'}`}
-          >
-            {actions.includes('email') ? noOrphans(text) : withEmailLink(noOrphans(text), place)}
-          </p>
-          {/* data-wa-avoid: el botón flotante de WhatsApp no tapa estas acciones */}
-          <div
-            data-reveal
-            data-wa-avoid
-            data-cta-actions
-            style={{ ['--reveal-delay' as string]: '0.1s' }}
-            className="mt-10 flex w-fit max-w-full flex-wrap items-center gap-x-6 gap-y-4"
-          >
-            {buttons}
-          </div>
-          {note ? <p className={`mt-8 text-[0.9375rem] ${dark ? 'text-mist' : 'text-stone'}`}>{note}</p> : null}
+    <Section surface="photo" spacing={false} className="overflow-hidden">
+      <CtaBackdrop image={image} focus={focus} />
+      <div className="container-site relative py-[clamp(112px,14vw,220px)]">
+        <div data-cta-block className="mx-auto max-w-[60rem] text-center">
+          <CtaIntro
+            label={label}
+            title={title}
+            text={text}
+            textNode={actions.includes('email') ? lead : withEmailLink(lead, place)}
+          />
+          <CtaActions actions={actions} place={place} />
+          <CtaNote>{note}</CtaNote>
         </div>
       </div>
     </Section>

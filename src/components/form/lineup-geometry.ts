@@ -179,11 +179,12 @@ export function computeLayout(count: number, max: number): Layout {
 }
 
 /**
- * Escenario con zoom: lienzo apaisado fijo, filas de 4 (1, 4, 8 y 12 casetas
- * forman una, una, dos y tres filas) y la mayor escala que cabe, con tope
- * para que una caseta sola no lo llene todo.
+ * Escenario con zoom: lienzo 4:3 fijo, filas de 4 (1, 4, 8 y 12 casetas
+ * forman una, una, dos y tres filas) y la mayor escala que cabe. Una caseta
+ * sola ocupa casi todo el lienzo (tope de escala para que no lo desborde en
+ * alto) y una fila de tres llena el ancho, centrada en vertical.
  */
-export const STAGE = { width: 400, height: 200, pad: 18, perRow: 4, maxScale: 2.6 } as const;
+export const STAGE = { width: 400, height: 300, pad: 8, perRow: 4, maxScale: 5.2 } as const;
 
 export type StageLayout = Layout & { scale: number };
 

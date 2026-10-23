@@ -91,7 +91,9 @@ export function Header({ logo }: { logo: ReactNode }) {
     if (!main) return;
     const probe = () => {
       const header = headerRef.current;
-      const y = (header?.offsetHeight ?? 68) / 2;
+      // Cambia cuando el borde entre secciones llega al pie del header: mientras lo
+      // cruza, el fondo del header ya es el de la sección que entra
+      const y = (header?.offsetHeight ?? 68) - 1;
       const sections = document.querySelectorAll<HTMLElement>('[data-header]');
       let next: Theme = 'light';
       for (const el of sections) {
@@ -142,7 +144,7 @@ export function Header({ logo }: { logo: ReactNode }) {
         data-scrolled={scrolled ? '' : undefined}
         data-ready={ready ? '' : undefined}
         className={[
-          `fixed inset-x-0 top-0 ${menuOpen ? 'z-[80]' : 'z-50'} pt-[var(--safe-top)] transition-[transform,background-color,border-color,color] duration-500 ease-brand`,
+          `fixed inset-x-0 top-0 ${menuOpen ? 'z-[80]' : 'z-50'} pt-[var(--safe-top)] [transition:transform_500ms_var(--ease-brand),background-color_150ms_linear,border-color_150ms_linear,color_150ms_linear]`,
           hidden && !menuOpen ? '-translate-y-full has-[:focus-visible]:translate-y-0' : 'translate-y-0',
           menuOpen ? 'text-cream' : dark ? 'text-cream' : 'text-ink',
           showBar

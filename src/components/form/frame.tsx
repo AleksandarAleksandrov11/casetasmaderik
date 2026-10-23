@@ -1,6 +1,17 @@
-import { Briefcase, Check, Flower2, PencilLine, Store, TreePine, UtensilsCrossed, type LucideIcon } from 'lucide-react';
+import {
+  Briefcase,
+  Check,
+  Flower2,
+  MapPin,
+  PencilLine,
+  Store,
+  TreePine,
+  UtensilsCrossed,
+  type LucideIcon,
+} from 'lucide-react';
 import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
 import { STEP_COUNT, type TipoEvento } from '@/lib/quote-data';
+import { noOrphans } from '@/lib/typography';
 import { FORM_COPY, STEPS } from './copy';
 
 /*
@@ -11,23 +22,25 @@ import { FORM_COPY, STEPS } from './copy';
 
 export const ROOT_CLASS = 'relative scroll-mt-[calc(var(--header-h-compact)+16px)] [html:not(.js)_&]:hidden';
 /*
- * Panel papel con campos crema: los dos tonos de la paleta, sin blancos puros
- * ni mezclas. surface-paper oscurece los enlaces (madera oscura) para el AA.
+ * Tarjeta crema con borde fino sobre el fondo papel del hero, en tres franjas:
+ * cabecera con los pasos, cuerpo con la pregunta y pie con las acciones.
  */
 export const PANEL_CLASS =
-  'surface-paper rounded-sm border border-sand bg-paper px-5 py-7 sm:px-9 sm:py-10 lg:px-11 lg:py-11';
+  'rounded-sm border border-sand bg-cream shadow-[0_1px_2px_rgb(14_22_21/0.04),0_32px_64px_-40px_rgb(14_22_21/0.22)]';
+const PAD_X = 'px-5 sm:px-8 lg:px-10';
+export const BODY_CLASS = `${PAD_X} pt-7 pb-9 sm:pt-9 sm:pb-11`;
 // flex-wrap (no reverse): si el botón principal baja de fila, el orden visual sigue al del teclado
-export const ACTIONS_CLASS = 'mt-10 flex flex-wrap items-center gap-3 border-t border-sand pt-6';
+export const ACTIONS_CLASS = `flex flex-wrap items-center gap-3 rounded-b-sm border-t border-sand bg-paper/70 py-4 sm:py-5 ${PAD_X}`;
 /*
  * Las tarjetas se reparten según el ancho real de la rejilla (container
  * queries), no según la pantalla: el formulario vive en columnas muy distintas
- * (móvil, tablet, media columna en escritorio). Sobre 6 columnas cada tarjeta
- * ocupa 3 (dos por fila) y 2 desde 32rem (tres por fila). Por debajo de 17,5rem
- * (móviles de 320 px) pasan a filas compactas de una línea, con la marca de
- * selección en el sitio del icono. Así "gastronómico" cabe siempre entero.
+ * (móvil, tablet, columna del hero en escritorio). Sobre 6 columnas cada
+ * tarjeta ocupa 3 (dos por fila) y 2 desde 32rem (tres por fila). Por debajo
+ * de 18,5rem (móviles de 320 a 360 px) pasan a filas de una línea. Así
+ * "gastronómico" cabe siempre entero, sin cortes.
  */
-export const EVENT_GRID_CLASS = '@container clear-both grid grid-cols-6 gap-3';
-// ml-auto lo deja a la derecha aunque no haya botón Atrás; en móvil ocupa toda la fila
+export const EVENT_GRID_CLASS = '@container clear-both grid grid-cols-6 gap-2.5 sm:gap-3';
+// ml-auto lo deja a la derecha aunque no haya botón Atrás; en móvil ocupa el resto de la fila
 export const NEXT_BUTTON_CLASS = 'ml-auto min-w-[10.5rem] max-sm:min-w-fit max-sm:flex-1 max-sm:px-4';
 
 const EVENT_ICONS: Record<TipoEvento, LucideIcon> = {
@@ -41,19 +54,15 @@ const EVENT_ICONS: Record<TipoEvento, LucideIcon> = {
 
 export function eventCardClass(checked: boolean): string {
   return [
-    'group relative col-span-3 flex min-h-[116px] cursor-pointer flex-col justify-between gap-5 rounded-sm border p-4 sm:min-h-[128px] sm:p-5',
+    'group relative col-span-3 flex min-h-[124px] cursor-pointer flex-col justify-between gap-6 rounded-sm border p-4 sm:min-h-[136px] sm:p-5',
     '@lg:col-span-2',
-    // Dos por fila en móviles de 360 a 380 px: algo menos de relleno (la letra baja en EventCardContent)
-    '@min-[17.5rem]:@max-[18.5rem]:p-3.5',
-    /*
-     * Filas a todo el ancho por debajo de 17,5rem: icono y nombre en una línea,
-     * todas de 56 px. Sin hueco a la derecha para la marca (va sobre el icono),
-     * así el paso mide casi lo mismo que con dos tarjetas por fila.
-     */
-    '@max-[17.5rem]:col-span-6 @max-[17.5rem]:min-h-14 @max-[17.5rem]:flex-row @max-[17.5rem]:items-center @max-[17.5rem]:justify-start @max-[17.5rem]:gap-3 @max-[17.5rem]:px-3.5 @max-[17.5rem]:py-3',
-    'transition-[border-color,background-color] duration-300 ease-brand',
+    // Filas a todo el ancho en las rejillas más estrechas: icono, nombre y marca en una línea
+    `@max-[18.5rem]:col-span-6 @max-[18.5rem]:min-h-14 @max-[18.5rem]:flex-row @max-[18.5rem]:items-center @max-[18.5rem]:justify-start @max-[18.5rem]:gap-3 @max-[18.5rem]:px-4 @max-[18.5rem]:py-3`,
+    'transition-[border-color,background-color,box-shadow] duration-300 ease-brand',
     'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-3 has-[:focus-visible]:outline-wood has-[:focus-visible]:outline-solid',
-    checked ? 'border-wood bg-wood/[0.06]' : 'border-sand bg-cream hover:border-ink/35',
+    checked
+      ? 'border-wood bg-wood/[0.06] shadow-[inset_0_0_0_1px_var(--color-wood)]'
+      : 'border-ink/15 bg-cream hover:border-ink/40 hover:bg-paper/50',
   ].join(' ');
 }
 
@@ -63,58 +72,122 @@ export function EventCardContent({ value, checked }: { value: TipoEvento; checke
   /*
    * En las tarjetas el nombre se compone siempre en dos líneas, cortado tras la
    * primera palabra ("Feria / o bazar", nunca una "o" a final de línea): todas
-   * las tarjetas leen igual, quepa o no el nombre entero. En filas, una línea.
+   * las tarjetas leen igual. En filas, una línea.
    */
   const cut = value.indexOf(' ');
   const first = cut === -1 ? value : value.slice(0, cut);
   const rest = cut === -1 ? '' : value.slice(cut + 1);
   return (
     <>
-      <Icon
+      <span
         aria-hidden="true"
-        strokeWidth={1.5}
-        className={`size-7 flex-none text-wood transition-[translate,opacity] duration-500 ease-brand group-hover:-translate-y-0.5 ${checked ? '@max-[17.5rem]:opacity-0' : ''}`}
-      />
-      <span className="min-w-0 pr-1 font-display text-[1.0625rem] leading-[1.2] break-words hyphens-auto text-ink sm:text-[1.125rem] @max-[17.5rem]:text-base @min-[17.5rem]:@max-[18.5rem]:text-base">
+        className={`flex size-10 flex-none items-center justify-center rounded-full transition-colors duration-300 ease-brand @max-[18.5rem]:size-8 ${
+          checked ? 'bg-wood text-cream' : 'bg-paper text-wood-dark group-hover:bg-sand/70'
+        }`}
+      >
+        <Icon strokeWidth={1.5} className={`size-5 @max-[18.5rem]:size-[18px]`} />
+      </span>
+      <span
+        className={`min-w-0 pr-1 font-display text-[1.0625rem] leading-[1.2] text-ink sm:text-[1.125rem] @max-[18.5rem]:text-base`}
+      >
         {first}
         {rest ? (
           <>
             {' '}
-            <span className="block @max-[17.5rem]:inline">{rest}</span>
+            <span className={`block @max-[18.5rem]:inline`}>{rest}</span>
           </>
         ) : null}
       </span>
       <span
         aria-hidden="true"
         className={[
-          'absolute top-4 right-4 flex size-[22px] items-center justify-center rounded-full border transition-[background-color,border-color,opacity] duration-300 ease-brand sm:top-5 sm:right-5',
-          // En filas, la marca ocupa el sitio del icono (centrada sobre sus 28 px) y solo aparece al elegir
-          '@max-[17.5rem]:top-[calc(50%-11px)] @max-[17.5rem]:right-auto @max-[17.5rem]:left-[calc(0.875rem+3px)]',
-          checked
-            ? 'border-wood bg-wood opacity-100'
-            : 'border-sand bg-cream opacity-0 @min-[17.5rem]:group-hover:opacity-100',
+          'absolute top-4 right-4 flex size-[22px] flex-none items-center justify-center rounded-full border transition-[background-color,border-color] duration-300 ease-brand sm:top-5 sm:right-5',
+          `@max-[18.5rem]:static @max-[18.5rem]:ml-auto`,
+          checked ? 'border-wood bg-wood' : 'border-ink/25 bg-cream group-hover:border-ink/45',
         ].join(' ')}
       >
-        <Check strokeWidth={2.5} className={`size-3 text-cream ${checked ? '' : 'opacity-0'}`} />
+        <Check
+          strokeWidth={2.5}
+          className={`size-3 text-cream transition-opacity duration-200 ${checked ? '' : 'opacity-0'}`}
+        />
       </span>
     </>
   );
 }
 
-/** "Paso 1 de 4" y barra de progreso. */
+/**
+ * Cabecera de la tarjeta: "Paso 1 de 4" y los cuatro pasos como segmentos. En
+ * móvil, el nombre del paso actual a la derecha; desde sm, cada segmento con
+ * su número y su nombre.
+ */
 export function FormProgress({ step }: { step: number }) {
   return (
-    <div className="mb-8 sm:mb-10">
-      <div className="flex items-baseline justify-between gap-4 text-[0.875rem]">
-        <p className="tabular font-semibold text-ink">{FORM_COPY.stepOf(step + 1, STEP_COUNT)}</p>
-        <p className="text-stone">{STEPS[step].short}</p>
+    <div className={`border-b border-sand py-5 sm:py-6 ${PAD_X}`}>
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="tabular text-[0.8125rem] font-semibold tracking-[0.14em] text-wood-dark uppercase">
+          {FORM_COPY.stepOf(step + 1, STEP_COUNT)}
+        </p>
+        <p className="text-[0.875rem] text-stone sm:hidden">{STEPS[step].short}</p>
       </div>
-      <div className="relative mt-3 h-0.5 overflow-hidden bg-sand" aria-hidden="true">
-        <div
-          className="q-progress absolute inset-0 origin-left bg-wood"
-          style={{ transform: `scaleX(${(step + 1) / STEP_COUNT})` }}
-        />
-      </div>
+      <ol aria-hidden="true" className="mt-4 grid grid-cols-4 gap-1.5 sm:gap-2">
+        {STEPS.map((s, i) => {
+          const done = i < step;
+          const current = i === step;
+          return (
+            <li key={s.short} className="min-w-0">
+              <span className="relative block h-[3px] overflow-hidden rounded-full bg-sand">
+                <span
+                  className="q-progress absolute inset-0 origin-left rounded-full bg-wood"
+                  style={{ transform: `scaleX(${i <= step ? 1 : 0})` }}
+                />
+              </span>
+              <span
+                className={[
+                  'mt-3 hidden items-center gap-1.5 text-[0.8125rem] leading-tight sm:flex',
+                  current ? 'font-semibold text-ink' : done ? 'text-wood-dark' : 'text-stone',
+                ].join(' ')}
+              >
+                <span
+                  className={[
+                    'tabular flex size-5 flex-none items-center justify-center rounded-full border text-[0.6875rem] font-semibold',
+                    done || current ? 'border-wood bg-wood text-cream' : 'border-ink/20 text-stone',
+                  ].join(' ')}
+                >
+                  {done ? <Check strokeWidth={3} className="size-3" /> : i + 1}
+                </span>
+                <span className="truncate">{s.short}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+/**
+ * Aviso de llegada con ?provincia=: la provincia ya elegida, sobre la cabecera
+ * de la tarjeta. Entra con un fundido y la chincheta cae (solo con movimiento).
+ */
+export function ProvinceNotice({ provincia }: { provincia: string }) {
+  return (
+    <div
+      className={`q-notice relative flex items-center gap-4 border-b border-sand bg-paper/70 py-4 ${PAD_X} rounded-t-sm`}
+    >
+      <span aria-hidden="true" className="relative flex size-11 flex-none items-center justify-center">
+        <span className="q-notice-ring absolute inset-0 rounded-full bg-wood/15" />
+        <span className="q-notice-pin relative flex size-11 items-center justify-center rounded-full bg-wood text-cream">
+          <MapPin strokeWidth={1.75} className="size-5" />
+        </span>
+      </span>
+      <p className="min-w-0 leading-tight">
+        <span className="block text-[0.8125rem] font-semibold tracking-[0.14em] text-wood-dark uppercase">
+          {FORM_COPY.provinceNoticeLabel}
+        </span>
+        <span className="mt-1 block font-display text-[1.25rem] text-ink sm:text-[1.375rem]">
+          {noOrphans(FORM_COPY.provinceNotice(provincia))}
+        </span>
+      </p>
     </div>
   );
 }
@@ -123,7 +196,7 @@ export function FormProgress({ step }: { step: number }) {
 export function NoScriptContact() {
   return (
     <noscript>
-      <div className="surface-paper rounded-sm border border-sand bg-paper px-5 py-7 sm:px-9 sm:py-10">
+      <div className="rounded-sm border border-sand bg-cream px-5 py-7 sm:px-9 sm:py-10">
         <p className="font-display text-[1.5rem] leading-tight text-ink">{FORM_COPY.noscriptTitle}</p>
         <p className="mt-3 text-stone">{FORM_COPY.noscriptText}</p>
         <ul className="mt-6 space-y-1 text-[1.0625rem]">

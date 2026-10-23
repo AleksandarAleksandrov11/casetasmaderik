@@ -7,19 +7,29 @@ export const homeMeta = {
 };
 
 export const homeHero = {
-  label: 'Casetas Maderik',
-  titleLines: [
-    { text: 'Alquiler de', weight: 'light' },
-    { text: 'casetas de madera', weight: 'strong' },
-    { text: 'para ferias y eventos', weight: 'light' },
-  ],
-  subtitle: 'Mercados navideños, ferias, festivales y eventos privados. La llevamos, la montamos y la recogemos.',
+  /** H1 en tres líneas: "Alquiler de / casetas / de madera". */
+  title: ['Alquiler de', 'casetas', 'de madera'],
+  subtitle: 'Para ferias, mercados navideños y eventos. La llevamos, la montamos y la recogemos.',
   primary: { label: 'Pedir presupuesto', href: '/contacto' },
   secondary: { label: 'Ver la caseta', href: '/casetas' },
-  scroll: 'Desliza',
-  night: 'Lista antes de que abra tu evento.',
+  controls: {
+    hint: 'Arrastra para girarla',
+    windows: 'Ventanas',
+    door: 'Puerta',
+    lights: 'Luces',
+    dims: 'Medidas',
+    toolbar: 'Prueba la caseta',
+  },
   sceneDescription:
-    'Caseta de madera de pino en 3D: se abren sus tres contraventanas, cae la noche, se encienden las luces y aparecen sus medidas de 2,90 por 2,00 por 2,47 metros.',
+    'Caseta de madera de pino de 2,90 por 2,00 por 2,47 metros. Puedes girarla arrastrando o con las flechas, abrir sus ventanas y su puerta, encender las luces y ver sus medidas.',
+  /** Cinta inferior del hero. */
+  ticker: [
+    'Mercados navideños',
+    'Ferias y bazares',
+    'Festivales gastronómicos',
+    'Eventos corporativos',
+    'Bodas y jardines',
+  ],
 };
 
 export const homeCaseta = {

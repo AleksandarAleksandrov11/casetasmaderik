@@ -152,6 +152,9 @@ export async function smallTargets(page: Page): Promise<string[]> {
       if (r.width === 0 || r.height === 0) continue;
       // Enlaces dentro de un texto corrido: se rigen por la excepción de WCAG 2.5.8
       if (el.tagName === 'A' && el.closest('p, .prose-legal li, td') && !el.className.includes('inline-flex')) continue;
+      // Provincias del mapa de Nosotros: excepción "equivalente" de WCAG 2.5.8, el
+      // desplegable de provincias junto al mapa (de 44 px o más) hace lo mismo
+      if (el.closest('[data-equivalent-control]')) continue;
       // Casillas: se mide la etiqueta que las envuelve
       if (el instanceof HTMLInputElement && ['checkbox', 'radio'].includes(el.type)) {
         const label = el.closest('label') ?? document.querySelector(`label[for="${el.id}"]`);

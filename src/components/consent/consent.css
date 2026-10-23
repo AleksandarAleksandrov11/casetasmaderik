@@ -421,8 +421,8 @@
     margin-left: 0;
   }
 
-  /* Y el texto y las acciones del CTA final se quedan en la columna que deja
-     libre la tarjeta (su ancho, el de arriba, y un margen entre las dos) */
+  /* Y el CTA final, que va centrado, pasa a la izquierda, en la columna que
+     deja libre la tarjeta (su ancho, el de arriba, y un margen entre las dos) */
   html.cc-pending {
     --consent-free-w: calc(
       100vw - var(--gutter) - max(var(--gutter), var(--safe-left)) - max(var(--gutter), var(--safe-right)) -
@@ -430,12 +430,18 @@
     );
   }
 
-  html.cc-pending [data-cta-lead] {
-    max-width: min(44ch, var(--consent-free-w));
+  html.cc-pending [data-cta-block] {
+    max-width: var(--consent-free-w);
+    margin-left: 0;
+    text-align: left;
   }
 
-  html.cc-pending [data-cta-actions] {
-    max-width: min(100%, var(--consent-free-w));
+  html.cc-pending [data-cta-block] :is(h2, [data-cta-lead], [data-cta-actions], [role='radiogroup'], .cm-lineup) {
+    margin-left: 0;
+  }
+
+  html.cc-pending [data-cta-block] [data-cta-actions] {
+    justify-content: flex-start;
   }
 }
 

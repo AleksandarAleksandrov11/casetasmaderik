@@ -82,6 +82,30 @@ export const PROVINCIAS = [
 export const FUERA_DE_ESPANA = 'Fuera de España';
 export const PROVINCIA_OPTIONS = [...PROVINCIAS, FUERA_DE_ESPANA] as const;
 
+export type Provincia = (typeof PROVINCIAS)[number];
+
+/** Sin tildes, en minúsculas y con los guiones y espacios repetidos como un espacio. */
+function foldName(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[\s_-]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Provincia de ?provincia=<nombre> (el nombre de PROVINCIAS, codificado con
+ * encodeURIComponent). Admite el nombre sin tildes ni mayúsculas: "a coruna",
+ * "A-Coruña" o "ALAVA" dan la provincia de la lista.
+ */
+export function provinciaFromParam(value: string | null | undefined): Provincia | undefined {
+  if (!value) return undefined;
+  const wanted = foldName(value);
+  if (!wanted) return undefined;
+  return PROVINCIAS.find((p) => foldName(p) === wanted);
+}
+
 export const LIMITS = {
   casetasMin: 1,
   casetasMax: 200,

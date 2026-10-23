@@ -29,7 +29,7 @@ function Summary({ onEdit }: { onEdit: (step: number) => void }) {
   ].filter((p) => p.text);
 
   return (
-    <div className="clear-both rounded-sm border border-sand bg-cream px-4 py-3 sm:px-5">
+    <div className="clear-both rounded-sm border border-sand bg-paper/60 px-4 py-3 sm:px-5">
       <p className="text-[0.8125rem] font-semibold tracking-[0.14em] text-wood-dark uppercase">
         {FORM_COPY.summaryLabel}
       </p>
@@ -89,7 +89,7 @@ export function StepContact({
       <StepLegend step={3} id={`${idPrefix}-title`} />
       <Summary onEdit={onEdit} />
 
-      <div className="mt-7 grid gap-x-4 gap-y-5 sm:grid-cols-2">
+      <div className="mt-8 grid gap-x-4 gap-y-6 sm:grid-cols-2">
         <Field id={ids.nombre} label={FORM_COPY.nombre} error={err('nombre')} className="sm:col-span-2">
           <input
             id={ids.nombre}
@@ -149,7 +149,7 @@ export function StepContact({
         </Field>
       </div>
 
-      <div className="mt-7">
+      <div className="mt-8 border-t border-sand pt-6">
         <div className="flex items-start gap-3">
           <span className="relative mt-[11px] inline-flex">
             <input

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
-import { FormProvider, useForm, type FieldError, type Resolver } from 'react-hook-form';
+import { FormProvider, useForm, useWatch, type FieldError, type Resolver } from 'react-hook-form';
 import { ArrowLeft, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { Button, ButtonAnchor } from '@/components/ui/Button';
 import { getLenis } from '@/components/layout/MotionRoot';
@@ -17,13 +17,23 @@ import {
   STEP_FIELDS,
   draftToLeadRequest,
   eventFromSlug,
+  provinciaFromParam,
   stepOfField,
   type DraftField,
   type LeadResponse,
   type QuoteDraft,
 } from '@/lib/quote-data';
 import { FORM_COPY, STEPS } from './copy';
-import { ACTIONS_CLASS, FormProgress, NEXT_BUTTON_CLASS, NoScriptContact, PANEL_CLASS, ROOT_CLASS } from './frame';
+import {
+  ACTIONS_CLASS,
+  BODY_CLASS,
+  FormProgress,
+  NEXT_BUTTON_CLASS,
+  NoScriptContact,
+  PANEL_CLASS,
+  ProvinceNotice,
+  ROOT_CLASS,
+} from './frame';
 import { firstName } from './format';
 import { clearDraft, createId, loadDraft, saveDraft } from './storage';
 import { StepContact } from './StepContact';
@@ -107,9 +117,16 @@ function scrollFormIntoView(el: HTMLElement) {
   else el.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
+/** ?provincia= de la URL. El formulario solo se monta en el navegador (QuoteFormIsland). */
+function provinciaFromUrl() {
+  return typeof window === 'undefined'
+    ? undefined
+    : provinciaFromParam(new URLSearchParams(window.location.search).get('provincia'));
+}
+
 /**
- * Formulario de presupuesto en cuatro pasos. Sin props: lee ?evento=<slug> y
- * ?casetas=<n> de la URL al montarse, guarda el borrador en sessionStorage y
+ * Formulario de presupuesto en cuatro pasos. Sin props: lee ?evento=<slug>,
+ * ?provincia=<nombre> y ?casetas=<n> de la URL al montarse, guarda el borrador en sessionStorage y
  * envía la solicitud a /api/presupuesto con un id estable para los reintentos.
  */
 export function QuoteForm() {
@@ -122,6 +139,9 @@ export function QuoteForm() {
     shouldFocusError: false,
   });
   const { getValues, reset, setError, setFocus, subscribe, trigger, getFieldState } = methods;
+  // Llegada con ?provincia=: aviso sobre la tarjeta con la provincia que haya elegida en cada momento
+  const [arrivedWithProvincia] = useState(() => Boolean(provinciaFromUrl()));
+  const provinciaActual = provinciaFromParam(useWatch({ control: methods.control, name: 'provincia' }));
 
   const [step, setStep] = useState(0);
   // 0 hasta el primer cambio de paso: el primer paso no se anima al cargar
@@ -147,15 +167,17 @@ export function QuoteForm() {
     saveDraft({ id: meta.current.id, startedAt: meta.current.startedAt, step: atStep, values });
   }, []);
 
-  // Restaurar el borrador y aplicar la precarga por URL (?evento= y ?casetas=)
+  // Restaurar el borrador y aplicar la precarga por URL (?evento=, ?provincia= y ?casetas=): la URL manda
   useEffect(() => {
     let cancelled = false;
     const stored = loadDraft();
     const params = new URLSearchParams(window.location.search);
     const evento = eventFromSlug(params.get('evento'));
+    const provincia = provinciaFromParam(params.get('provincia'));
     const casetas = parseCasetas(params.get('casetas'));
     const values: QuoteDraft = { ...(stored?.values ?? EMPTY_DRAFT) };
     if (evento) values.tipoEvento = evento;
+    if (provincia) values.provincia = provincia;
     if (casetas) values.casetas = String(casetas);
     meta.current = { id: stored?.id ?? createId(), startedAt: stored?.startedAt ?? Date.now() };
     reset(values);
@@ -410,8 +432,11 @@ export function QuoteForm() {
           {announcement}
         </p>
         <div className={PANEL_CLASS}>
+          {arrivedWithProvincia && provinciaActual && status !== 'success' ? (
+            <ProvinceNotice provincia={provinciaActual} />
+          ) : null}
           {status === 'success' ? (
-            <div key="success" className="q-enter">
+            <div key="success" className={`q-enter ${BODY_CLASS}`}>
               <Success nombre={result.nombre} numero={result.numero} headingRef={onSuccessHeading} />
             </div>
           ) : (
@@ -428,62 +453,67 @@ export function QuoteForm() {
                 >
                   <FormProgress step={step} />
 
-                  <div key={step} ref={onStepMount} className="q-step" data-dir={direction}>
-                    {step === 0 ? (
-                      <StepEvent idPrefix={idPrefix} showErrors={showErrors} onPointerPick={onPointerPick} />
-                    ) : step === 1 ? (
-                      <StepWhenWhere idPrefix={idPrefix} showErrors={showErrors} />
-                    ) : step === 2 ? (
-                      <StepQuantity idPrefix={idPrefix} showErrors={showErrors} />
-                    ) : (
-                      <StepContact
-                        idPrefix={idPrefix}
-                        showErrors={showErrors}
-                        onEdit={goTo}
-                        onConsent={revealActions}
-                      />
-                    )}
-                  </div>
-
-                  {notice ? (
-                    <div role="alert" className="mt-8 rounded-sm border border-error/25 bg-cream px-4 py-4 sm:px-5">
-                      <p className="flex items-start gap-3 text-[0.9375rem] leading-snug text-ink">
-                        <TriangleAlert
-                          aria-hidden="true"
-                          strokeWidth={1.5}
-                          className="mt-px size-5 flex-none text-error"
+                  <div className={BODY_CLASS}>
+                    <div key={step} ref={onStepMount} className="q-step" data-dir={direction}>
+                      {step === 0 ? (
+                        <StepEvent idPrefix={idPrefix} showErrors={showErrors} onPointerPick={onPointerPick} />
+                      ) : step === 1 ? (
+                        <StepWhenWhere idPrefix={idPrefix} showErrors={showErrors} />
+                      ) : step === 2 ? (
+                        <StepQuantity idPrefix={idPrefix} showErrors={showErrors} />
+                      ) : (
+                        <StepContact
+                          idPrefix={idPrefix}
+                          showErrors={showErrors}
+                          onEdit={goTo}
+                          onConsent={revealActions}
                         />
-                        <span>{notice.text}</span>
-                      </p>
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:pl-8">
-                        {notice.retry ? (
-                          <Button
-                            ref={onRetryMount}
-                            arrow
-                            onClick={() => {
-                              focusSubmit.current = true;
-                              void submit();
-                            }}
-                            className="max-sm:w-full"
-                          >
-                            {FORM_COPY.retry}
-                          </Button>
-                        ) : null}
-                        <ButtonAnchor
-                          href={whatsappHref()}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          variant="outline"
-                          magnetic={false}
-                          className="max-sm:w-full"
-                          icon={<WhatsAppIcon className="size-5" />}
-                          onClick={() => trackEvent('click_whatsapp', { ubicacion: 'formulario_error' })}
-                        >
-                          WhatsApp
-                        </ButtonAnchor>
-                      </div>
+                      )}
                     </div>
-                  ) : null}
+
+                    {notice ? (
+                      <div
+                        role="alert"
+                        className="mt-8 rounded-sm border border-error/25 bg-paper/70 px-4 py-4 sm:px-5"
+                      >
+                        <p className="flex items-start gap-3 text-[0.9375rem] leading-snug text-ink">
+                          <TriangleAlert
+                            aria-hidden="true"
+                            strokeWidth={1.5}
+                            className="mt-px size-5 flex-none text-error"
+                          />
+                          <span>{notice.text}</span>
+                        </p>
+                        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:pl-8">
+                          {notice.retry ? (
+                            <Button
+                              ref={onRetryMount}
+                              arrow
+                              onClick={() => {
+                                focusSubmit.current = true;
+                                void submit();
+                              }}
+                              className="max-sm:w-full"
+                            >
+                              {FORM_COPY.retry}
+                            </Button>
+                          ) : null}
+                          <ButtonAnchor
+                            href={whatsappHref()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            variant="outline"
+                            magnetic={false}
+                            className="max-sm:w-full"
+                            icon={<WhatsAppIcon className="size-5" />}
+                            onClick={() => trackEvent('click_whatsapp', { ubicacion: 'formulario_error' })}
+                          >
+                            WhatsApp
+                          </ButtonAnchor>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
 
                   <div data-quote-actions="" style={{ scrollMarginBottom: inset + 16 }} className={ACTIONS_CLASS}>
                     {step > 0 ? (

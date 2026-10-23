@@ -1,12 +1,12 @@
 /**
- * Estilos del 3D compartidos: poster, lienzo y etiquetas de cotas.
+ * Estilos del 3D compartidos: lienzo y etiquetas de cotas.
  * Se sirven en línea con <style precedence> (React 19) desde los componentes
  * de servidor: así no hay hojas CSS por ruta que el prefetch de los enlaces
  * precargue en otras páginas (aviso de consola "preloaded but not used").
  */
 export const threeCss = /* css */ `
 /* ------------------------------------------------------------------ */
-/* 3D de la caseta: poster, lienzo y etiquetas de cotas                 */
+/* 3D de la caseta: lienzo y etiquetas de cotas                        */
 /* ------------------------------------------------------------------ */
 
 .caseta-visual {
@@ -14,39 +14,6 @@ export const threeCss = /* css */ `
   inset: 0;
   container-type: size;
   pointer-events: none;
-}
-
-.caseta-poster img {
-  position: absolute;
-  left: var(--pl-m, var(--pl-d));
-  top: var(--pt-m, var(--pt-d));
-  width: var(--pw-m, var(--pw-d));
-  height: var(--ph-m, var(--ph-d));
-  max-width: none;
-  user-select: none;
-}
-
-/* Mismas consultas que Poster.tsx (WIDE y LG) */
-@media (min-width: 1024px) and (min-aspect-ratio: 1/1), (min-width: 600px) and (min-aspect-ratio: 5/4) {
-  .caseta-poster--split-wide img {
-    left: var(--pl-d);
-    top: var(--pt-d);
-    width: var(--pw-d);
-    height: var(--ph-d);
-  }
-}
-
-@media (min-width: 1024px) {
-  .caseta-poster--split-lg img {
-    left: var(--pl-d);
-    top: var(--pt-d);
-    width: var(--pw-d);
-    height: var(--ph-d);
-  }
-}
-
-.caseta-poster {
-  transition: opacity 0.6s var(--ease-brand) 0.7s;
 }
 
 .caseta-canvas {
@@ -58,10 +25,6 @@ export const threeCss = /* css */ `
 
 [data-live] .caseta-canvas {
   opacity: 1;
-}
-
-[data-live] .caseta-poster {
-  opacity: 0;
 }
 
 /* Etiquetas de cotas: texto real con la fuente de la web, colocado por proyección */
