@@ -3,6 +3,7 @@ import { HomeHero } from '@/components/sections/home/HomeHero';
 import { HomeCaseta } from '@/components/sections/home/HomeCaseta';
 import { HomeEvents } from '@/components/sections/home/HomeEvents';
 import { HomeProcess } from '@/components/sections/home/HomeProcess';
+import { HomeGuide } from '@/components/sections/home/HomeGuide';
 import { FaqSection } from '@/components/sections/shared/FaqSection';
 import { CtaFinal } from '@/components/sections/shared/CtaFinal';
 import { TextLink } from '@/components/ui/TextLink';
@@ -37,11 +38,13 @@ export default function HomePage() {
       <HomeCaseta />
       <HomeEvents />
       <HomeProcess />
+      <HomeGuide />
       <FaqSection
         id="preguntas-frecuentes"
         label={homeFaqIntro.label}
         title={homeFaqIntro.title}
         faqs={homeFaqs}
+        surface="paper"
         aside={<TextLink href={homeFaqIntro.link.href}>{homeFaqIntro.link.label}</TextLink>}
       />
       <CtaFinal

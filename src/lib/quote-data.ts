@@ -189,7 +189,6 @@ export function stepOfField(field: string): number {
   return index === -1 ? STEP_COUNT - 1 : index;
 }
 
-
 /* ------------------------------------------------------------------ */
 /* Contratos de la API                                                 */
 /* ------------------------------------------------------------------ */

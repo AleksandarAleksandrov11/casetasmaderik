@@ -69,6 +69,9 @@ export const contactoCta = {
   title: '¿Prefieres hablarlo?',
   // \u00a0: sin una "o" suelta al final de línea
   text: 'Para fechas cercanas o\u00a0dudas rápidas, lo más directo es una llamada o\u00a0un WhatsApp.',
-  image: { src: '/images/stock/jardin-celebracion-luces.webp', alt: '' },
+  image: {
+    src: '/images/stock/jardin-celebracion-luces.webp',
+    alt: 'Celebración en un jardín con guirnaldas de luces cálidas',
+  },
   note: `Teléfono y WhatsApp: ${site.hours.charAt(0).toLowerCase()}${site.hours.slice(1)}.`,
 };

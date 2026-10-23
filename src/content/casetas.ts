@@ -147,5 +147,8 @@ export const casetasConfigurator = {
     { id: '10+', label: 'Más de 10', value: 12 },
   ],
   // Fondo del cierre (misma estructura que CtaFinal): un mercado lleno de casetas
-  image: { src: '/images/stock/mercado-navideno-luces-calidas.webp', alt: '' },
+  image: {
+    src: '/images/stock/mercado-navideno-luces-calidas.webp',
+    alt: 'Mercado navideño con puestos de madera iluminados',
+  },
 };

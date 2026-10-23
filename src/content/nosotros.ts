@@ -56,7 +56,12 @@ export const nosotrosSeason = {
     { month: 'Noviembre', text: 'Planificación' },
     { month: 'Diciembre', text: 'Montaje' },
   ],
-  image: { src: '/images/stock/mercado-navideno-noche-casetas-madera.webp', width: 2560, height: 1707, alt: '' },
+  image: {
+    src: '/images/stock/mercado-navideno-noche-casetas-madera.webp',
+    width: 2560,
+    height: 1707,
+    alt: 'Mercado navideño de noche con casetas de madera y guirnaldas de luces',
+  },
 };
 
 export const nosotrosArea = {
@@ -70,5 +75,8 @@ export const nosotrosCta = {
   title: '¿Tienes dudas de transporte o montaje?',
   text: 'Cuéntanos qué estás organizando y revisamos contigo medidas y accesos al recinto.',
   // Foto real de la caseta en el cierre (CtaFinal)
-  image: { src: '/images/real/caseta-madera-alquiler-feria-abierta.webp', alt: '' },
+  image: {
+    src: '/images/real/caseta-madera-alquiler-feria-abierta.webp',
+    alt: 'Caseta de madera de Casetas Maderik abierta en una feria',
+  },
 };

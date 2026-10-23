@@ -401,7 +401,7 @@ export function InteractiveCaseta({
                 sizes={sizes}
                 width={TURNTABLE.width}
                 height={TURNTABLE.height}
-                alt=""
+                alt={labels.sceneDescription.split('.')[0]}
                 draggable={false}
                 decoding="async"
                 loading={priority ? 'eager' : 'lazy'}

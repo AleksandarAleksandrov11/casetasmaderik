@@ -33,9 +33,10 @@ export function CtaBackdrop({ image, focus = 'center' }: { image: CtaImage; focu
         <Image
           src={image.src}
           {...blurFor(image.src)}
-          alt=""
+          alt={image.alt}
           fill
-          sizes="(max-width: 639px) 300vw, (max-width: 1023px) 130vw, 100vw"
+          // Bajo un velo del 70 al 80 %: basta una resolución moderada (en móvil, ~1440 px con DPR 3)
+          sizes="(max-width: 639px) 480px, (max-width: 1023px) 1080px, 100vw"
           quality={60}
           className="object-cover"
           style={{ objectPosition: focus }}

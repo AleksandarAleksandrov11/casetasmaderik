@@ -160,6 +160,20 @@ export const heroCss = /* css */ `
   color: var(--color-cream);
 }
 
+.hero__line--tail {
+  margin-top: 0.4em;
+  font-size: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  color: var(--color-stone);
+  transition: color 0.8s var(--ease-brand);
+}
+
+.hero[data-header='dark'] .hero__line--tail {
+  color: color-mix(in oklab, var(--color-cream) 78%, transparent);
+}
+
 .hero[data-header='dark'] .hero__line--kicker {
   color: var(--color-wood-light);
 }
