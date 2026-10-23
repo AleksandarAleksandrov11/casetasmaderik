@@ -233,21 +233,54 @@ Cambios pedidos por el cliente tras la primera entrega y cómo se verificaron.
 
 Corregido durante esta QA: el lienzo 3D (que R3F deja con eventos activos) tapaba la botonera en el hero, la medición de fps pasaba a fotogramas aunque el 3D estuviera forzado en las pruebas, la hoja CSS del mapa de provincias se precargaba en otras páginas sin usarse (ahora va en línea), los botones de las partes de la caseta medían 42 px de alto (ahora 44), el visual ampliado del visor desbordaba en móvil y "WhatsApp" se cortaba a 320 px en el CTA final.
 
+## Segunda ronda de cambios (octubre de 2026)
+
+- **Cinta del hero**: ahora es infinita. Son dos grupos iguales que superan el ancho de cualquier pantalla y se desplazan siempre hacia la izquierda. El texto va en CSS para no repetir palabras clave en el HTML.
+- **Imágenes**: todas las fotos están en WebP y `next/image` sirve solo WebP. Los iconos de la app y la base de las imágenes Open Graph siguen en PNG porque esos formatos los exigen.
+- **Caseta 3D**: al activar Ventanas, Puerta, Luces o Medidas, gira sola hasta donde mejor se ve. Se mueve también arriba y abajo, de casi a ras de suelo hasta verla desde arriba; en táctil se gira con el dedo en las dos direcciones. La pista "Arrastra para girarla" se mantiene.
+- **Hero de /casetas**: la caseta va en el centro, el titular y el texto a su izquierda y las medidas con el botón a su derecha, a la misma altura. En móvil va todo en columna.
+- **Ficha técnica**: medidas y características juntas en una sola ficha, sobre fondo liso. Los planos van en su propia sección.
+- **Nosotros**: el hero lleva la foto real de la caseta en lugar de la de tablones.
+- **Móvil**:
+  - El header queda siempre fijo arriba.
+  - El menú hamburguesa se abre sin que "Inicio" suba y desaparezca. La causa era el foco sobre un enlace aún desplazado dentro de una fila con `overflow: hidden`.
+  - Las cifras animadas reservan su ancho final.
+  - La franja que reserva el aviso de cookies ya no depende del alto de la ventana, que cambia al esconderse la barra del navegador.
+- **Formulario y Apps Script**: la web envía solo los datos del formulario, sin UTM, procedencia ni dispositivo. El Apps Script nuevo, sin comentarios, guarda esos datos con la fecha y la hora, y cuenta los leads en una pestaña Contador. No envía emails.
+- **SEO**:
+  - El H1 incluye "para ferias y eventos", como el título de la página.
+  - Todas las imágenes tienen texto alternativo.
+  - Inicio tiene un bloque de contenido sobre el alquiler (qué incluye, para qué eventos y cómo pedir presupuesto).
+  - La foto del CTA final en móvil pesa mucho menos.
+
+### Resultados automáticos
+
+| Prueba                               | Resultado                                                                                       |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Lint, tipos y formato                | Sin errores                                                                                     |
+| Unitarios                            | 110 de 110 (incluye el Apps Script nuevo: hojas, fecha y hora, contador, duplicados y fórmulas) |
+| End to end                           | 83 correctos y 2 omitidos                                                                       |
+| Capturas, estados, axe y contraste   | 202 de 202                                                                                      |
+| Enlaces internos                     | 399 comprobados, ninguno roto                                                                   |
+| JavaScript inicial (gzip, sin el 3D) | Inicio 163,0 KB · Casetas 168,4 KB · Nosotros 156,9 KB · Contacto 156,2 KB (límite 170 KB)      |
+
+Sobre el análisis de Seobility hecho en casetasmaderik.vercel.app: el canonical y el hreflang apuntan a https://casetasmaderik.es a propósito, para que Google no indexe la dirección de Vercel como un duplicado. Ese aviso desaparece cuando el dominio apunta a Vercel. Hoy casetasmaderik.es sigue sirviendo la web antigua (WordPress).
+
 ## Lighthouse
 
 `pnpm qa:lighthouse` (Lighthouse CI 12, 3 ejecuciones por URL y modo, servidor de QA en local, throttling simulado por defecto: Moto G Power con 4G lenta y CPU ×4 en móvil, preset de escritorio en escritorio). **Todas las aserciones pasan.** Rendimiento: mediana y, entre paréntesis, las tres ejecuciones.
 
 | Página                 | Móvil           | Escritorio          | Accesibilidad | Buenas prácticas | SEO     |
 | ---------------------- | --------------- | ------------------- | ------------- | ---------------- | ------- |
-| Inicio                 | 91 (87, 91, 91) | 99 (99, 99, 99)     | 100           | 100              | 100     |
-| Casetas                | 87 (85, 87, 93) | 99 (99, 99, 99)     | 100           | 100              | 100     |
-| Nosotros               | 91 (91, 91, 93) | 100 (100, 100, 100) | 100           | 100              | 100     |
-| Contacto               | 93 (92, 93, 93) | 99 (99, 99, 100)    | 100           | 100              | 100     |
-| Aviso legal            | 93 (92, 93, 94) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
-| Política de privacidad | 93 (93, 93, 94) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
-| Política de cookies    | 95 (93, 95, 97) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Inicio                 | 91 (91, 91, 93) | 100 (100, 100, 100) | 100           | 100              | 100     |
+| Casetas                | 94 (91, 94, 95) | 100 (100, 100, 100) | 100           | 100              | 100     |
+| Nosotros               | 94 (93, 94, 94) | 100 (100, 100, 100) | 100           | 100              | 100     |
+| Contacto               | 94 (93, 94, 94) | 100 (100, 100, 100) | 100           | 100              | 100     |
+| Aviso legal            | 96 (94, 96, 98) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Política de privacidad | 94 (94, 94, 96) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
+| Política de cookies    | 94 (94, 94, 95) | 100 (100, 100, 100) | 100           | 100              | 66 (\*) |
 
-Medición repetida tras el rediseño (octubre de 2026). Casetas en móvil baja de 91 a 87 de mediana, con mucha dispersión entre ejecuciones (85 a 93): ahora el LCP es el primer fotograma de la caseta interactiva, que pinta en la traza real a la vez que el resto, pero la simulación le suma el tiempo de CPU de los scripts de la página, que es la más cargada (visor, montaje, galería y configurador). En escritorio todas las páginas siguen entre 99 y 100.
+Medición tras la segunda ronda de cambios. Al pasar el menú móvil a CSS se dejó de cargar la librería `motion`, y Casetas sube de 87 a 94 en móvil. Escritorio, 100 en todas las páginas.
 
 (\*) Las páginas legales llevan `noindex, follow` por el brief (sección 10.5): Lighthouse descuenta la auditoría de indexabilidad. La configuración comprueba una a una todas las demás auditorías SEO (título, descripción, canonical, enlaces, robots.txt, hreflang, alt) y pasan todas.
 
