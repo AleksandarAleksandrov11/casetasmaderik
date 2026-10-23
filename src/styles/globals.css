@@ -1078,53 +1078,6 @@ html.cc-pending.show--consent {
 }
 
 /* ------------------------------------------------------------------ */
-/* Ficha técnica de /casetas: un fondo por bloque, solo con degradados */
-/* CSS (sin imágenes ni transform/filter en ningún ancestro)            */
-/* ------------------------------------------------------------------ */
-
-/* Medidas: papel con una veta de madera muy suave. Solo degradados (nada de SVG ni
-   filtros de fondo): dos tramas de líneas finas con ángulos casi horizontales que se
-   cruzan y dan el dibujo irregular de la veta, baratas de pintar al hacer scroll */
-.specs-grain {
-  background-color: var(--color-paper);
-  background-image:
-    radial-gradient(120% 90% at 100% 0%, rgb(251 248 243 / 0.8), transparent 60%),
-    repeating-linear-gradient(
-      179.3deg,
-      transparent 0 9px,
-      rgb(110 67 41 / 0.07) 9px 10px,
-      transparent 10px 23px,
-      rgb(110 67 41 / 0.045) 23px 24px,
-      transparent 24px 31px
-    ),
-    repeating-linear-gradient(180.6deg, transparent 0 15px, rgb(110 67 41 / 0.05) 15px 16px, transparent 16px 37px);
-}
-
-/* Características: degradado cálido de papel a arena */
-.specs-warm {
-  background-color: #ece3d6;
-  background-image:
-    radial-gradient(80% 120% at 0% 0%, rgb(243 237 228 / 0.9), transparent 70%),
-    linear-gradient(180deg, #efe7dc, #e9dfd1);
-}
-
-/* Planos: cuadrícula fina de plano técnico (cada 24 px y más marcada cada 120 px) */
-.specs-blueprint {
-  background-color: var(--color-cream);
-  background-image:
-    linear-gradient(rgb(152 96 62 / 0.11) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(152 96 62 / 0.11) 1px, transparent 1px),
-    linear-gradient(rgb(152 96 62 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(152 96 62 / 0.055) 1px, transparent 1px);
-  background-size:
-    120px 120px,
-    120px 120px,
-    24px 24px,
-    24px 24px;
-  background-position: center top;
-}
-
-/* ------------------------------------------------------------------ */
 /* Planos técnicos                                                     */
 /* ------------------------------------------------------------------ */
 .plan-svg {
