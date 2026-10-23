@@ -6,15 +6,15 @@ import { noOrphans } from '@/lib/typography';
 
 /**
  * Ancho al que se dibuja la foto, con tope de 2x (es contenido, sin overlay).
- * Por debajo de lg, el ancho de la pantalla menos los márgenes: la caja es 3:2
- * o más apaisada, así que la foto 3:2 la cubre a lo ancho. En lg, la caja ocupa
- * 5 de 12 columnas (un 40 % del contenedor, que llega a 1.440 px) y, en 5:4, una
- * foto 3:2 se dibuja 1,2 veces más ancha que ella.
+ * Por debajo de lg, el ancho de la pantalla menos los márgenes, sin pasar de
+ * 880 px: la foto de la caseta mide 682 px y así no se amplía más de 1,3x. En
+ * lg, la caja ocupa 5 de 12 columnas (un 40 % del contenedor, como mucho unos
+ * 580 px) y la foto cuadrada la cubre a lo ancho.
  */
 const HERO_SIZES = photoSizes(
   [
-    ['(max-width: 1023px)', 'calc(100vw - 40px)'],
-    [null, 'min(46vw, 700px)'],
+    ['(max-width: 1023px)', 'min(calc(100vw - 40px), 880px)'],
+    [null, 'min(40vw, 600px)'],
   ],
   2,
 );
@@ -53,7 +53,7 @@ export function PageHero({ title, text, image, focus = '50% 50%', children }: Pa
           ) : null}
         </div>
         <div className="col-span-4 md:col-span-6 lg:col-span-5">
-          <div className="relative aspect-[3/2] overflow-hidden rounded-sm bg-paper md:aspect-[16/9] lg:aspect-[5/4] max-lg:landscape:aspect-[21/9]">
+          <div className="relative aspect-[3/2] overflow-hidden rounded-sm bg-paper max-lg:max-w-[880px] lg:aspect-[5/4] max-lg:landscape:aspect-[21/9]">
             <Image
               src={image.src}
               {...blurFor(image.src)}
