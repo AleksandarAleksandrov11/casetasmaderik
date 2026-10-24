@@ -35,14 +35,13 @@ function configurar() {
 
   const contador = libro.getSheetByName(CONFIG.hojaContador) || libro.insertSheet(CONFIG.hojaContador, 1);
   const hoja = "'" + CONFIG.hojaSolicitudes + "'";
-  contador.getRange('A1:B3').setValues([
-    ['Total de leads', '=COUNTA(' + hoja + '!A2:A)'],
-    ['Hoy', '=COUNTIF(' + hoja + '!B2:B,TODAY())'],
-    [
-      'Este mes',
-      '=COUNTIFS(' + hoja + '!B2:B,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),' + hoja + '!B2:B,"<="&EOMONTH(TODAY(),0))',
-    ],
-  ]);
+  contador.getRange('A1:A3').setValues([['Total de leads'], ['Hoy'], ['Este mes']]);
+  formula_(contador.getRange('B1'), '=COUNTA(' + hoja + '!A2:A)');
+  formula_(contador.getRange('B2'), '=COUNTIF(' + hoja + '!B2:B,TODAY())');
+  formula_(
+    contador.getRange('B3'),
+    '=COUNTIFS(' + hoja + '!B2:B,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),' + hoja + '!B2:B,"<="&EOMONTH(TODAY(),0))',
+  );
   contador.getRange('A5:B5').setValues([['Mes', 'Leads']]);
   contador.getRange('A1:A5').setFontWeight('bold');
   contador.getRange('B5').setFontWeight('bold');
@@ -163,6 +162,15 @@ function avisar_(numero, fila, url) {
     });
   } catch (error) {
     Logger.log('No se pudo enviar el aviso: ' + error);
+  }
+}
+
+function formula_(celda, formula) {
+  celda.setFormula(formula);
+  SpreadsheetApp.flush();
+  if (String(celda.getDisplayValue()).indexOf('#ERROR') === 0) {
+    celda.setValue(formula.replace(/,/g, ';'));
+    SpreadsheetApp.flush();
   }
 }
 

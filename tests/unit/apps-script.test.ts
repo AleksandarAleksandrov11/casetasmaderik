@@ -29,6 +29,14 @@ class FakeRange {
     this.sheet.set(this.row, this.col, v);
     return this;
   }
+  setFormula(v: string) {
+    this.sheet.set(this.row, this.col, v);
+    return this;
+  }
+  getDisplayValue() {
+    const v = String(this.sheet.get(this.row, this.col));
+    return v.startsWith('=') && this.sheet.semicolons && v.includes(',') ? '#ERROR!' : v;
+  }
   getValues(): Cell[][] {
     return Array.from({ length: this.rows }, (_, i) =>
       Array.from({ length: this.cols }, (_, j) => this.sheet.get(this.row + i, this.col + j)),
@@ -65,6 +73,7 @@ function a1(ref: string): [number, number, number, number] {
 
 class FakeSheet {
   cells = new Map<string, Cell>();
+  semicolons = false;
   constructor(public name: string) {}
   set(r: number, c: number, v: Cell) {
     this.cells.set(`${r},${c}`, v);
@@ -93,7 +102,7 @@ class FakeSheet {
   setColumnWidth() {}
 }
 
-function load() {
+function load(semicolons = false) {
   const sheets = new Map<string, FakeSheet>();
   const book = {
     getId: () => 'libro-1',
@@ -101,6 +110,7 @@ function load() {
     getSheetByName: (n: string) => sheets.get(n) ?? null,
     insertSheet: (n: string) => {
       const s = new FakeSheet(n);
+      s.semicolons = semicolons;
       sheets.set(n, s);
       return s;
     },
@@ -112,7 +122,7 @@ function load() {
   const mails: Record<string, string>[] = [];
   let failMail = false;
   const ctx: Record<string, unknown> = {
-    SpreadsheetApp: { getActiveSpreadsheet: () => book, openById: () => book },
+    SpreadsheetApp: { getActiveSpreadsheet: () => book, openById: () => book, flush: () => undefined },
     PropertiesService: {
       getScriptProperties: () => ({
         getProperty: (k: string) => props.get(k) ?? null,
@@ -226,6 +236,19 @@ describe('Apps Script', () => {
     expect(cont.get(1, 1)).toBe('Total de leads');
     expect(String(cont.get(1, 2))).toContain('COUNTA');
     expect(s.props.get('SECRETO')).toBe('uuiduuid');
+  });
+
+  it('en una hoja con separador de punto y coma reescribe las fórmulas del contador', () => {
+    const s2 = load();
+    s2.call('configurar');
+    const sheet = s2.sheets.get('Contador')!;
+    expect(String(sheet.get(2, 2))).toContain('COUNTIF(');
+    expect(String(sheet.get(2, 2))).toContain(',');
+    const s3 = load(true);
+    s3.call('configurar');
+    const c = s3.sheets.get('Contador')!;
+    expect(String(c.get(2, 2))).toContain('!B2:B;TODAY())');
+    expect(String(c.get(3, 2))).not.toContain(',');
   });
 
   it('guarda los datos del formulario con fecha y hora, y suma el lead al mes', () => {
