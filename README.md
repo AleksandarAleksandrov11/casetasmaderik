@@ -33,7 +33,7 @@ pnpm dev                     # http://localhost:3000
 
 Sin `APPS_SCRIPT_URL`, en desarrollo el formulario responde correctamente con el número 0 y no guarda nada (útil para pruebas). En producción devuelve un error y lo registra en los logs. `LEADS_MOCK=1` fuerza esa respuesta simulada también con el servidor de producción (lo usan los tests e2e): nunca se reenvía nada al Apps Script ni se envía ningún email.
 
-Ningún test ni script de este proyecto envía emails. El Apps Script tampoco envía ninguno: guarda en la hoja solo los datos del formulario con la fecha y la hora, y cuenta los leads en la pestaña Contador. La web no recoge ni envía UTM, procedencia ni dispositivo.
+Ningún test de este proyecto envía emails. Solo el Apps Script avisa por email de cada lead nuevo, únicamente a `CONFIG.avisoEmail` (aaswebmarketing@gmail.com) y nunca al cliente. Guarda en la hoja solo los datos del formulario con la fecha y la hora, y cuenta los leads en la pestaña Contador. La web no recoge ni envía UTM, procedencia ni dispositivo.
 
 ## Scripts
 
