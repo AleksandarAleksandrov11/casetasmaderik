@@ -49,6 +49,14 @@ function frameSet(key: string, i: number): string {
   return `${frameSrc(key, i, true)} ${TURNTABLE.smWidth}w, ${frameSrc(key, i)} ${TURNTABLE.width}w`;
 }
 
+/** Vista a la que gira la caseta al activar cada botón. */
+const TOGGLE_VIEWS: Record<Toggle, { az: number; el: number }> = {
+  windows: { az: 10, el: 9 },
+  door: { az: -66, el: 8 },
+  night: { az: -24, el: 8 },
+  dims: { az: -34, el: 20 },
+};
+
 function toTargets(v: Record<Toggle, boolean>): InteractiveTargets {
   return { shutters: v.windows ? 1 : 0, door: v.door ? 1 : 0, night: v.night ? 1 : 0, dims: v.dims ? 1 : 0 };
 }
@@ -81,6 +89,8 @@ export function InteractiveCaseta({
   fallbackPoster,
   className = '',
   themeSection = false,
+  left,
+  right,
   children,
 }: {
   labels: InteractiveLabels;
@@ -98,6 +108,9 @@ export function InteractiveCaseta({
   className?: string;
   /** De noche, la sección que la contiene pasa a oscura (data-header="dark") y el header se adapta. */
   themeSection?: boolean;
+  /** Textos a los lados de la caseta (en móvil, encima): el CSS de cada página los coloca. */
+  left?: ReactNode;
+  right?: ReactNode;
   /** Contenido extra dentro del escenario (p. ej. etiquetas del hero). */
   children?: ReactNode;
 }) {
@@ -188,8 +201,22 @@ export function InteractiveCaseta({
     setTouched(true);
   }, []);
 
+  /** Gira la caseta hasta una vista (camino más corto). */
+  const face = (view: { az: number; el: number }) => {
+    const o = orbitRef.current;
+    o.azT = nearestAngle(o.az, view.az);
+    o.elT = view.el;
+    clampOrbit(o);
+    if (mode === 'frames') {
+      o.az = o.azT;
+      setIndex(frameIndex(o.azT));
+    }
+  };
+
   const set = (name: Toggle, value: boolean) => {
     stopAuto();
+    // Al activar algo, la caseta gira hasta donde mejor se ve
+    if (value) face(TOGGLE_VIEWS[name]);
     setOn((prev) => {
       const next = { ...prev, [name]: value };
       targetsRef.current = toTargets(next);
@@ -254,7 +281,8 @@ export function InteractiveCaseta({
       pinch.current = dist;
     } else {
       o.azT -= (cur.x - prev.x) * 0.4;
-      if (mode === '3d' && (e.pointerType === 'mouse' || e.pointerType === 'pen')) o.elT += (cur.y - prev.y) * 0.18;
+      // Arriba y abajo también (en táctil el escenario 3D no deja hacer scroll, ver styles.ts)
+      if (mode === '3d') o.elT += (cur.y - prev.y) * 0.3;
     }
     clampOrbit(o);
     if (mode === 'frames') {
@@ -345,6 +373,8 @@ export function InteractiveCaseta({
       data-live={live3D ? '' : undefined}
       data-capture={capture ? '' : undefined}
     >
+      {left ? <div className="ic__left">{left}</div> : null}
+      {right ? <div className="ic__right">{right}</div> : null}
       <div
         ref={box}
         className="ic__stage"
@@ -371,7 +401,7 @@ export function InteractiveCaseta({
                 sizes={sizes}
                 width={TURNTABLE.width}
                 height={TURNTABLE.height}
-                alt=""
+                alt={labels.sceneDescription.split('.')[0]}
                 draggable={false}
                 decoding="async"
                 loading={priority ? 'eager' : 'lazy'}

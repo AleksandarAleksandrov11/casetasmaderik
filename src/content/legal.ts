@@ -39,7 +39,7 @@ export type LegalPage = {
 /** Lo común del CTA final de las páginas legales. */
 export const legalCta = {
   label: 'Te ayudamos',
-  image: { src: '/images/real/caseta-madera-cerrada-plaza.jpg', alt: '' },
+  image: { src: '/images/real/caseta-madera-cerrada-plaza.webp', alt: 'Caseta de madera cerrada en una plaza' },
 };
 
 const domicilio = site.address
@@ -213,9 +213,7 @@ export const politicaPrivacidad: LegalPage = {
         p(
           'Tipo de evento, fechas, localidad, provincia, número de casetas, comentarios, nombre y apellidos, teléfono, email y, si lo indicas, empresa u organización.',
         ),
-        p(
-          'También guardamos datos de contexto de la solicitud: la página desde la que la envías, la página de entrada y el dominio de procedencia, los parámetros de campaña (UTM), el tipo de dispositivo y la fecha de aceptación de esta política.',
-        ),
+        p('Con la solicitud guardamos también la fecha y la hora en que la envías.'),
         h3('Analítica, solo con tu consentimiento'),
         p(
           'Si aceptas las cookies analíticas, recogemos datos de navegación agregados (páginas vistas, rendimiento de la web y procedencia de las visitas). Más detalle en la ',

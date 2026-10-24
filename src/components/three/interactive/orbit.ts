@@ -22,7 +22,8 @@ export interface InteractiveTargets {
   dims: number;
 }
 
-export const ORBIT_LIMITS = { elMin: 3, elMax: 34, zoomMin: 0.9, zoomMax: 1.6 } as const;
+/** Giro libre en horizontal; en vertical, desde casi a ras de suelo hasta verla desde arriba. */
+export const ORBIT_LIMITS = { elMin: 1, elMax: 82, zoomMin: 0.9, zoomMax: 1.6 } as const;
 
 /** Vista inicial: frente y testero de la puerta. Es también el primer fotograma. */
 export const START_VIEW = { az: -34, el: 10, zoom: 1 } as const;

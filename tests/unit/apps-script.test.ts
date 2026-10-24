@@ -4,678 +4,251 @@ import vm from 'node:vm';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 /**
- * Carga apps-script/Code.gs en un contexto de node:vm con dobles mínimos de
- * SpreadsheetApp, PropertiesService, LockService, CacheService, MailApp,
- * ContentService, Utilities y Session, y prueba doPost, setup y el panel.
+ * Carga apps-script/Code.gs en node:vm con dobles mínimos de SpreadsheetApp,
+ * PropertiesService, CacheService, LockService, ContentService, Utilities y
+ * Logger, y prueba configurar(), doPost() y el contador de leads.
  */
 
 const CODE = readFileSync(join(__dirname, '..', '..', 'apps-script', 'Code.gs'), 'utf8');
-const MANIFEST = JSON.parse(readFileSync(join(__dirname, '..', '..', 'apps-script', 'appsscript.json'), 'utf8'));
 
-type Fn = (...args: unknown[]) => unknown;
-type Obj = Record<string, unknown>;
+type Cell = string | number | Date;
 
-/** Objeto que acepta cualquier método encadenado (formatos, bandas, gráficos...). */
-function chain<T extends object>(target: T, onCall?: (name: string, args: unknown[]) => void): T {
-  const proxy: T = new Proxy(target, {
-    get(obj, prop, receiver) {
-      if (prop in obj) return Reflect.get(obj, prop, receiver);
-      if (typeof prop === 'symbol' || prop === 'then') return undefined;
-      return (...args: unknown[]) => {
-        onCall?.(prop, args);
-        return proxy;
-      };
-    },
-  });
-  return proxy;
+class FakeRange {
+  constructor(
+    private sheet: FakeSheet,
+    private row: number,
+    private col: number,
+    private rows: number,
+    private cols: number,
+  ) {}
+  setValues(values: Cell[][]) {
+    values.forEach((r, i) => r.forEach((v, j) => this.sheet.set(this.row + i, this.col + j, v)));
+    return this;
+  }
+  setValue(v: Cell) {
+    this.sheet.set(this.row, this.col, v);
+    return this;
+  }
+  getValues(): Cell[][] {
+    return Array.from({ length: this.rows }, (_, i) =>
+      Array.from({ length: this.cols }, (_, j) => this.sheet.get(this.row + i, this.col + j)),
+    );
+  }
+  setNumberFormat() {
+    return this;
+  }
+  setNumberFormats() {
+    return this;
+  }
+  setFontWeight() {
+    return this;
+  }
+  setBackground() {
+    return this;
+  }
+  setFontSize() {
+    return this;
+  }
 }
 
-function a1ToRC(a1: string): { row: number; col: number; rows: number; cols: number } {
-  const parse = (ref: string) => {
-    const m = /^([A-Z]+)(\d+)$/.exec(ref);
-    if (!m) throw new Error(`A1 no soportado: ${ref}`);
+function a1(ref: string): [number, number, number, number] {
+  const cell = (r: string) => {
+    const m = /^([A-Z]+)(\d*)$/.exec(r)!;
     const col = m[1].split('').reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0);
-    return { row: Number(m[2]), col };
+    return [m[2] ? Number(m[2]) : 1, col];
   };
-  const [a, b] = a1.split(':');
-  const start = parse(a);
-  const end = b ? parse(b) : start;
-  return { row: start.row, col: start.col, rows: end.row - start.row + 1, cols: end.col - start.col + 1 };
+  const [a, b = a] = ref.split(':');
+  const [r1, c1] = cell(a);
+  const [r2, c2] = cell(b);
+  return [r1, c1, Math.max(1, r2 - r1 + 1), c2 - c1 + 1];
 }
 
 class FakeSheet {
-  cells = new Map<string, unknown>();
-  formulas: { cell: string; formula: string }[] = [];
-  charts: unknown[] = [];
-  insertedRows = 0;
-  calls: string[] = [];
-  constructor(
-    public name: string,
-    public maxRows = 1000,
-    public maxColumns = 26,
-    public id = Math.floor(Math.random() * 1e6),
-  ) {}
-
-  get(row: number, col: number): unknown {
-    return this.cells.get(`${row}:${col}`) ?? '';
+  cells = new Map<string, Cell>();
+  constructor(public name: string) {}
+  set(r: number, c: number, v: Cell) {
+    this.cells.set(`${r},${c}`, v);
   }
-
-  set(row: number, col: number, value: unknown): void {
-    if (value === '' || value === null || value === undefined) this.cells.delete(`${row}:${col}`);
-    else this.cells.set(`${row}:${col}`, value);
-    if (typeof value === 'string' && value.startsWith('='))
-      this.formulas.push({ cell: `${row}:${col}`, formula: value });
+  get(r: number, c: number): Cell {
+    return this.cells.get(`${r},${c}`) ?? '';
   }
-
-  rowValues(row: number, cols = 31): unknown[] {
-    return Array.from({ length: cols }, (_, i) => this.get(row, i + 1));
+  getLastRow() {
+    let last = 0;
+    for (const k of this.cells.keys()) last = Math.max(last, Number(k.split(',')[0]));
+    return last;
   }
-
-  api(): Obj {
-    return chain(
-      {
-        getName: () => this.name,
-        getSheetId: () => this.id,
-        getMaxRows: () => this.maxRows,
-        getMaxColumns: () => this.maxColumns,
-        getLastRow: () => {
-          let last = 0;
-          for (const key of this.cells.keys()) last = Math.max(last, Number(key.split(':')[0]));
-          return last;
-        },
-        getLastColumn: () => {
-          let last = 0;
-          for (const key of this.cells.keys()) last = Math.max(last, Number(key.split(':')[1]));
-          return last;
-        },
-        insertRowsAfter: (_after: unknown, n: unknown) => {
-          this.maxRows += Number(n);
-          this.insertedRows += Number(n);
-        },
-        insertColumnsAfter: (_after: unknown, n: unknown) => {
-          this.maxColumns += Number(n);
-        },
-        getRange: (...args: unknown[]) => {
-          if (typeof args[0] === 'string') {
-            const r = a1ToRC(args[0]);
-            return this.range(r.row, r.col, r.rows, r.cols);
-          }
-          return this.range(Number(args[0]), Number(args[1]), Number(args[2] ?? 1), Number(args[3] ?? 1));
-        },
-        getBandings: () => [],
-        getFilter: () => null,
-        getProtections: () => [],
-        getCharts: () => [...this.charts],
-        removeChart: (chart: unknown) => {
-          this.charts = this.charts.filter((c) => c !== chart);
-        },
-        insertChart: (chart: unknown) => {
-          this.charts.push(chart);
-        },
-        newChart: () => chain({ build: () => ({ chart: true }) }),
-        protect: () => chain({}),
-      },
-      (name) => this.calls.push(name),
-    );
+  row(r: number): Cell[] {
+    return Array.from({ length: 14 }, (_, i) => this.get(r, i + 1));
   }
-
-  range(row: number, col: number, rows: number, cols: number): Obj {
-    const self: Obj = chain({
-      getRow: () => row,
-      getColumn: () => col,
-      getNumRows: () => rows,
-      getNumColumns: () => cols,
-      setValues: (values: unknown) => {
-        (values as unknown[][]).forEach((line, r) => line.forEach((v, c) => this.set(row + r, col + c, v)));
-        return self;
-      },
-      setValue: (value: unknown) => {
-        this.set(row, col, value);
-        return self;
-      },
-      setFormula: (formula: unknown) => {
-        this.set(row, col, formula);
-        return self;
-      },
-      getValues: () =>
-        Array.from({ length: rows }, (_, r) => Array.from({ length: cols }, (_, c) => this.get(row + r, col + c))),
-      getValue: () => this.get(row, col),
-      clear: () => {
-        for (const key of [...this.cells.keys()]) this.cells.delete(key);
-        this.formulas = [];
-        return self;
-      },
-      createTextFinder: (text: unknown) => {
-        const finder: Obj = {
-          matchEntireCell: () => finder,
-          findNext: () => {
-            for (let r = row; r < row + rows; r++) {
-              for (let c = col; c < col + cols; c++) {
-                if (String(this.get(r, c)) === String(text)) return this.range(r, c, 1, 1);
-              }
-            }
-            return null;
-          },
-        };
-        return finder;
-      },
-    });
-    return self;
+  getRange(...args: (string | number)[]) {
+    if (typeof args[0] === 'string') return new FakeRange(this, ...a1(args[0]));
+    const [r, c, rows = 1, cols = 1] = args as number[];
+    return new FakeRange(this, r, c, rows, cols);
   }
+  appendRow(values: Cell[]) {
+    const r = this.getLastRow() + 1;
+    values.forEach((v, i) => this.set(r, i + 1, v));
+  }
+  setFrozenRows() {}
+  setColumnWidth() {}
 }
 
-class FakeSpreadsheet {
-  sheets: FakeSheet[] = [new FakeSheet('Hoja 1')];
-  name = 'Hoja de cálculo sin título';
-  timeZone = 'America/New_York';
-  locale = 'en_US';
-
-  api(): Obj {
-    return chain({
-      getId: () => 'SHEET_ID_123',
-      getUrl: () => 'https://docs.google.com/spreadsheets/d/SHEET_ID_123/edit',
-      getName: () => this.name,
-      rename: (name: unknown) => {
-        this.name = String(name);
-      },
-      setSpreadsheetTimeZone: (tz: unknown) => {
-        this.timeZone = String(tz);
-      },
-      setSpreadsheetLocale: (locale: unknown) => {
-        this.locale = String(locale);
-      },
-      getSheetByName: (name: unknown) => this.sheets.find((s) => s.name === name)?.api() ?? null,
-      insertSheet: (name: unknown, index: unknown) => {
-        const sheet = new FakeSheet(String(name));
-        this.sheets.splice(Number(index ?? this.sheets.length), 0, sheet);
-        return sheet.api();
-      },
-      getSheets: () => this.sheets.map((s) => s.api()),
-      deleteSheet: (api: unknown) => {
-        const name = (api as { getName: () => string }).getName();
-        this.sheets = this.sheets.filter((s) => s.name !== name);
-      },
-    });
-  }
-
-  sheet(name: string): FakeSheet {
-    const found = this.sheets.find((s) => s.name === name);
-    if (!found) throw new Error(`Falta la pestaña ${name}`);
-    return found;
-  }
-}
-
-type Mail = { to: string; subject: string; body: string; htmlBody: string; replyTo: string; name: string };
-
-type Gas = {
-  ctx: vm.Context;
-  ss: FakeSpreadsheet;
-  props: Map<string, string>;
-  cache: Map<string, string>;
-  mails: Mail[];
-  quota: { value: number };
-  locks: { taken: number; released: number };
-  call: <T = unknown>(name: string, ...args: unknown[]) => T;
-};
-
-function formatDate(date: Date, tz: string, pattern: string): string {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat('en-GB', {
-      timeZone: tz,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23',
-    })
-      .formatToParts(date)
-      .map((p) => [p.type, p.value]),
-  );
-  return pattern
-    .replace('yyyy', parts.year)
-    .replace('MM', parts.month)
-    .replace('dd', parts.day)
-    .replace('HH', parts.hour)
-    .replace('mm', parts.minute);
-}
-
-function createGas(): Gas {
-  const ss = new FakeSpreadsheet();
+function load() {
+  const sheets = new Map<string, FakeSheet>();
+  const book = {
+    getId: () => 'libro-1',
+    getSheetByName: (n: string) => sheets.get(n) ?? null,
+    insertSheet: (n: string) => {
+      const s = new FakeSheet(n);
+      sheets.set(n, s);
+      return s;
+    },
+    getSheets: () => [...sheets.values()],
+    deleteSheet: (s: FakeSheet) => sheets.delete(s.name),
+  };
   const props = new Map<string, string>();
   const cache = new Map<string, string>();
-  const mails: Mail[] = [];
-  const quota = { value: 100 };
-  const locks = { taken: 0, released: 0 };
-  const any = chain({});
-
-  const sandbox: Obj = {
-    console: { log: () => undefined, error: () => undefined, info: () => undefined, warn: () => undefined },
-    Logger: { log: () => undefined },
-    SpreadsheetApp: chain({
-      getActiveSpreadsheet: () => ss.api(),
-      openById: (id: unknown) => {
-        if (id !== 'SHEET_ID_123') throw new Error('ID desconocido');
-        return ss.api();
-      },
-      flush: () => undefined,
-      getUi: () => {
-        throw new Error('Sin interfaz en los tests');
-      },
-      newDataValidation: () => any,
-      newConditionalFormatRule: () => any,
-      WrapStrategy: { CLIP: 'CLIP' },
-      BandingTheme: { LIGHT_GREY: 'LIGHT_GREY' },
-      ProtectionType: { RANGE: 'RANGE', SHEET: 'SHEET' },
-      BorderStyle: { SOLID: 'SOLID' },
-    }),
-    Charts: { ChartType: { COLUMN: 'COLUMN' } },
+  const ctx: Record<string, unknown> = {
+    SpreadsheetApp: { getActiveSpreadsheet: () => book, openById: () => book },
     PropertiesService: {
       getScriptProperties: () => ({
-        getProperty: (key: string) => props.get(key) ?? null,
-        setProperty: (key: string, value: string) => {
-          props.set(key, String(value));
-        },
+        getProperty: (k: string) => props.get(k) ?? null,
+        setProperty: (k: string, v: string) => props.set(k, v),
       }),
     },
     CacheService: {
       getScriptCache: () => ({
-        get: (key: string) => cache.get(key) ?? null,
-        put: (key: string, value: string, seconds: number) => {
-          if (seconds > 21600) throw new Error('CacheService admite como máximo 21600 s');
-          cache.set(key, value);
-        },
+        get: (k: string) => cache.get(k) ?? null,
+        put: (k: string, v: string) => cache.set(k, v),
       }),
     },
-    LockService: {
-      getScriptLock: () => ({
-        tryLock: () => {
-          locks.taken++;
-          return true;
-        },
-        releaseLock: () => {
-          locks.released++;
-        },
-      }),
-    },
-    MailApp: {
-      getRemainingDailyQuota: () => quota.value,
-      sendEmail: (message: Mail) => {
-        quota.value--;
-        mails.push(message);
-      },
-    },
+    LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => undefined }) },
     ContentService: {
-      MimeType: { JSON: 'JSON' },
-      createTextOutput: (content: string) => {
-        const out = { content, mime: '', setMimeType: (m: string) => ((out.mime = m), out), getContent: () => content };
-        return out;
-      },
+      MimeType: { JSON: 'json' },
+      createTextOutput: (text: string) => ({
+        text,
+        setMimeType: function () {
+          return this;
+        },
+      }),
     },
     Utilities: {
-      getUuid: () => crypto.randomUUID(),
-      formatDate,
-      parseDate: (value: string) => new Date(`${value}T00:00:00+01:00`),
+      getUuid: () => 'uuid',
+      formatDate: (d: Date, _tz: string, f: string) => {
+        const p = (n: number) => String(n).padStart(2, '0');
+        const map: Record<string, string> = {
+          'yyyy-MM-dd': `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`,
+          'yyyy-MM': `${d.getFullYear()}-${p(d.getMonth() + 1)}`,
+          'HH:mm': `${p(d.getHours())}:${p(d.getMinutes())}`,
+        };
+        return map[f];
+      },
     },
-    Session: { getScriptTimeZone: () => 'Europe/Madrid' },
+    Logger: { log: () => undefined },
   };
-  const ctx = vm.createContext(sandbox);
-  vm.runInContext(`${CODE}\n;globalThis.__test = { CONFIG, COLUMNS, COL, NCOL, PROVINCIAS };`, ctx, {
-    filename: 'Code.gs',
-  });
-  const call = <T>(name: string, ...args: unknown[]): T => (ctx[name] as Fn)(...args) as T;
-  return { ctx, ss, props, cache, mails, quota, locks, call };
+  vm.createContext(ctx);
+  vm.runInContext(CODE, ctx);
+  const call = (name: string, ...args: unknown[]) => (ctx[name] as (...a: unknown[]) => unknown)(...args);
+  const post = (body: Record<string, unknown>) =>
+    JSON.parse((call('doPost', { postData: { contents: JSON.stringify(body) } }) as { text: string }).text);
+  return { sheets, props, call, post };
 }
 
-const madridToday = () => formatDate(new Date(), 'Europe/Madrid', 'yyyy-MM-dd');
-const addDays = (date: string, days: number) =>
-  new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
-
-function payload(secret: string, overrides: Obj = {}): Obj {
-  const today = madridToday();
-  return {
-    secret,
-    id: crypto.randomUUID(),
-    tipoEvento: 'Mercado navideño',
-    fechaInicio: addDays(today, 30),
-    fechaFin: addDays(today, 42),
-    localidad: 'Madrid',
-    provincia: 'Madrid',
-    casetas: 4,
-    comentarios: 'Acceso por la calle Mayor.',
-    nombre: 'Lucía Martín',
-    telefono: '+34 600 123 456',
-    email: 'Lucia@Example.com',
-    empresa: '',
-    consentimiento: true,
-    consentimientoFecha: '2026-10-20T10:00:00.000Z',
-    politicaVersion: '2026-10',
-    pagina: '/contacto',
-    landing: '/',
-    referrer: 'google.com',
-    utmSource: 'instagram',
-    dispositivo: 'móvil',
-    website: '',
-    ...overrides,
-  };
-}
-
-function post(gas: Gas, body: unknown): Obj {
-  const out = gas.call<{ getContent: () => string; mime: string }>('doPost', {
-    postData: { contents: typeof body === 'string' ? body : JSON.stringify(body) },
-  });
-  expect(out.mime).toBe('JSON');
-  return JSON.parse(out.getContent()) as Obj;
-}
-
-let gas: Gas;
-let secret: string;
-let col: Record<string, number>;
-
-beforeEach(() => {
-  gas = createGas();
-  gas.call('setup');
-  secret = gas.props.get('SECRETO') ?? '';
-  col = (gas.ctx.__test as { COL: Record<string, number> }).COL;
+const lead = (over: Record<string, unknown> = {}) => ({
+  secret: 'uuiduuid',
+  id: 'lead-1',
+  tipoEvento: 'Mercado navideño',
+  fechaInicio: '2026-12-05',
+  fechaFin: '2026-12-08',
+  localidad: 'Alcalá de Henares',
+  provincia: 'Madrid',
+  casetas: 4,
+  comentarios: 'Con luz',
+  nombre: 'Lucía',
+  telefono: '+34 600 000 000',
+  email: 'lucia@example.com',
+  empresa: '',
+  consentimiento: true,
+  website: '',
+  ...over,
 });
 
-describe('Apps Script: setup', () => {
-  it('crea las pestañas, la cabecera en el orden pedido y la configuración regional', () => {
-    const titles = gas.ss.sheet('Solicitudes').rowValues(1);
-    expect(titles).toEqual([
+describe('Apps Script', () => {
+  let s: ReturnType<typeof load>;
+  beforeEach(() => {
+    s = load();
+    s.call('configurar');
+  });
+
+  it('no lleva comentarios ni datos de campaña', () => {
+    expect(CODE).not.toMatch(/^\s*\/\//m);
+    expect(CODE).not.toMatch(/\/\*/);
+    expect(CODE).not.toMatch(/utm|referrer|landing|dispositivo|MailApp|GmailApp/i);
+  });
+
+  it('configurar crea las hojas, las cabeceras, el contador y el secreto', () => {
+    const sol = s.sheets.get('Solicitudes')!;
+    expect(sol.row(1)).toEqual([
       'Nº',
-      'Recibido',
-      'Estado',
+      'Fecha',
+      'Hora',
       'Nombre',
       'Teléfono',
       'Email',
       'Empresa',
       'Tipo de evento',
-      'Detalle del evento',
-      'Fecha inicio',
-      'Fecha fin',
-      'Días',
+      'Fecha de inicio',
+      'Fecha de fin',
       'Localidad',
       'Provincia',
-      'Nº de casetas',
+      'Casetas',
       'Comentarios',
-      'Página de origen',
-      'Landing',
-      'Referrer',
-      'utm_source',
-      'utm_medium',
-      'utm_campaign',
-      'utm_term',
-      'utm_content',
-      'Dispositivo',
-      'Acepta privacidad',
-      'Fecha consentimiento',
-      'Versión política',
-      'ID solicitud',
-      'Notas internas',
-      'Último contacto',
     ]);
-    expect(gas.ss.sheets.map((s) => s.name)).toEqual(['Solicitudes', 'Panel']);
-    expect(gas.ss.name).toBe('Casetas Maderik · Solicitudes');
-    expect(gas.ss.timeZone).toBe('Europe/Madrid');
-    expect(gas.ss.locale).toBe('es_ES');
-    expect(secret).toMatch(/^[0-9a-f]{64}$/);
-    expect(gas.props.get('SPREADSHEET_ID')).toBe('SHEET_ID_123');
-    expect(gas.ss.sheet('Solicitudes').maxColumns).toBeGreaterThanOrEqual(31);
+    const cont = s.sheets.get('Contador')!;
+    expect(cont.get(1, 1)).toBe('Total de leads');
+    expect(String(cont.get(1, 2))).toContain('COUNTA');
+    expect(s.props.get('SECRETO')).toBe('uuiduuid');
   });
 
-  it('es idempotente: no duplica el gráfico ni cambia el secreto', () => {
-    gas.call('setup');
-    gas.call('setup');
-    expect(gas.ss.sheet('Panel').charts).toHaveLength(1);
-    expect(gas.props.get('SECRETO')).toBe(secret);
-    expect(gas.ss.sheets).toHaveLength(2);
+  it('guarda los datos del formulario con fecha y hora, y suma el lead al mes', () => {
+    const res = s.post(lead());
+    expect(res).toEqual({ ok: true, numero: 1 });
+    const row = s.sheets.get('Solicitudes')!.row(2);
+    expect(row[0]).toBe(1);
+    expect(Object.prototype.toString.call(row[1])).toBe('[object Date]');
+    expect(String(row[2])).toMatch(/^\d{2}:\d{2}$/);
+    expect(row.slice(3)).toEqual([
+      'Lucía',
+      "'+34 600 000 000",
+      'lucia@example.com',
+      '',
+      'Mercado navideño',
+      '05/12/2026',
+      '08/12/2026',
+      'Alcalá de Henares',
+      'Madrid',
+      4,
+      'Con luz',
+    ]);
+    expect(s.post(lead({ id: 'lead-2' }))).toEqual({ ok: true, numero: 2 });
+    const cont = s.sheets.get('Contador')!;
+    expect(cont.get(6, 2)).toBe(2);
+    expect(String(cont.get(6, 1))).toMatch(/^\d{4}-\d{2}$/);
   });
 
-  it('el panel usa fórmulas vivas en sintaxis inglesa con comas', () => {
-    const formulas = gas.ss.sheet('Panel').formulas.map((f) => f.formula);
-    expect(formulas.length).toBeGreaterThan(60);
-    for (const formula of formulas) {
-      expect(formula.startsWith('=')).toBe(true);
-      expect(formula).not.toContain(';');
-    }
-    const all = formulas.join('\n');
-    for (const fn of [
-      'COUNT(',
-      'COUNTIFS(',
-      'COUNTIF(',
-      'SUMIF(',
-      'SUMIFS(',
-      'EOMONTH(',
-      'EDATE(',
-      'QUERY(',
-      'FILTER(',
-      'SORT(',
-      'TODAY()',
-    ]) {
-      expect(all).toContain(fn);
-    }
-    expect(all).toContain('"Perdido"');
-    expect(all).toContain('"Reservado"');
+  it('un reintento con el mismo id no duplica la fila', () => {
+    s.post(lead());
+    expect(s.post(lead())).toEqual({ ok: true, numero: 1 });
+    expect(s.sheets.get('Solicitudes')!.getLastRow()).toBe(2);
   });
 
-  it('el manifiesto fija Madrid, V8 y la aplicación web pública ejecutada por el propietario', () => {
-    expect(MANIFEST).toMatchObject({
-      timeZone: 'Europe/Madrid',
-      runtimeVersion: 'V8',
-      webapp: { executeAs: 'USER_DEPLOYING', access: 'ANYONE_ANONYMOUS' },
-    });
-  });
-
-  it('doGet responde { ok: true }', () => {
-    const out = gas.call<{ getContent: () => string }>('doGet');
-    expect(JSON.parse(out.getContent())).toEqual({ ok: true });
-  });
-});
-
-describe('Apps Script: doPost', () => {
-  it('guarda la fila, asigna el número 1 y envía los dos emails', () => {
-    // La confirmación al cliente viene desactivada: se activa para esta prueba
-    (gas.ctx.__test as { CONFIG: Obj }).CONFIG.sendClientConfirmation = true;
-    const body = payload(secret, {
-      tipoEvento: 'Otro',
-      tipoEventoOtro: 'Feria medieval',
-      empresa: 'Asociación Centro',
-    });
-    expect(post(gas, body)).toEqual({ ok: true, numero: 1 });
-
-    const sheet = gas.ss.sheet('Solicitudes');
-    const row = sheet.rowValues(2);
-    expect(row[col.numero - 1]).toBe(1);
-    expect(row[col.estado - 1]).toBe('Nuevo');
-    expect(row[col.nombre - 1]).toBe('Lucía Martín');
-    expect(row[col.telefono - 1]).toBe("'+34 600 123 456");
-    expect(row[col.email - 1]).toBe('lucia@example.com');
-    expect(row[col.detalleEvento - 1]).toBe('Feria medieval');
-    expect(row[col.fechaInicio - 1]).toBeInstanceOf(Date);
-    expect(row[col.dias - 1]).toBe('=IF(AND(ISNUMBER(J2),ISNUMBER(K2)),K2-J2+1,"")');
-    expect(row[col.aceptaPrivacidad - 1]).toBe('Sí');
-    expect(row[col.politicaVersion - 1]).toBe('2026-10');
-    expect(row[col.id - 1]).toBe(body.id);
-    expect(gas.locks).toEqual({ taken: 1, released: 1 });
-
-    expect(gas.mails).toHaveLength(2);
-    const [internal, client] = gas.mails;
-    expect(internal.to).toBe('info@casetasmaderik.es');
-    expect(internal.subject).toBe('Nueva solicitud 1 · Feria medieval · 4 casetas · Madrid');
-    expect(internal.replyTo).toBe('lucia@example.com');
-    for (const button of ['Llamar', 'WhatsApp', 'Responder', 'Abrir hoja'])
-      expect(internal.htmlBody).toContain(`>${button}</a>`);
-    expect(internal.htmlBody).toContain('tel:+34600123456');
-    expect(internal.htmlBody).toContain('https://wa.me/34600123456');
-    expect(internal.htmlBody).toContain('#gid=');
-    expect(internal.htmlBody).toContain('#FBF8F3');
-    expect(client.to).toBe('lucia@example.com');
-    expect(client.name).toBe('Casetas Maderik');
-    expect(client.replyTo).toBe('info@casetasmaderik.es');
-    expect(client.subject).toContain('1');
-  });
-
-  it('por defecto solo envía el aviso interno, sin confirmación al cliente', () => {
-    expect(post(gas, payload(secret))).toEqual({ ok: true, numero: 1 });
-    expect(gas.mails).toHaveLength(1);
-    expect(gas.mails[0].to).toBe('info@casetasmaderik.es');
-  });
-
-  it('rechaza un secreto incorrecto sin guardar nada', () => {
-    expect(post(gas, payload('otro-secreto'))).toEqual({ ok: false, error: 'unauthorized' });
-    expect(
-      gas.ss
-        .sheet('Solicitudes')
-        .rowValues(2)
-        .every((v) => v === ''),
-    ).toBe(true);
-    expect(gas.mails).toHaveLength(0);
-  });
-
-  it('campo trampa relleno: responde ok sin guardar', () => {
-    expect(post(gas, payload(secret, { website: 'http://spam.example' }))).toEqual({ ok: true, numero: 0 });
-    expect(
-      gas.ss
-        .sheet('Solicitudes')
-        .rowValues(2)
-        .every((v) => v === ''),
-    ).toBe(true);
-    expect(gas.mails).toHaveLength(0);
-  });
-
-  it('valida con las mismas reglas que la web', () => {
-    const today = madridToday();
-    const res = post(
-      gas,
-      payload(secret, {
-        tipoEvento: 'Otro',
-        tipoEventoOtro: '',
-        fechaInicio: addDays(today, -10),
-        fechaFin: addDays(today, -12),
-        provincia: 'Narnia',
-        casetas: 201,
-        telefono: '1234',
-        email: 'sin-arroba',
-        consentimiento: false,
-        dispositivo: 'nevera',
-      }),
-    );
-    expect(res.ok).toBe(false);
-    expect(res.error).toBe('validation');
-    expect(Object.keys(res.fields as Obj).sort()).toEqual(
-      [
-        'casetas',
-        'consentimiento',
-        'dispositivo',
-        'email',
-        'fechaFin',
-        'fechaInicio',
-        'provincia',
-        'telefono',
-        'tipoEventoOtro',
-      ].sort(),
-    );
-    const longRange = post(gas, payload(secret, { fechaFin: addDays(today, 30 + 365) }));
-    expect((longRange.fields as Obj).fechaFin).toBe('El rango máximo es de 365 días.');
-    expect(post(gas, payload(secret, { telefono: '(+34) 600-123-456' })).ok).toBe(true);
-  });
-
-  it('JSON roto o vacío: error sin excepción', () => {
-    expect(post(gas, '{"id":')).toEqual({ ok: false, error: 'invalid_json' });
-    expect(post(gas, '')).toEqual({ ok: false, error: 'empty_body' });
-    expect(post(gas, '[1,2]')).toEqual({ ok: false, error: 'invalid_json' });
-  });
-
-  it('idempotencia: el mismo id devuelve el mismo número (caché y columna ID)', () => {
-    const body = payload(secret);
-    expect(post(gas, body)).toEqual({ ok: true, numero: 1 });
-    expect(post(gas, body)).toMatchObject({ ok: true, numero: 1, duplicada: true });
-    // Caché caducada: se encuentra por la columna ID
-    gas.cache.clear();
-    expect(post(gas, body)).toMatchObject({ ok: true, numero: 1, duplicada: true });
-    expect(gas.ss.sheet('Solicitudes').get(3, 1)).toBe('');
-    expect(gas.mails).toHaveLength(1);
-  });
-
-  it('número correlativo que nunca se repite aunque se borren filas', () => {
-    expect(post(gas, payload(secret)).numero).toBe(1);
-    expect(post(gas, payload(secret)).numero).toBe(2);
-    const sheet = gas.ss.sheet('Solicitudes');
-    // Se borran las dos filas: el contador de Script Properties manda
-    for (const key of [...sheet.cells.keys()]) if (!key.startsWith('1:')) sheet.cells.delete(key);
-    expect(post(gas, payload(secret)).numero).toBe(3);
-    // Una fila añadida a mano con un número mayor: se respeta el máximo de la columna
-    sheet.set(5, 1, 50);
-    expect(post(gas, payload(secret)).numero).toBe(51);
-    expect(gas.props.get('ULTIMO_NUMERO')).toBe('51');
-  });
-
-  it('protege contra inyección de fórmulas con un apóstrofo', () => {
-    post(
-      gas,
-      payload(secret, {
-        nombre: '=HYPERLINK("http://malo","x")',
-        empresa: '@SUM(1)',
-        localidad: '-Madrid',
-        comentarios: '+cmd|calc',
-        referrer: '=1+1',
-      }),
-    );
-    const row = gas.ss.sheet('Solicitudes').rowValues(2);
-    expect(row[col.nombre - 1]).toBe('\'=HYPERLINK("http://malo","x")');
-    expect(row[col.empresa - 1]).toBe("'@SUM(1)");
-    expect(row[col.localidad - 1]).toBe("'-Madrid");
-    expect(row[col.comentarios - 1]).toBe("'+cmd|calc");
-    expect(row[col.referrer - 1]).toBe("'=1+1");
-    // La única fórmula de la fila es la de Días
-    const formulas = gas.ss.sheet('Solicitudes').formulas.filter((f) => f.cell.startsWith('2:'));
-    expect(formulas.map((f) => f.cell)).toEqual([`2:${col.dias}`]);
-  });
-
-  it('escapa el HTML de los emails', () => {
-    post(gas, payload(secret, { nombre: '<b>Ana</b> Ruiz', comentarios: '<script>alert(1)</script>' }));
-    const html = gas.mails[0].htmlBody;
-    expect(html).toContain('&lt;b&gt;Ana&lt;/b&gt; Ruiz');
-    expect(html).not.toContain('<script>');
-  });
-
-  it('sin cuota de MailApp la solicitud se guarda igualmente', () => {
-    gas.quota.value = 0;
-    expect(post(gas, payload(secret))).toEqual({ ok: true, numero: 1 });
-    expect(gas.mails).toHaveLength(0);
-    expect(gas.ss.sheet('Solicitudes').get(2, 1)).toBe(1);
-  });
-
-  it('amplía la hoja al acercarse al límite de filas', () => {
-    const sheet = gas.ss.sheet('Solicitudes');
-    sheet.maxRows = 40;
-    expect(post(gas, payload(secret)).ok).toBe(true);
-    expect(sheet.maxRows).toBe(540);
-    expect(sheet.insertedRows).toBeGreaterThanOrEqual(500);
-  });
-
-  it('testSolicitud crea una fila "Prueba (borrar)"', () => {
-    const result = gas.call<Obj>('testSolicitud');
-    expect(result).toMatchObject({ ok: true, numero: 1 });
-    expect(gas.ss.sheet('Solicitudes').get(2, col.nombre)).toBe('Prueba (borrar)');
-    expect(gas.call<string>('mostrarSecreto')).toBe(secret);
-  });
-
-  it('testSolicitud solo envía a la dirección de pruebas, nunca al buzón ni al cliente', () => {
-    const config = (gas.ctx.__test as { CONFIG: Obj }).CONFIG;
-    config.sendClientConfirmation = true;
-    gas.call<Obj>('testSolicitud');
-    expect(gas.mails.length).toBeGreaterThan(0);
-    for (const mail of gas.mails) expect(mail.to).toBe(config.testEmail);
-    expect(gas.mails.some((m) => m.to === config.notifyEmail)).toBe(false);
-  });
-
-  it('testSolicitud sin dirección de pruebas no envía ningún email', () => {
-    const config = (gas.ctx.__test as { CONFIG: Obj }).CONFIG;
-    config.testEmail = '';
-    config.sendClientConfirmation = true;
-    expect(gas.call<Obj>('testSolicitud')).toMatchObject({ ok: true, numero: 1 });
-    expect(gas.mails).toHaveLength(0);
+  it('rechaza un secreto incorrecto, ignora el honeypot y neutraliza fórmulas', () => {
+    expect(s.post(lead({ secret: 'otro' }))).toEqual({ ok: false, error: 'unauthorized' });
+    expect(s.post(lead({ website: 'spam' }))).toEqual({ ok: true, numero: 0 });
+    expect(s.sheets.get('Solicitudes')!.getLastRow()).toBe(1);
+    s.post(lead({ id: 'x', nombre: '=HYPERLINK("x")', tipoEvento: 'Otro', tipoEventoOtro: 'Boda' }));
+    const row = s.sheets.get('Solicitudes')!.row(2);
+    expect(row[3]).toBe('\'=HYPERLINK("x")');
+    expect(row[7]).toBe('Otro: Boda');
   });
 });

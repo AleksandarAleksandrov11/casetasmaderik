@@ -7,9 +7,9 @@ export const homeMeta = {
 };
 
 export const homeHero = {
-  /** H1 en tres líneas: "Alquiler de / casetas / de madera". */
-  title: ['Alquiler de', 'casetas', 'de madera'],
-  subtitle: 'Para ferias, mercados navideños y eventos. La llevamos, la montamos y la recogemos.',
+  /** H1: antetítulo "Alquiler de", "casetas / de madera" en grande y "para eventos" como cierre. */
+  title: ['Alquiler de', 'casetas', 'de madera', 'para ferias y eventos'],
+  subtitle: 'Mercados navideños, festivales y celebraciones. La llevamos, la montamos y la recogemos.',
   primary: { label: 'Pedir presupuesto', href: '/contacto' },
   secondary: { label: 'Ver la caseta', href: '/casetas' },
   controls: {
@@ -48,7 +48,7 @@ export const homeCaseta = {
     { icon: 'fold', text: 'Plegable y rápida de montar' },
   ],
   image: {
-    src: '/images/real/caseta-madera-mostrador-ventanas-abiertas.jpg',
+    src: '/images/real/caseta-madera-mostrador-ventanas-abiertas.webp',
     alt: 'Caseta de madera de pino con las contraventanas abiertas y mostrador preparado para atender al público',
   },
   primary: { label: 'Ver medidas y detalles', href: '/casetas' },
@@ -67,7 +67,7 @@ export const homeEvents = {
       slug: 'mercado-navideno',
       title: 'Mercados navideños',
       text: 'Luz cálida y mostrador para las noches de diciembre.',
-      image: '/images/stock/mercado-navideno-luces-calidas-4x5.jpg',
+      image: '/images/stock/mercado-navideno-luces-calidas-4x5.webp',
       alt: 'Mercado navideño de noche con puestos de madera iluminados con luces cálidas',
       focus: '50% 60%',
     },
@@ -75,7 +75,7 @@ export const homeEvents = {
       slug: 'feria-bazar',
       title: 'Ferias y bazares',
       text: 'Puestos uniformes y ordenados para ferias locales.',
-      image: '/images/stock/feria-caseta-pino-mostrador-4x5.jpg',
+      image: '/images/stock/feria-caseta-pino-mostrador-4x5.webp',
       alt: 'Caseta de madera de pino en una feria de día, con corazones de pan de especias y cestas sobre el mostrador',
       focus: '50% 8%',
     },
@@ -83,7 +83,7 @@ export const homeEvents = {
       slug: 'festival-gastronomico',
       title: 'Festivales gastronómicos',
       text: 'Barra y mostrador listos para jornadas largas.',
-      image: '/images/stock/festival-gastronomico-street-food-4x5.jpg',
+      image: '/images/stock/festival-gastronomico-street-food-4x5.webp',
       alt: 'Paella gigante cocinándose a fuego de leña en un festival gastronómico',
       focus: '50% 50%',
     },
@@ -91,7 +91,7 @@ export const homeEvents = {
       slug: 'evento-corporativo',
       title: 'Eventos corporativos',
       text: 'Exposiciones, lanzamientos y activaciones de marca.',
-      image: '/images/stock/exposicion-pabellones-madera-4x5.jpg',
+      image: '/images/stock/exposicion-pabellones-madera-4x5.webp',
       alt: 'Exposición con pabellones de listones de madera y tejado a dos aguas bajo una luz cálida',
       focus: '50% 40%',
     },
@@ -99,7 +99,7 @@ export const homeEvents = {
       slug: 'evento-privado',
       title: 'Jardines y eventos privados',
       text: 'Bodas y celebraciones con un punto distinto.',
-      image: '/images/stock/jardin-celebracion-luces-4x5.jpg',
+      image: '/images/stock/jardin-celebracion-luces-4x5.webp',
       alt: 'Celebración en un jardín con guirnaldas de luces cálidas',
       focus: '50% 55%',
     },
@@ -131,6 +131,27 @@ export const homeProcess = {
   link: { label: 'Empezar mi presupuesto', href: '/contacto' },
 };
 
+export const homeGuide = {
+  label: 'Alquiler de casetas',
+  title: 'Alquiler de casetas de madera para eventos, ferias y mercados',
+  intro:
+    'Alquilamos casetas de madera de pino para mercados navideños, ferias, festivales y eventos de empresa o privados. Nos encargamos de todo lo que no se ve: transporte, montaje en tu recinto y recogida al terminar.',
+  columns: [
+    {
+      title: 'Qué incluye el alquiler',
+      text: 'Cada caseta mide 2,90 × 2,00 m de planta y 2,47 m de alto. Tiene tres ventanas con mostrador para atender de frente y por los lados, puerta lateral y cubierta impermeabilizada. Llega plegada, la montamos en el sitio y la dejamos lista antes de abrir.',
+    },
+    {
+      title: 'Para qué eventos',
+      text: 'Mercados navideños, ferias y bazares, festivales gastronómicos, presentaciones de marca y celebraciones en jardines. Puedes pedir una sola caseta o una fila de casetas iguales para dar al recinto un aspecto ordenado.',
+    },
+    {
+      title: 'Cómo pedir presupuesto',
+      text: 'Cuéntanos la fecha, el lugar y cuántas casetas necesitas. Revisamos disponibilidad y accesos y te enviamos una propuesta clara, sin compromiso. En temporada navideña conviene reservar con antelación.',
+    },
+  ],
+};
+
 export const homeFaqIntro = {
   label: 'Preguntas frecuentes',
   title: 'Lo que más nos preguntan',
@@ -149,8 +170,8 @@ export const seasonCta = {
     text: 'Cuéntanos fecha, lugar y cuántas casetas necesitas.',
   },
   image: {
-    src: '/images/stock/mercado-navideno-noche-casetas-madera.jpg',
-    alt: '',
+    src: '/images/stock/mercado-navideno-noche-casetas-madera.webp',
+    alt: 'Mercado navideño de noche con casetas de madera iluminadas',
   },
   responseNote: `Te respondemos en ${site.responseTime}.`,
 };

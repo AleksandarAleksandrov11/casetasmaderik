@@ -6,10 +6,9 @@ import { ArrowLeft, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { Button, ButtonAnchor } from '@/components/ui/Button';
 import { getLenis } from '@/components/layout/MotionRoot';
 import { WhatsAppIcon } from '@/components/layout/WhatsAppFloat';
-import { getConsentState, trackEvent } from '@/components/consent/trackEvent';
+import { trackEvent } from '@/components/consent/trackEvent';
 import { whatsappHref } from '@/content/site';
-import { detectDevice, prefersReducedMotion } from '@/lib/device';
-import { collectAttribution } from '@/lib/utm';
+import { prefersReducedMotion } from '@/lib/device';
 import {
   EMPTY_DRAFT,
   LIMITS,
@@ -300,18 +299,7 @@ export function QuoteForm() {
       const wait = LIMITS.minFillMs + 200 - (Date.now() - info.startedAt);
       if (wait > 0) await sleep(wait);
 
-      const consent = getConsentState();
-      const attribution = collectAttribution(consent.analytics);
-      const body = draftToLeadRequest(values, {
-        id: info.id,
-        startedAt: info.startedAt,
-        sentAt: Date.now(),
-        pagina: window.location.pathname,
-        landing: attribution.landing,
-        referrer: attribution.referrer,
-        utm: attribution.utm,
-        dispositivo: detectDevice(),
-      });
+      const body = draftToLeadRequest(values, { id: info.id, startedAt: info.startedAt, sentAt: Date.now() });
 
       const { status: code, data } = await postLead(body);
       if (data?.ok) {

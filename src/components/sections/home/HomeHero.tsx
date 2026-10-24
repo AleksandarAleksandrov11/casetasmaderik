@@ -15,7 +15,9 @@ import { heroCss } from './heroStyles';
  */
 export function HomeHero() {
   const h = homeHero;
-  const ticker = [...h.ticker, ...h.ticker];
+  // Cada grupo repite la lista hasta superar el ancho de cualquier pantalla (2560 px);
+  // dos grupos iguales y un desplazamiento de un grupo: la cinta no se acaba nunca
+  const group = [...h.ticker, ...h.ticker, ...h.ticker];
   return (
     <section className="hero" data-hero="" data-header="light" aria-labelledby="hero-titulo">
       <InlineStyle id="caseta-3d" css={threeCss} />
@@ -24,7 +26,16 @@ export function HomeHero() {
       <div className="hero__inner container-site">
         <h1 id="hero-titulo" className="hero__title">
           {h.title.map((line, i) => (
-            <span key={line} className={i === 0 ? 'hero__line hero__line--kicker' : 'hero__line'}>
+            <span
+              key={line}
+              className={
+                i === 0
+                  ? 'hero__line hero__line--kicker'
+                  : i === h.title.length - 1
+                    ? 'hero__line hero__line--tail'
+                    : 'hero__line'
+              }
+            >
               {line}
               {i < h.title.length - 1 ? ' ' : null}
             </span>
@@ -52,10 +63,13 @@ export function HomeHero() {
       </div>
       <div className="hero__ticker" aria-hidden="true">
         <div className="hero__track">
-          {ticker.map((t, i) => (
-            <span key={i} className="hero__tick">
-              {t}
-            </span>
+          {[0, 1].map((g) => (
+            <div key={g} className="hero__group">
+              {group.map((t, i) => (
+                // Texto en CSS (attr): decorativo, sin repetir palabras clave en el HTML
+                <span key={i} className="hero__tick" data-t={t} />
+              ))}
+            </div>
           ))}
         </div>
       </div>

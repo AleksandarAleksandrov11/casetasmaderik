@@ -27,13 +27,13 @@ pnpm dev                     # http://localhost:3000
 | --------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_SITE_URL`      | No                | URL pública (por defecto `https://casetasmaderik.es`).                                                                                     |
 | `APPS_SCRIPT_URL`           | Sí, en producción | URL `/exec` de la aplicación web de Google Apps Script que guarda las solicitudes.                                                         |
-| `APPS_SCRIPT_SECRET`        | Sí, en producción | Secreto compartido con el Apps Script (se ve en la hoja: menú Casetas Maderik > Ver secreto de conexión).                                  |
+| `APPS_SCRIPT_SECRET`        | Sí, en producción | Secreto compartido con el Apps Script (lo muestra el registro al ejecutar `configurar`).                                                   |
 | `NEXT_PUBLIC_GA_ID`         | No                | ID de Google Analytics 4 (`G-XXXXXXX`). Solo se carga si el usuario acepta las cookies analíticas.                                         |
 | `NEXT_PUBLIC_META_PIXEL_ID` | No                | ID del píxel de Meta. Además hay que activar `features.metaPixel` en `src/content/site.ts`. Solo se carga con consentimiento de marketing. |
 
 Sin `APPS_SCRIPT_URL`, en desarrollo el formulario responde correctamente con el número 0 y no guarda nada (útil para pruebas). En producción devuelve un error y lo registra en los logs. `LEADS_MOCK=1` fuerza esa respuesta simulada también con el servidor de producción (lo usan los tests e2e): nunca se reenvía nada al Apps Script ni se envía ningún email.
 
-Ningún test ni script de este proyecto envía emails. En el Apps Script, la solicitud de prueba (`testSolicitud`) solo escribe a la dirección de pruebas `CONFIG.testEmail`, nunca a info@ ni a clientes, y la confirmación al cliente viene desactivada (`CONFIG.sendClientConfirmation = false`).
+Ningún test ni script de este proyecto envía emails. El Apps Script tampoco envía ninguno: guarda en la hoja solo los datos del formulario con la fecha y la hora, y cuenta los leads en la pestaña Contador. La web no recoge ni envía UTM, procedencia ni dispositivo.
 
 ## Scripts
 

@@ -143,10 +143,10 @@ test.describe('Formulario de presupuesto', () => {
       nombre: 'Lucía Martín Ortega',
       email: 'lucia@example.com',
       consentimiento: true,
-      pagina: '/contacto',
-      dispositivo: 'escritorio',
       website: '',
     });
+    // Solo los datos del formulario: nada de UTM, procedencia ni dispositivo
+    for (const k of ['pagina', 'landing', 'referrer', 'utmSource', 'dispositivo']) expect(body).not.toHaveProperty(k);
     expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
     expect(body.sentAt - body.startedAt).toBeGreaterThanOrEqual(4000);
 

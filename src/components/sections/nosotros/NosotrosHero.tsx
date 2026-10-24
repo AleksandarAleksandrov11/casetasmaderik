@@ -7,7 +7,7 @@ import { nosotrosHero } from '@/content/nosotros';
 export function NosotrosHero() {
   const h = nosotrosHero;
   return (
-    <PageHero title={h.title} text={h.text} image={h.image} focus="35% 50%">
+    <PageHero title={h.title} text={h.text} image={h.image} focus="50% 52%">
       <ButtonLink href="/contacto" size="lg">
         Pedir presupuesto
       </ButtonLink>

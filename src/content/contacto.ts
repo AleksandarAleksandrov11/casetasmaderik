@@ -10,7 +10,7 @@ export const contactoHero = {
   title: 'Pide presupuesto para tus casetas de madera',
   text: `Cuatro preguntas sobre tu evento y te respondemos en ${site.responseTime}.`,
   image: {
-    src: '/images/real/caseta-madera-mostrador-ventanas-abiertas.jpg',
+    src: '/images/real/caseta-madera-mostrador-ventanas-abiertas.webp',
     width: 682,
     height: 682,
     alt: 'Caseta de madera Maderik con el mostrador y las ventanas abiertas en una plaza',
@@ -34,7 +34,7 @@ export const contactoNext = {
   label: 'Qué pasa después',
   title: 'Tres pasos hasta tus casetas',
   image: {
-    src: '/images/real/caseta-madera-cerrada-plaza.jpg',
+    src: '/images/real/caseta-madera-cerrada-plaza.webp',
     width: 683,
     height: 1024,
     alt: 'Caseta de madera Maderik cerrada en una plaza empedrada al atardecer',
@@ -69,6 +69,9 @@ export const contactoCta = {
   title: '¿Prefieres hablarlo?',
   // \u00a0: sin una "o" suelta al final de línea
   text: 'Para fechas cercanas o\u00a0dudas rápidas, lo más directo es una llamada o\u00a0un WhatsApp.',
-  image: { src: '/images/stock/jardin-celebracion-luces.jpg', alt: '' },
+  image: {
+    src: '/images/stock/jardin-celebracion-luces.webp',
+    alt: 'Celebración en un jardín con guirnaldas de luces cálidas',
+  },
   note: `Teléfono y WhatsApp: ${site.hours.charAt(0).toLowerCase()}${site.hours.slice(1)}.`,
 };

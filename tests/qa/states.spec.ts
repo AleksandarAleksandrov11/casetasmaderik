@@ -41,11 +41,10 @@ test('header transparente, compacto y sobre oscuro', async ({ page }) => {
   await page.goto('/casetas');
   await dismissCookies(page);
   await shot(page, 'header-inicial-casetas');
-  // Lenis suaviza también los saltos programáticos: se espera a que termine
+  // Lenis suaviza también los saltos programáticos: se espera a que termine. El header sigue
+  // fijo arriba al bajar (nunca se oculta)
   await page.evaluate(() => window.scrollTo(0, 700));
   await page.waitForTimeout(1500);
-  await page.evaluate(() => window.scrollTo(0, 650));
-  await page.waitForTimeout(900);
   await shot(page, 'header-compacto-casetas');
   // Temporada alta de Nosotros: el hero interior es claro, esta sección es oscura
   await page.goto('/nosotros');
@@ -55,8 +54,6 @@ test('header transparente, compacto y sobre oscuro', async ({ page }) => {
     window.scrollTo({ top: season.getBoundingClientRect().top + window.scrollY + 40, behavior: 'instant' });
   });
   await page.waitForTimeout(1500);
-  await page.evaluate(() => window.scrollBy({ top: -40, behavior: 'instant' }));
-  await page.waitForTimeout(900);
   await shot(page, 'header-sobre-oscuro-nosotros');
 });
 
@@ -76,6 +73,20 @@ test('menú móvil abierto', async ({ browser }) => {
     await shot(page, `menu-movil-${vp.width}x${vp.height}`);
     await ctx.close();
   }
+  // Tras bajar: el header sigue arriba y el menú se abre igual, con Inicio a la vista
+  const ctx = await browser.newContext({ viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true });
+  const page = await ctx.newPage();
+  await prepare(page);
+  await page.goto('/');
+  await dismissCookies(page);
+  await page.evaluate(() => window.scrollTo({ top: 1600, behavior: 'instant' }));
+  await page.waitForTimeout(600);
+  await page.getByRole('button', { name: 'Abrir menú' }).click();
+  await page.getByRole('dialog', { name: 'Menú' }).waitFor();
+  await page.waitForTimeout(1200);
+  await expect(page.getByRole('dialog', { name: 'Menú' }).getByRole('link', { name: 'Inicio' })).toBeInViewport();
+  await shot(page, 'menu-movil-360x740-tras-scroll');
+  await ctx.close();
 });
 
 test('foco visible con teclado', async ({ page }) => {

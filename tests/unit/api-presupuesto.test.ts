@@ -33,11 +33,6 @@ function validBody(overrides: Partial<LeadRequestBody> = {}): LeadRequestBody {
     email: 'lucia@example.com',
     empresa: 'Ayuntamiento de Prueba',
     consentimiento: true,
-    pagina: '/contacto',
-    landing: '/',
-    referrer: 'google.com',
-    utmSource: 'instagram',
-    dispositivo: 'móvil',
     startedAt: 1_000_000,
     sentAt: 1_000_000 + 45_000,
     website: '',
@@ -105,11 +100,12 @@ describe('POST /api/presupuesto: reenvío a Apps Script', () => {
       fechaFin: body.fechaFin,
       casetas: 4,
       consentimiento: true,
-      consentimientoFecha: '2026-10-20T10:00:00.000Z',
-      politicaVersion: '2026-10',
-      dispositivo: 'móvil',
       website: '',
     });
+    // Solo los datos del formulario: nada de UTM, procedencia ni dispositivo
+    for (const k of ['pagina', 'landing', 'referrer', 'utmSource', 'dispositivo', 'politicaVersion']) {
+      expect(sent).not.toHaveProperty(k);
+    }
     expect(sent).not.toHaveProperty('startedAt');
     expect(sent).not.toHaveProperty('unDia');
   });
@@ -362,7 +358,7 @@ describe('POST /api/presupuesto: antispam y validación', () => {
 describe('payload y logs', () => {
   it('enmascara los datos personales', () => {
     const parsed = leadRequestSchema.parse(validBody());
-    const payload = buildLeadPayload(parsed, SECRET, new Date('2026-10-20T10:00:00Z'));
+    const payload = buildLeadPayload(parsed, SECRET);
     const masked = maskPayload(payload);
     const text = JSON.stringify(masked);
     expect(text).not.toContain(SECRET);

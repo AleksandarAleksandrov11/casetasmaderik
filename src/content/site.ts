@@ -54,7 +54,7 @@ export const product = {
   doors: 1,
   roof: 'Cubierta impermeabilizada',
   foldable: true,
-  image: '/images/real/caseta-madera-alquiler-feria-abierta.jpg',
+  image: '/images/real/caseta-madera-alquiler-feria-abierta.webp',
 } as const;
 
 export const nav = [

@@ -69,8 +69,8 @@ function DimensionGlyph({ id }: { id: string }) {
 }
 
 /**
- * Plano en su tarjeta. Las tres tarjetas tienen siempre el mismo ancho y los
- * tres SVG el mismo marco, así los planos comparten escala en cada rejilla.
+ * Plano en su tarjeta blanca. Las tres tarjetas tienen siempre el mismo ancho
+ * y los tres SVG el mismo marco, así los planos comparten escala en cada rejilla.
  */
 function PlanFigure({ title, delay, children }: { title: string; delay?: string; children: ReactNode }) {
   return (
@@ -79,7 +79,7 @@ function PlanFigure({ title, delay, children }: { title: string; delay?: string;
       data-reveal
       style={delay ? { ['--reveal-delay' as string]: delay } : undefined}
     >
-      <div className="flex flex-1 items-center rounded-sm border border-sand bg-cream p-[clamp(14px,1.6vw,24px)] shadow-[0_1px_0_rgb(14_22_21/0.04)]">
+      <div className="flex flex-1 items-center rounded-sm border border-sand bg-white p-[clamp(14px,1.6vw,24px)]">
         {children}
       </div>
       <figcaption className="mt-4 flex items-center gap-3 text-[0.9375rem] text-stone">
@@ -91,77 +91,100 @@ function PlanFigure({ title, delay, children }: { title: string; delay?: string;
 }
 
 /**
- * S2. Ficha técnica en tres bloques, cada uno con su fondo: medidas (papel
- * con veta de madera), características (degradado cálido) y planos acotados
- * (cuadrícula de plano técnico). Las texturas son CSS y SVG en línea.
+ * S2. Ficha técnica: medidas y características en una sola ficha (tarjeta
+ * crema sobre papel liso). Las cifras arriba y las características debajo,
+ * en celdas separadas por líneas finas: la rejilla tiene un hueco de 1 px y
+ * el fondo arena de la tarjeta se ve entre las celdas.
  */
 export function CasetasSpecs() {
   const s = casetasSpecs;
   return (
-    <Section surface="paper" spacing={false} aria-labelledby="medidas-titulo" className="border-t border-sand">
-      {/* 1. Medidas: cifras grandes */}
-      <div className="specs-grain pt-[var(--section-y)] pb-[clamp(64px,8vw,120px)]">
-        <div className="container-site">
+    <>
+      <Section surface="paper" spacing={false} aria-labelledby="ficha-titulo" className="border-t border-sand">
+        <div className="container-site pt-[var(--section-y)] pb-[clamp(72px,9vw,136px)]">
           <Label>{s.label}</Label>
-          <Heading id="medidas-titulo" className="mt-6">
+          <Heading id="ficha-titulo" className="mt-6">
             {s.title}
           </Heading>
-          <dl className="mt-[clamp(48px,6vw,88px)] grid grid-cols-2 gap-x-[clamp(16px,2vw,32px)] gap-y-10 lg:grid-cols-4">
-            {s.dimensions.map((d, i) => (
-              <div
-                key={d.id}
-                className="flex flex-col border-t border-ink/15 pt-5"
-                data-reveal
-                style={{ ['--reveal-delay' as string]: `${i * 0.08}s` }}
-              >
-                <dt className="flex items-center gap-3 text-[0.9375rem] font-medium text-charcoal">
-                  <DimensionGlyph id={d.id} />
-                  <span>{d.term}</span>
-                </dt>
-                <dd className="tabular mt-6 font-display text-[clamp(3.25rem,7.4vw,7.5rem)] leading-[0.9] tracking-[-0.04em] text-ink">
-                  {d.value}
-                  <span aria-hidden="true" className="ml-[0.08em] text-[0.36em] tracking-normal text-wood-dark">
-                    {d.unit}
-                  </span>
-                  <span className="sr-only"> {d.spoken}</span>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </div>
 
-      {/* 2. Características */}
-      <div className="specs-warm border-t border-sand py-[clamp(64px,8vw,120px)]">
-        <div className="container-site grid-site gap-y-10">
-          <h3 className="text-h3 col-span-4 md:col-span-6 lg:col-span-3">{s.featuresTitle}</h3>
-          <dl className="col-span-4 grid gap-x-[clamp(16px,2vw,32px)] sm:grid-cols-2 md:col-span-6 lg:col-span-9 lg:grid-cols-3">
-            {s.features.map((f) => {
-              const Icon = FEATURE_ICONS[f.id] ?? Package;
-              return (
-                // dt y dd hijos directos del div (lo exige <dl>): el icono va dentro del dt
-                // y el dd se alinea con el texto (24 px de icono + 16 px de hueco)
-                <div key={f.id} className="border-t border-ink/12 py-6">
-                  <dt className="flex items-center gap-4 text-[0.875rem] text-stone">
-                    <Icon aria-hidden="true" strokeWidth={1.25} className="size-6 shrink-0 text-wood-dark" />
-                    <span>{f.term}</span>
-                  </dt>
-                  <dd className="mt-1 pl-10 text-[1.0625rem] leading-snug font-medium text-ink">{f.value}</dd>
-                </div>
-              );
-            })}
-          </dl>
-        </div>
-      </div>
+          <div
+            className="mt-[clamp(40px,5vw,72px)] grid gap-px overflow-hidden rounded-sm border border-sand bg-sand"
+            data-reveal="fade"
+          >
+            {/* Medidas: cifras grandes */}
+            <dl className="grid grid-cols-2 gap-px lg:grid-cols-4">
+              {s.dimensions.map((d, i) => {
+                const delay = { ['--reveal-delay' as string]: `${i * 0.08}s` };
+                return (
+                  // dt y dd hijos directos del div (lo exige <dl>). La cifra va abajo: si un
+                  // término ocupa dos líneas, las cifras de la fila siguen alineadas
+                  <div key={d.id} className="flex flex-col bg-cream p-[clamp(18px,2.6vw,40px)]">
+                    <dt
+                      className="flex items-center gap-3 text-[0.9375rem] leading-snug font-medium text-charcoal"
+                      data-reveal
+                      style={delay}
+                    >
+                      <DimensionGlyph id={d.id} />
+                      <span>{d.term}</span>
+                    </dt>
+                    <dd
+                      className="tabular mt-auto pt-[clamp(20px,3vw,40px)] font-display text-[clamp(2.75rem,9vw,4.5rem)] leading-[0.9] tracking-[-0.04em] whitespace-nowrap text-ink lg:text-[clamp(4rem,6.4vw,6.5rem)]"
+                      data-reveal
+                      style={delay}
+                    >
+                      {d.value}
+                      <span aria-hidden="true" className="ml-[0.08em] text-[0.36em] tracking-normal text-wood-dark">
+                        {d.unit}
+                      </span>
+                      <span className="sr-only"> {d.spoken}</span>
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
 
-      {/* 3. Planos acotados sobre cuadrícula de plano técnico */}
-      <div className="specs-blueprint border-t border-sand pt-[clamp(64px,8vw,120px)] pb-[var(--section-y)]">
-        <div className="container-site">
+            {/* Características: icono, término y valor */}
+            <dl
+              aria-label={s.featuresTitle}
+              className="grid grid-cols-1 gap-px min-[22.5rem]:grid-cols-2 lg:grid-cols-3"
+            >
+              {s.features.map((f) => {
+                const Icon = FEATURE_ICONS[f.id] ?? Package;
+                return (
+                  // dt y dd hijos directos del div (lo exige <dl>): el icono va dentro del dt
+                  <div key={f.id} className="bg-cream px-[clamp(18px,2.6vw,40px)] py-[clamp(18px,2.2vw,32px)]">
+                    <dt className="flex items-center gap-3 text-[0.875rem] text-stone">
+                      <Icon aria-hidden="true" strokeWidth={1.25} className="size-6 shrink-0 text-wood-dark" />
+                      <span>{f.term}</span>
+                    </dt>
+                    <dd className="mt-3 text-[1rem] leading-snug font-medium text-ink sm:text-[1.0625rem]">
+                      {noOrphans(f.value)}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
+
+          {site.features.techSheet ? (
+            <a href={s.download.href} className="link-underline mt-10" download>
+              <Download aria-hidden="true" strokeWidth={1.5} className="size-[18px]" />
+              {s.download.label}
+            </a>
+          ) : null}
+        </div>
+      </Section>
+
+      {/* Planos acotados: crema liso, planos en tarjetas blancas */}
+      <Section surface="cream" spacing={false} aria-labelledby="planos-titulo" className="border-t border-sand">
+        <div className="container-site pt-[clamp(72px,9vw,136px)] pb-[var(--section-y)]">
           {/* Una columna: título, nota y planos. Dos: la nota ocupa el hueco junto a la planta.
               Tres: la nota va arriba a la derecha, a la altura del título */}
           <div className="grid gap-x-6 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
-            <h3 className="text-h3 md:col-span-2 lg:self-end">{s.plansTitle}</h3>
-            <p className="flex max-w-[30rem] items-start gap-3 self-start rounded-sm border border-wood-light/60 bg-cream px-4 py-3 text-[0.9375rem] leading-relaxed text-charcoal md:order-last md:self-center lg:order-none lg:col-start-3 lg:row-start-1 lg:max-w-none lg:self-end">
+            <Heading id="planos-titulo" size="h3" className="md:col-span-2 lg:self-end">
+              {s.plansTitle}
+            </Heading>
+            <p className="flex max-w-[30rem] items-start gap-3 self-start rounded-sm border border-wood-light/60 bg-paper px-4 py-3 text-[0.9375rem] leading-relaxed text-charcoal md:order-last md:self-center lg:order-none lg:col-start-3 lg:row-start-1 lg:max-w-none lg:self-end">
               <Info aria-hidden="true" strokeWidth={1.5} className="mt-[3px] size-[18px] shrink-0 text-wood-dark" />
               <span>{noOrphans(s.plansNote)}</span>
             </p>
@@ -175,14 +198,8 @@ export function CasetasSpecs() {
               <FloorPlan />
             </PlanFigure>
           </div>
-          {site.features.techSheet ? (
-            <a href={s.download.href} className="link-underline mt-12" download>
-              <Download aria-hidden="true" strokeWidth={1.5} className="size-[18px]" />
-              {s.download.label}
-            </a>
-          ) : null}
         </div>
-      </div>
-    </Section>
+      </Section>
+    </>
   );
 }

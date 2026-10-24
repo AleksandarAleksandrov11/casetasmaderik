@@ -107,7 +107,12 @@ export const heroCss = /* css */ `
 .hero__track {
   display: flex;
   width: max-content;
-  animation: hero-ticker 48s linear infinite;
+  animation: hero-ticker 90s linear infinite;
+}
+
+.hero__group {
+  display: flex;
+  flex: none;
 }
 
 .hero__tick {
@@ -123,6 +128,10 @@ export const heroCss = /* css */ `
   white-space: nowrap;
   color: var(--color-stone);
   transition: color 0.8s var(--ease-brand);
+}
+
+.hero__tick::before {
+  content: attr(data-t);
 }
 
 .hero__tick::after {
@@ -149,6 +158,20 @@ export const heroCss = /* css */ `
 .hero[data-header='dark'] {
   background-color: var(--color-ink);
   color: var(--color-cream);
+}
+
+.hero__line--tail {
+  margin-top: 0.4em;
+  font-size: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  color: var(--color-stone);
+  transition: color 0.8s var(--ease-brand);
+}
+
+.hero[data-header='dark'] .hero__line--tail {
+  color: color-mix(in oklab, var(--color-cream) 78%, transparent);
 }
 
 .hero[data-header='dark'] .hero__line--kicker {

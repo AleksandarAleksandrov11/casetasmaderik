@@ -289,7 +289,7 @@ export function AssemblyStage({
                       sizes={sizes}
                       width={manifest.width}
                       height={manifest.height}
-                      alt=""
+                      alt={`Caseta de madera plegable durante el montaje, paso ${i + 1} de ${ASSEMBLY_FRAMES.length}`}
                       loading="lazy"
                       decoding="async"
                       draggable={false}

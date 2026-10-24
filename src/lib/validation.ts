@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   DATE_RE,
-  DISPOSITIVOS,
   EMPTY_DRAFT,
   EVENT_VALUES,
   LIMITS,
@@ -185,15 +184,6 @@ export const leadRequestSchema = z
     email: z.email('Indica un email válido.').max(254),
     empresa: shortOptional(LIMITS.empresaMax),
     consentimiento: z.literal(true, 'Debes aceptar la política de privacidad.'),
-    pagina: z.string().max(300),
-    landing: shortOptional(300),
-    referrer: shortOptional(200),
-    utmSource: shortOptional(150),
-    utmMedium: shortOptional(150),
-    utmCampaign: shortOptional(150),
-    utmTerm: shortOptional(150),
-    utmContent: shortOptional(150),
-    dispositivo: z.enum(DISPOSITIVOS),
     /** Momento en que se abrió el formulario (reloj del navegador, ms). */
     startedAt: z.number().int().nonnegative(),
     /** Momento del envío (reloj del navegador, ms). Evita depender del desfase de reloj. */
