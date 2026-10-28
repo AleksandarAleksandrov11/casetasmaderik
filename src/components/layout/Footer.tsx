@@ -166,7 +166,10 @@ export function Footer() {
       <div className="container-site">
         <div className="flex flex-col gap-3 border-t border-mist/20 py-6 pb-[max(24px,var(--safe-bottom))] text-[0.875rem] text-mist sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {year} {site.name}. {site.legalName}, NIF {site.taxId}.
+            © {year} {site.name}. {site.legalName}, NIF {site.taxId}. Web creada por{' '}
+            <a href="https://www.aasmarketing.com/" className="hover:text-cream">
+              AAS Marketing
+            </a>
           </p>
           <div className="flex items-center gap-6">
             <a href="#arriba" className="group/top inline-flex min-h-[44px] items-center gap-2 hover:text-cream">
