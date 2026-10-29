@@ -3,12 +3,6 @@
   "framework": "nextjs",
   "regions": ["cdg1"],
   "redirects": [
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.casetasmaderik.es" }],
-      "destination": "https://casetasmaderik.es/:path*",
-      "statusCode": 301
-    },
     { "source": "/product-category/:path*", "destination": "/casetas", "statusCode": 301 },
     { "source": "/product/:path*", "destination": "/casetas", "statusCode": 301 },
     { "source": "/tienda/:path*", "destination": "/casetas", "statusCode": 301 },

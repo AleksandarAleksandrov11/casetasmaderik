@@ -51,10 +51,10 @@ describe('metadatos', () => {
     for (const p of pages) {
       const meta = pageMetadata({ title: p.title, description: p.description, path: p.path });
       const canonical = String(meta.alternates?.canonical);
-      expect(canonical.startsWith('https://casetasmaderik.es')).toBe(true);
+      expect(canonical.startsWith('https://casetasmaderik.com')).toBe(true);
       expect(canonical.endsWith('/')).toBe(false);
     }
-    expect(absoluteUrl('/')).toBe('https://casetasmaderik.es');
+    expect(absoluteUrl('/')).toBe('https://casetasmaderik.com');
   });
 
   it('las legales no se indexan', () => {
@@ -162,10 +162,8 @@ describe('redirecciones de vercel.json', () => {
     expect(rule!.statusCode).toBe(301);
   });
 
-  it('www redirige al dominio raíz', () => {
-    const www = config.redirects.find((r) => r.has);
-    expect(www?.destination).toBe('https://casetasmaderik.es/:path*');
-    expect(www?.statusCode).toBe(301);
+  it('no hay redirecciones por host: www y raíz los resuelve Vercel (Settings > Domains), así no hay bucles', () => {
+    expect(config.redirects.some((r) => r.has)).toBe(false);
   });
 
   it('las páginas nuevas no se redirigen', () => {

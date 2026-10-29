@@ -6,7 +6,7 @@ Datos y decisiones que necesitamos del cliente. Todos los datos de negocio está
 
 1. **Domicilio social de AJE ZENTIO** y **datos registrales de la asociación**. Son obligatorios en el aviso legal (LSSI-CE) y en la política de privacidad. Ahora aparecen como "Pendiente de publicar". Campos `site.address` y `site.registry`. Cuando haya domicilio se puede activar también el JSON-LD `LocalBusiness` (`site.features.localBusiness`).
 2. **Revisión legal profesional** del aviso legal, la política de privacidad y la política de cookies (textos en `src/content/legal.ts`).
-3. **Confirmar que info@casetasmaderik.es existe y recibe correo.** Es el destino de los avisos de cada solicitud y el email que se publica.
+3. **Confirmar que info@casetasmaderik.com existe y recibe correo.** Es el destino de los avisos de cada solicitud y el email que se publica.
 
 ## Contacto y zona
 
@@ -39,7 +39,15 @@ Datos y decisiones que necesitamos del cliente. Todos los datos de negocio está
 ## Accesos y despliegue
 
 20. **Acceso al DNS del dominio** para conectarlo a Vercel (apex y `www`) y a la **cuenta de Google** donde se creará la hoja "Casetas Maderik · Solicitudes".
-21. **Instalar el Apps Script** y añadir `APPS_SCRIPT_URL` y `APPS_SCRIPT_SECRET` en Vercel (pasos en `apps-script/README.md`). No se ha ejecutado en una cuenta de Google real: está probado con tests que simulan los servicios de Google. Tras instalarlo, ejecutar `configurar()` y enviar una solicitud real de prueba desde /contacto. El script no envía emails: si se quiere un aviso por email de cada solicitud, hay que añadirlo.
+21. **Instalar el Apps Script** y añadir `APPS_SCRIPT_URL` y `APPS_SCRIPT_SECRET` en Vercel (pasos en `apps-script/README.md`). No se ha ejecutado en una cuenta de Google real: está probado con tests que simulan los servicios de Google. Tras instalarlo, ejecutar `configurar()` y enviar una solicitud real de prueba desde /contacto. El script avisa por email de cada lead nuevo solo a `aaswebmarketing@gmail.com` (`CONFIG.avisoEmail`); cuando la hoja pase a ser del cliente, cambiar esa dirección y publicar una nueva versión.
 22. **Tras el despliegue**: comprobar las redirecciones de las URLs antiguas con `curl` (comandos en el README), validar el JSON-LD en Rich Results Test y en validator.schema.org, enviar el sitemap en Search Console y Bing Webmaster Tools, y pasar PageSpeed Insights a las 7 páginas (en local, Lighthouse móvil da de 90 a 92 de mediana y escritorio de 99 a 100; ver `QA-REPORT.md`).
 23. **Navegadores y dispositivos**: en el entorno de desarrollo solo había Chromium y WebGL por software (SwiftShader), así que el 3D no se ha podido medir a 60 fps en una GPU real. Conviene probar el hero, el visor y el montaje en un iPhone y un Android de gama media (el 3D baja solo a calidad baja si va lento y, si ni así se mueve, pasa a la versión con fotogramas, que también se gira y se abre). Las capturas y pruebas en WebKit (Safari) y Firefox están configuradas (`PW_ALL_BROWSERS=1`) y deben ejecutarse en un equipo con esos navegadores instalados.
 24. **Límite de envíos del formulario**: ahora es en memoria (5 cada 10 minutos por IP y por instancia). Si hay abuso, se puede pasar a Upstash Redis (indicado en el código).
+
+## Dominio casetasmaderik.com (octubre de 2026)
+
+- En Vercel, _Settings > Domains_: marcar `casetasmaderik.com` (sin `www`) como dominio principal y dejar `www.casetasmaderik.com` redirigiendo a él. Hoy el apex redirige a `www` (308) y la web declara el apex como canonical.
+- Search Console: crear una propiedad nueva para el dominio nuevo (la verificación de la propiedad antigua no vale) y enviar `https://casetasmaderik.com/sitemap.xml`.
+- Confirmar que `info@casetasmaderik.com` existe y recibe correo (el dominio nuevo no hereda el buzón antiguo).
+- Si `casetasmaderik.es` sigue activo, redirigirlo con 301 al dominio nuevo, página a página, para no perder lo ya indexado.
+- Actualizar el dominio y el email en Google Business Profile, Instagram y cualquier directorio donde figure el antiguo.

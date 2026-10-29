@@ -3,6 +3,8 @@ const CONFIG = {
   hojaContador: 'Contador',
   zonaHoraria: 'Europe/Madrid',
   segundosDuplicado: 21600,
+  avisoEmail: 'aaswebmarketing@gmail.com',
+  remitente: 'Casetas Maderik',
 };
 
 const COLUMNAS = [
@@ -33,14 +35,13 @@ function configurar() {
 
   const contador = libro.getSheetByName(CONFIG.hojaContador) || libro.insertSheet(CONFIG.hojaContador, 1);
   const hoja = "'" + CONFIG.hojaSolicitudes + "'";
-  contador.getRange('A1:B3').setValues([
-    ['Total de leads', '=COUNTA(' + hoja + '!A2:A)'],
-    ['Hoy', '=COUNTIF(' + hoja + '!B2:B,TODAY())'],
-    [
-      'Este mes',
-      '=COUNTIFS(' + hoja + '!B2:B,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),' + hoja + '!B2:B,"<="&EOMONTH(TODAY(),0))',
-    ],
-  ]);
+  contador.getRange('A1:A3').setValues([['Total de leads'], ['Hoy'], ['Este mes']]);
+  formula_(contador.getRange('B1'), '=COUNTA(' + hoja + '!A2:A)');
+  formula_(contador.getRange('B2'), '=COUNTIF(' + hoja + '!B2:B,TODAY())');
+  formula_(
+    contador.getRange('B3'),
+    '=COUNTIFS(' + hoja + '!B2:B,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),' + hoja + '!B2:B,"<="&EOMONTH(TODAY(),0))',
+  );
   contador.getRange('A5:B5').setValues([['Mes', 'Leads']]);
   contador.getRange('A1:A5').setFontWeight('bold');
   contador.getRange('B5').setFontWeight('bold');
@@ -107,6 +108,7 @@ function guardar_(d) {
     ];
     hoja.appendRow(fila);
     sumarMes_(libro, ahora);
+    avisar_(numero, fila, libro.getUrl());
     if (d.id) cache.put(clave, String(numero), CONFIG.segundosDuplicado);
     return { ok: true, numero: numero };
   } finally {
@@ -129,6 +131,47 @@ function sumarMes_(libro, ahora) {
     }
   }
   contador.getRange(Math.max(ultima, 5) + 1, 1, 1, 2).setNumberFormats([['@', '0']]).setValues([[mes, 1]]);
+}
+
+function avisar_(numero, fila, url) {
+  if (!CONFIG.avisoEmail) return;
+  try {
+    const campos = [
+      ['Nombre', fila[3]],
+      ['Teléfono', fila[4]],
+      ['Email', fila[5]],
+      ['Empresa', fila[6]],
+      ['Tipo de evento', fila[7]],
+      ['Fechas', fila[8] + (fila[9] && fila[9] !== fila[8] ? ' al ' + fila[9] : '')],
+      ['Lugar', fila[10] + (fila[11] ? ' (' + fila[11] + ')' : '')],
+      ['Casetas', fila[12]],
+      ['Comentarios', fila[13]],
+    ].filter(function (c) {
+      return c[1] !== '' && c[1] !== undefined;
+    });
+    const cuerpo = campos
+      .map(function (c) {
+        return c[0] + ': ' + c[1];
+      })
+      .join('\n');
+    MailApp.sendEmail({
+      to: CONFIG.avisoEmail,
+      subject: 'Nuevo lead nº ' + numero + ': ' + fila[3] + ' (' + fila[7] + ')',
+      body: cuerpo + '\n\nHoja: ' + url,
+      name: CONFIG.remitente,
+    });
+  } catch (error) {
+    Logger.log('No se pudo enviar el aviso: ' + error);
+  }
+}
+
+function formula_(celda, formula) {
+  celda.setFormula(formula);
+  SpreadsheetApp.flush();
+  if (String(celda.getDisplayValue()).indexOf('#ERROR') === 0) {
+    celda.setValue(formula.replace(/,/g, ';'));
+    SpreadsheetApp.flush();
+  }
 }
 
 function libro_() {

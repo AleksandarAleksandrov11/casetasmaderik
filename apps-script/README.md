@@ -1,6 +1,6 @@
 # Hoja de solicitudes de Casetas Maderik
 
-Cada vez que alguien pide presupuesto en la web, la solicitud se guarda como una fila en una hoja de Google, con la fecha y la hora. Una segunda pestaña cuenta los leads. El script no envía ningún email. Calcula unos 10 minutos.
+Cada vez que alguien pide presupuesto en la web, la solicitud se guarda como una fila en una hoja de Google, con la fecha y la hora. Una segunda pestaña cuenta los leads y cada lead nuevo te llega por email a la dirección `avisoEmail` del principio de `Code.gs` (ahora `aaswebmarketing@gmail.com`). Calcula unos 10 minutos.
 
 ## Qué vas a tener
 
@@ -17,7 +17,7 @@ Cada vez que alguien pide presupuesto en la web, la solicitud se guarda como una
 ## Paso 2. Configurar
 
 1. En el desplegable junto a **Ejecutar**, elige **configurar** y pulsa **Ejecutar**.
-2. Acepta los permisos la primera vez (**Revisar permisos**, tu cuenta y, si sale "Google no ha verificado esta aplicación", **Configuración avanzada > Ir a Casetas Maderik**). La aplicación es tuya.
+2. Acepta los permisos la primera vez, incluido el de enviar emails en tu nombre (**Revisar permisos**, tu cuenta y, si sale "Google no ha verificado esta aplicación", **Configuración avanzada > Ir a Casetas Maderik**). La aplicación es tuya.
 3. En el **Registro de ejecución** aparece una línea "Secreto para APPS_SCRIPT_SECRET en Vercel: …". Copia ese secreto (sin espacios). No lo compartas.
 
 Se crean las pestañas Solicitudes y Contador. Puedes volver a ejecutar `configurar` cuando quieras: no borra datos y el secreto no cambia.
@@ -37,7 +37,7 @@ Se crean las pestañas Solicitudes y Contador. Puedes volver a ejecutar `configu
 
 ## Paso 5. Probar
 
-Envía el formulario desde `/contacto` con tus datos. Aparece una fila nueva en Solicitudes y el Contador sube en 1. Borra la fila de prueba cuando quieras (el Contador mensual no se descuenta solo: corrige la cifra del mes a mano si lo necesitas).
+Envía el formulario desde `/contacto` con tus datos. Aparece una fila nueva en Solicitudes, el Contador sube en 1 y llega el email de aviso. Borra la fila de prueba cuando quieras (el Contador mensual no se descuenta solo: corrige la cifra del mes a mano si lo necesitas).
 
 ## Cambiar el código sin cambiar la URL
 
@@ -48,4 +48,5 @@ Pega el código nuevo, guarda y en **Implementar > Gestionar implementaciones** 
 - **No llegan solicitudes**: revisa en Vercel las dos variables (sin espacios) y que hayas vuelto a desplegar. En Vercel, **Logs** muestra mensajes `[presupuesto]` con la causa.
 - **"APPS_SCRIPT_SECRET no coincide"** en los registros: ejecuta otra vez `configurar` y copia el secreto del registro.
 - **Errores dentro del script**: en Apps Script, menú **Ejecuciones**.
+- **No llega el email de aviso**: la fila se guarda igualmente. Mira **Ejecuciones** en Apps Script (puede ser la cuota diaria de Google, unos 100 emails al día en cuentas gratuitas). Si cambias `avisoEmail` o añades el permiso de email a un script ya publicado, ejecuta `configurar` otra vez, acepta los permisos y publica **Nueva versión**.
 - No cambies el orden de las columnas de Solicitudes.

@@ -544,7 +544,7 @@ test.describe('Formulario sin JavaScript', () => {
     // Chromium con JavaScript desactivado por CDP no pinta <noscript>: se comprueba su contenido
     const noscript = await page.locator('noscript').evaluateAll((els) => els.map((el) => el.innerHTML).join('\n'));
     expect(noscript).toContain('Para usar el formulario necesitas JavaScript.');
-    expect(noscript).toContain('href="mailto:info@casetasmaderik.es"');
+    expect(noscript).toContain('href="mailto:info@casetasmaderik.com"');
     expect(noscript).toContain('href="tel:+34656324123"');
     expect(noscript).toMatch(/href="https:\/\/wa\.me\/34656324123/);
   });

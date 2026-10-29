@@ -2,7 +2,7 @@
 
 Web de **Casetas Maderik** (alquiler de casetas de madera para ferias, mercados navideños y eventos), hecha con Next.js 16, React 19, Tailwind CSS 4, Three.js y GSAP. Sustituye a la web anterior en WordPress.
 
-- Producción: https://casetasmaderik.es
+- Producción: https://casetasmaderik.com
 - Brief completo: [`brief/PROMPT.md`](brief/PROMPT.md)
 - Pendientes del cliente: [`PENDIENTES.md`](PENDIENTES.md)
 - Informe de QA: [`QA-REPORT.md`](QA-REPORT.md)
@@ -25,7 +25,7 @@ pnpm dev                     # http://localhost:3000
 
 | Variable                    | Obligatoria       | Para qué sirve                                                                                                                             |
 | --------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SITE_URL`      | No                | URL pública (por defecto `https://casetasmaderik.es`).                                                                                     |
+| `NEXT_PUBLIC_SITE_URL`      | No                | URL pública (por defecto `https://casetasmaderik.com`).                                                                                    |
 | `APPS_SCRIPT_URL`           | Sí, en producción | URL `/exec` de la aplicación web de Google Apps Script que guarda las solicitudes.                                                         |
 | `APPS_SCRIPT_SECRET`        | Sí, en producción | Secreto compartido con el Apps Script (lo muestra el registro al ejecutar `configurar`).                                                   |
 | `NEXT_PUBLIC_GA_ID`         | No                | ID de Google Analytics 4 (`G-XXXXXXX`). Solo se carga si el usuario acepta las cookies analíticas.                                         |
@@ -33,7 +33,7 @@ pnpm dev                     # http://localhost:3000
 
 Sin `APPS_SCRIPT_URL`, en desarrollo el formulario responde correctamente con el número 0 y no guarda nada (útil para pruebas). En producción devuelve un error y lo registra en los logs. `LEADS_MOCK=1` fuerza esa respuesta simulada también con el servidor de producción (lo usan los tests e2e): nunca se reenvía nada al Apps Script ni se envía ningún email.
 
-Ningún test ni script de este proyecto envía emails. El Apps Script tampoco envía ninguno: guarda en la hoja solo los datos del formulario con la fecha y la hora, y cuenta los leads en la pestaña Contador. La web no recoge ni envía UTM, procedencia ni dispositivo.
+Ningún test de este proyecto envía emails. Solo el Apps Script avisa por email de cada lead nuevo, únicamente a `CONFIG.avisoEmail` (aaswebmarketing@gmail.com) y nunca al cliente. Guarda en la hoja solo los datos del formulario con la fecha y la hora, y cuenta los leads en la pestaña Contador. La web no recoge ni envía UTM, procedencia ni dispositivo.
 
 ## Scripts
 
@@ -77,22 +77,22 @@ Para cambiar un dato del negocio (teléfono, horario, zona, redes, tiempo de res
 
 1. **Proyecto**: en Vercel, _Add New Project_ e importa este repositorio de GitHub. Framework: Next.js (se detecta solo). Región: `cdg1` (París), ya fijada en `vercel.json`.
 2. **Variables**: en _Settings > Environment Variables_ añade `APPS_SCRIPT_URL` y `APPS_SCRIPT_SECRET` (y, si se usan, `NEXT_PUBLIC_GA_ID` y `NEXT_PUBLIC_META_PIXEL_ID`) para _Production_ y _Preview_. Vuelve a desplegar después de añadirlas.
-3. **Dominio**: en _Settings > Domains_ añade `casetasmaderik.es` (apex) y `www.casetasmaderik.es`. Marca el apex como principal y deja `www` redirigiendo al apex (además `vercel.json` incluye la redirección 301). En el DNS del dominio crea los registros que indique Vercel (normalmente un `A` a `76.76.21.21` para el apex y un `CNAME` a `cname.vercel-dns.com` para `www`).
+3. **Dominio**: en _Settings > Domains_ añade `casetasmaderik.com` (apex) y `www.casetasmaderik.com`. Marca el apex como principal y deja `www` redirigiendo al apex (301). Esa redirección se hace solo aquí, en Vercel: `vercel.json` no lleva ninguna por host, para que no pueda formar un bucle con la de Vercel. El dominio principal tiene que ser `casetasmaderik.com` (sin `www`), porque es el que usan el canonical, el sitemap y los datos estructurados. En el DNS del dominio crea los registros que indique Vercel (normalmente un `A` a `76.76.21.21` para el apex y un `CNAME` a `cname.vercel-dns.com` para `www`).
 4. **Plan**: se recomienda **Vercel Pro**: el plan Hobby es solo para uso no comercial y los eventos personalizados de Analytics (`lead_submit`, clics en llamar, WhatsApp y email) requieren Pro.
 5. **Analytics y Speed Insights**: en el proyecto, pestañas _Analytics_ y _Speed Insights_, pulsa _Enable_. Los scripts solo se cargan si el visitante acepta las cookies analíticas.
 6. **Comprobación tras el despliegue**:
    ```bash
-   curl -sI https://www.casetasmaderik.es/ | grep -i location          # 301 a https://casetasmaderik.es/
-   curl -sI https://casetasmaderik.es/product/caseta-de-madera-para-eventos-y-ferias-290-x-200-m-2/ | grep -iE "^HTTP|location"   # un solo 301 a /casetas
-   curl -sI https://casetasmaderik.es/product-category/casetas/ | grep -iE "^HTTP|location"
-   curl -sI https://casetasmaderik.es/mi-cuenta/ | grep -iE "^HTTP|location"
-   curl -sI https://casetasmaderik.es/ | grep -i content-security-policy
+   curl -sI https://www.casetasmaderik.com/ | grep -i location          # 301 a https://casetasmaderik.com/
+   curl -sI https://casetasmaderik.com/product/caseta-de-madera-para-eventos-y-ferias-290-x-200-m-2/ | grep -iE "^HTTP|location"   # un solo 301 a /casetas
+   curl -sI https://casetasmaderik.com/product-category/casetas/ | grep -iE "^HTTP|location"
+   curl -sI https://casetasmaderik.com/mi-cuenta/ | grep -iE "^HTTP|location"
+   curl -sI https://casetasmaderik.com/ | grep -i content-security-policy
    ```
    Abre la web con la consola del navegador abierta y comprueba que no hay errores ni avisos de CSP, antes y después de aceptar las cookies.
 
 ## Search Console y Bing
 
-1. **Google Search Console**: la propiedad sigue verificada porque la web conserva la meta `google-site-verification` de la anterior. En _Sitemaps_ envía `https://casetasmaderik.es/sitemap.xml`. En _Inspección de URLs_ pide la indexación de `/`, `/casetas`, `/nosotros` y `/contacto`. Revisa en _Páginas_ que las URLs antiguas aparecen como redirigidas.
+1. **Google Search Console**: con el dominio nuevo hay que crear una propiedad nueva (mejor de tipo _Dominio_, que se verifica por DNS y cubre `www` y el apex). La meta `google-site-verification` que lleva la web era de la propiedad de `casetasmaderik.es` y no verifica la nueva. En _Sitemaps_ envía `https://casetasmaderik.com/sitemap.xml`. En _Inspección de URLs_ pide la indexación de `/`, `/casetas`, `/nosotros` y `/contacto`. Revisa en _Páginas_ que las URLs antiguas aparecen como redirigidas.
 2. **Resultados enriquecidos**: valida cada página en https://search.google.com/test/rich-results y en https://validator.schema.org (JSON-LD de Organization, WebSite, WebPage, Service, Product, FAQPage y BreadcrumbList).
 3. **Bing Webmaster Tools**: importa la propiedad desde Search Console (opción _Import from GSC_) y envía el mismo sitemap.
 
