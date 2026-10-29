@@ -16,7 +16,7 @@ test.describe('SEO en el HTML servido', () => {
       expect(desc.length).toBeGreaterThanOrEqual(140);
       expect(desc.length).toBeLessThanOrEqual(160);
       const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
-      expect(canonical).toBe(`https://casetasmaderik.es${path === '/' ? '' : path}`);
+      expect(canonical).toBe(`https://casetasmaderik.com${path === '/' ? '' : path}`);
       expect(html).toContain('<html lang="es"');
       expect(html).toContain('name="google-site-verification" content="l2LKSlg4IhbfzGAdQjzdPHE0UjYSLac48nWuEMNIhek"');
       expect(html.match(/<h1[\s>]/g)?.length).toBe(1);
@@ -61,10 +61,10 @@ test.describe('SEO en el HTML servido', () => {
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(locs.sort()).toEqual(
       [
-        'https://casetasmaderik.es',
-        'https://casetasmaderik.es/casetas',
-        'https://casetasmaderik.es/contacto',
-        'https://casetasmaderik.es/nosotros',
+        'https://casetasmaderik.com',
+        'https://casetasmaderik.com/casetas',
+        'https://casetasmaderik.com/contacto',
+        'https://casetasmaderik.com/nosotros',
       ].sort(),
     );
     expect(xml).toContain('<lastmod>');
@@ -74,12 +74,12 @@ test.describe('SEO en el HTML servido', () => {
     const txt = await (await request.get('/robots.txt')).text();
     expect(txt).toMatch(/Allow: \//);
     expect(txt).toMatch(/Disallow: \/api\//);
-    expect(txt).toContain('Sitemap: https://casetasmaderik.es/sitemap.xml');
+    expect(txt).toContain('Sitemap: https://casetasmaderik.com/sitemap.xml');
   });
 
   test('llms.txt con los datos de contacto', async ({ request }) => {
     const txt = await (await request.get('/llms.txt')).text();
-    expect(txt).toContain('info@casetasmaderik.es');
+    expect(txt).toContain('info@casetasmaderik.com');
     expect(txt).toContain('+34 656 32 41 23');
     expect(txt).toContain('2,90 × 2,00 × 2,47 m');
   });

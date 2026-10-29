@@ -7,7 +7,7 @@ import { Section } from '@/components/ui/Section';
 import { contactoChannels } from '@/content/contacto';
 import { emailHref, phoneHref, site, whatsappHref } from '@/content/site';
 
-/** El email solo puede partirse tras la arroba ("info@" / "casetasmaderik.es"), nunca a mitad de palabra. */
+/** El email solo puede partirse tras la arroba ("info@" / "casetasmaderik.com"), nunca a mitad de palabra. */
 function EmailValue() {
   const [user, domain] = site.email.split('@');
   return (

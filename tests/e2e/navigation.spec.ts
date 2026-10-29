@@ -247,7 +247,7 @@ test.describe('sin JavaScript', () => {
       );
       expect(hidden).toBe(0);
       await expect(page.locator('a[href^="tel:+34656324123"]').first()).toBeAttached();
-      await expect(page.locator('a[href^="mailto:info@casetasmaderik.es"]').first()).toBeAttached();
+      await expect(page.locator('a[href^="mailto:info@casetasmaderik.com"]').first()).toBeAttached();
       await expect(page.locator('a[href^="https://wa.me/34656324123"]').first()).toBeAttached();
     });
   }

@@ -93,7 +93,7 @@ export async function renderOg({ title, eyebrow = 'Casetas Maderik' }: { title: 
             {title}
           </div>
         </div>
-        <div style={{ display: 'flex', fontSize: 22, color: '#5E6461' }}>casetasmaderik.es</div>
+        <div style={{ display: 'flex', fontSize: 22, color: '#5E6461' }}>casetasmaderik.com</div>
       </div>
       {img.poster ? null : (
         <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>

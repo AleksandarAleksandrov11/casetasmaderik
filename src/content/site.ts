@@ -7,10 +7,10 @@ export const site = {
   name: 'Casetas Maderik',
   legalName: 'AJE ZENTIO',
   taxId: 'G75277475',
-  url: 'https://casetasmaderik.es',
+  url: 'https://casetasmaderik.com',
   locale: 'es_ES',
   language: 'es-ES',
-  email: 'info@casetasmaderik.es', // PENDIENTE: confirmar que el buzón existe y recibe correo
+  email: 'info@casetasmaderik.com', // PENDIENTE: confirmar que el buzón existe y recibe correo
   phone: { display: '+34 656 32 41 23', e164: '+34656324123' },
   whatsapp: {
     number: '34656324123', // PENDIENTE: confirmar que es el mismo número

@@ -264,7 +264,7 @@ Corregido durante esta QA: el lienzo 3D (que R3F deja con eventos activos) tapab
 | Enlaces internos                     | 399 comprobados, ninguno roto                                                                   |
 | JavaScript inicial (gzip, sin el 3D) | Inicio 163,0 KB · Casetas 168,4 KB · Nosotros 156,9 KB · Contacto 156,2 KB (límite 170 KB)      |
 
-Sobre el análisis de Seobility hecho en casetasmaderik.vercel.app: el canonical y el hreflang apuntan a https://casetasmaderik.es a propósito, para que Google no indexe la dirección de Vercel como un duplicado. Ese aviso desaparece cuando el dominio apunta a Vercel. Hoy casetasmaderik.es sigue sirviendo la web antigua (WordPress).
+Sobre el análisis de Seobility hecho en casetasmaderik.vercel.app: el canonical y el hreflang apuntan a https://casetasmaderik.com a propósito, para que Google no indexe la dirección de Vercel como un duplicado. Ese aviso desaparece cuando se analiza el dominio definitivo, casetasmaderik.com. Para que el canonical coincida con lo que se sirve, el dominio principal en Vercel tiene que ser casetasmaderik.com sin `www`.
 
 ## Lighthouse
 
