@@ -51,3 +51,10 @@ Datos y decisiones que necesitamos del cliente. Todos los datos de negocio está
 - Confirmar que `info@casetasmaderik.com` existe y recibe correo (el dominio nuevo no hereda el buzón antiguo).
 - Si `casetasmaderik.es` sigue activo, redirigirlo con 301 al dominio nuevo, página a página, para no perder lo ya indexado.
 - Actualizar el dominio y el email en Google Business Profile, Instagram y cualquier directorio donde figure el antiguo.
+
+## Iconos e indexación (noviembre de 2026)
+
+- La web declara favicon de 16, 32 y 48 px (`favicon.ico`), SVG, PNG de 48 y 96 px, `apple-touch-icon` de 180 px y manifiesto en `/manifest.webmanifest` y `/site.webmanifest`. Todos con la casita crema sobre madera (se genera con `node scripts/brand/build-brand.mjs`).
+- Google tarda días o semanas en cambiar el icono de un resultado ya indexado. Para acelerarlo: en Search Console, _Inspección de URLs_ de `https://casetasmaderik.com/` y _Solicitar indexación_. El icono no aparece hasta que Google vuelve a rastrear la portada y el favicon.
+- Las tres páginas legales ya se indexan (antes llevaban `noindex`) y están en el sitemap, que ahora tiene 7 URLs. En Search Console, enviar `https://casetasmaderik.com/sitemap.xml` y pedir indexación de `/casetas`, `/nosotros`, `/contacto` y las legales.
+- El logo de los datos estructurados es ahora un PNG cuadrado de 512 px (`/brand/logo-512.png`): Google no admite SVG para el logo de la organización.

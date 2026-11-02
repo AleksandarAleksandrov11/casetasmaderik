@@ -282,7 +282,7 @@ Sobre el análisis de Seobility hecho en casetasmaderik.vercel.app: el canonical
 
 Medición tras la segunda ronda de cambios. Al pasar el menú móvil a CSS se dejó de cargar la librería `motion`, y Casetas sube de 87 a 94 en móvil. Escritorio, 100 en todas las páginas.
 
-(\*) Las páginas legales llevan `noindex, follow` por el brief (sección 10.5): Lighthouse descuenta la auditoría de indexabilidad. La configuración comprueba una a una todas las demás auditorías SEO (título, descripción, canonical, enlaces, robots.txt, hreflang, alt) y pasan todas.
+(\*) Las páginas legales se indexaban con `noindex` y puntuaban 66 en SEO; desde noviembre de 2026 se indexan como el resto y la configuración exige 100 en todas.
 
 Métricas en móvil (mediana): CLS 0 en todas las páginas, TBT de 176 a 297 ms, FCP de 1,2 a 1,4 s simulado. El LCP real (observado en la traza) llega entre 0,22 y 0,32 s, al mismo tiempo que el primer pintado; el simulado da de 2,3 a 3,1 s. La diferencia es de la medición en localhost: con latencia cero, todos los scripts, fuentes e imágenes (unos 350 KB) se piden antes del primer pintado, y la simulación los descarga todos en 4G lenta antes del LCP. Contra el dominio real, con latencia de red, PageSpeed Insights lo medirá con más fidelidad (pendiente tras el despliegue).
 

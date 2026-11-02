@@ -7,7 +7,6 @@ export const metadata: Metadata = pageMetadata({
   title: politicaPrivacidad.metaTitle,
   description: politicaPrivacidad.description,
   path: politicaPrivacidad.path,
-  noindex: true,
 });
 
 export default function Page() {

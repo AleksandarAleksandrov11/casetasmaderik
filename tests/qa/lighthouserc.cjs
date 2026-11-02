@@ -36,27 +36,10 @@ module.exports = {
       },
     },
     assert: {
-      // Las legales llevan noindex a propósito: se evalúan todas las auditorías SEO salvo la de indexación
       assertMatrix: [
         {
-          matchingUrlPattern: '^(?!.*(aviso-legal|politica-de)).*$',
+          matchingUrlPattern: '.*',
           assertions: { ...common, 'categories:seo': ['error', { minScore: 1 }] },
-        },
-        {
-          matchingUrlPattern: '(aviso-legal|politica-de)',
-          assertions: {
-            ...common,
-            'is-crawlable': 'off',
-            'document-title': 'error',
-            'meta-description': 'error',
-            'http-status-code': 'error',
-            'link-text': 'error',
-            'crawlable-anchors': 'error',
-            'robots-txt': 'error',
-            'image-alt': 'error',
-            hreflang: 'error',
-            canonical: 'error',
-          },
         },
       ],
     },

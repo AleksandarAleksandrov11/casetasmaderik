@@ -57,9 +57,18 @@ describe('metadatos', () => {
     expect(absoluteUrl('/')).toBe('https://casetasmaderik.com');
   });
 
-  it('las legales no se indexan', () => {
-    const meta = pageMetadata({ ...avisoLegal, title: avisoLegal.metaTitle, noindex: true });
-    expect(meta.robots).toMatchObject({ index: false, follow: true });
+  it('las legales se indexan como el resto de páginas', () => {
+    const meta = pageMetadata({ ...avisoLegal, title: avisoLegal.metaTitle });
+    expect(meta.robots).toMatchObject({ index: true, follow: true });
+  });
+
+  it('el logo de Organization es un PNG cuadrado (Google no admite SVG)', () => {
+    const org = JSON.parse(JSON.stringify(organizationNode())) as {
+      logo: { url: string; width: number; height: number };
+    };
+    expect(org.logo.url).toBe('https://casetasmaderik.com/brand/logo-512.png');
+    expect(org.logo.width).toBe(org.logo.height);
+    expect(Number(org.logo.width)).toBeGreaterThanOrEqual(112);
   });
 });
 

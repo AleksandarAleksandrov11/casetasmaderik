@@ -181,8 +181,9 @@ writeFileSync(
     `export const brand = ${JSON.stringify(data, null, 2)} as const;\n`,
 );
 
-// Iconos: isotipo sobre crema con margen de seguridad
-function iconSvg(size, { padding, background, radius = 0, stroke = 6.5 }) {
+// Iconos: casita crema sobre madera (se distingue bien en pestañas claras y oscuras,
+// y en los resultados de Google a 16 y 48 px) con margen de seguridad
+function iconSvg(size, { padding, background = COLORS.wood, color = COLORS.cream, radius = 0, stroke = 6.5 }) {
   const inner = size * (1 - padding * 2);
   const scale = inner / Math.max(isoW, isoH);
   const tx = (size - isoW * scale) / 2 - ISO.viewBox.x * scale;
@@ -190,31 +191,49 @@ function iconSvg(size, { padding, background, radius = 0, stroke = 6.5 }) {
   const bg = background ? `<rect width="${size}" height="${size}" rx="${radius}" fill="${background}"/>` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${bg}${isoGroup(
     {
-      color: COLORS.wood,
+      color,
       stroke,
       transform: `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${scale.toFixed(4)})`,
     },
   )}</svg>`;
 }
 
-writeFileSync(
-  out('src/app/icon.svg'),
-  iconSvg(64, { padding: 0.1, background: COLORS.cream, radius: 12, stroke: 8 }) + '\n',
-);
+writeFileSync(out('src/app/icon.svg'), iconSvg(64, { padding: 0.12, radius: 14, stroke: 8 }) + '\n');
 
 const png = (svg) => sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
-writeFileSync(out('src/app/apple-icon.png'), await png(iconSvg(180, { padding: 0.16, background: COLORS.cream })));
-writeFileSync(out('public/icons/icon-192.png'), await png(iconSvg(192, { padding: 0.14, background: COLORS.cream })));
-writeFileSync(out('public/icons/icon-512.png'), await png(iconSvg(512, { padding: 0.14, background: COLORS.cream })));
-// Maskable: el contenido debe caber en el círculo central del 80 %
+// Apple touch icon: cuadrado sin transparencia (iOS le pone las esquinas)
+const apple = await png(iconSvg(180, { padding: 0.17, stroke: 6.5 }));
+writeFileSync(out('src/app/apple-icon.png'), apple);
+writeFileSync(out('public/apple-touch-icon.png'), apple);
 writeFileSync(
-  out('public/icons/icon-maskable-512.png'),
-  await png(iconSvg(512, { padding: 0.24, background: COLORS.cream })),
+  out('public/icons/icon-48.png'),
+  await png(iconSvg(48, { padding: 0.1, radius: 9, stroke: 8, background: COLORS.wood })),
 );
+writeFileSync(out('public/icons/icon-96.png'), await png(iconSvg(96, { padding: 0.11, radius: 18, stroke: 7.5 })));
+writeFileSync(out('public/icons/icon-192.png'), await png(iconSvg(192, { padding: 0.15, stroke: 6.5 })));
+writeFileSync(out('public/icons/icon-512.png'), await png(iconSvg(512, { padding: 0.15, stroke: 6.5 })));
+// Maskable: el contenido debe caber en el círculo central del 80 %
+writeFileSync(out('public/icons/icon-maskable-512.png'), await png(iconSvg(512, { padding: 0.25, stroke: 7 })));
 
-// favicon.ico con entradas PNG de 16 y 32 px
-const ico16 = await png(iconSvg(16, { padding: 0.04, background: COLORS.cream, radius: 3, stroke: 9 }));
-const ico32 = await png(iconSvg(32, { padding: 0.06, background: COLORS.cream, radius: 6, stroke: 8 }));
+// Logo cuadrado para datos estructurados (Google no admite SVG en el logo de Organization)
+{
+  const stackedSvg = readFileSync(join(root, 'public/brand/logo-stacked.svg'));
+  const size = 512;
+  const inner = Math.round(size * 0.78);
+  const art = await sharp(stackedSvg, { density: 600 })
+    .resize({ width: inner, height: inner, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
+  await sharp({ create: { width: size, height: size, channels: 4, background: COLORS.cream } })
+    .composite([{ input: art, gravity: 'center' }])
+    .png({ compressionLevel: 9 })
+    .toFile(out('public/brand/logo-512.png'));
+}
+
+// favicon.ico con entradas PNG de 16, 32 y 48 px
+const ico16 = await png(iconSvg(16, { padding: 0.06, radius: 3, stroke: 10 }));
+const ico32 = await png(iconSvg(32, { padding: 0.08, radius: 6, stroke: 9 }));
+const ico48 = await png(iconSvg(48, { padding: 0.1, radius: 9, stroke: 8 }));
 function buildIco(images) {
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
@@ -242,6 +261,7 @@ writeFileSync(
   buildIco([
     { size: 16, data: ico16 },
     { size: 32, data: ico32 },
+    { size: 48, data: ico48 },
   ]),
 );
 

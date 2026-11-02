@@ -21,8 +21,8 @@ test.describe('SEO en el HTML servido', () => {
       expect(html).toContain('name="google-site-verification" content="l2LKSlg4IhbfzGAdQjzdPHE0UjYSLac48nWuEMNIhek"');
       expect(html.match(/<h1[\s>]/g)?.length).toBe(1);
       const robots = html.match(/<meta name="robots" content="([^"]+)"/)?.[1] ?? '';
-      if (LEGAL.includes(path)) expect(robots).toContain('noindex');
-      else expect(robots).not.toContain('noindex');
+      expect(robots).not.toContain('noindex');
+      expect(robots).toContain('index');
       // JSON-LD válido
       const blocks = [...html.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)].map((m) =>
         JSON.parse(m[1]),
@@ -56,7 +56,7 @@ test.describe('SEO en el HTML servido', () => {
     expect(descs.size).toBe(PAGES.length + LEGAL.length);
   });
 
-  test('sitemap con las 4 páginas indexables', async ({ request }) => {
+  test('sitemap con todas las páginas (4 principales y 3 legales)', async ({ request }) => {
     const xml = await (await request.get('/sitemap.xml')).text();
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(locs.sort()).toEqual(
@@ -65,6 +65,9 @@ test.describe('SEO en el HTML servido', () => {
         'https://casetasmaderik.com/casetas',
         'https://casetasmaderik.com/contacto',
         'https://casetasmaderik.com/nosotros',
+        'https://casetasmaderik.com/aviso-legal',
+        'https://casetasmaderik.com/politica-de-privacidad',
+        'https://casetasmaderik.com/politica-de-cookies',
       ].sort(),
     );
     expect(xml).toContain('<lastmod>');
@@ -75,6 +78,37 @@ test.describe('SEO en el HTML servido', () => {
     expect(txt).toMatch(/Allow: \//);
     expect(txt).toMatch(/Disallow: \/api\//);
     expect(txt).toContain('Sitemap: https://casetasmaderik.com/sitemap.xml');
+  });
+
+  test('iconos: favicon de 48 px, PNG de 48 y 96, apple-touch-icon y manifiesto', async ({ request }) => {
+    const html = await (await request.get('/')).text();
+    for (const rel of ['icon', 'apple-touch-icon', 'manifest']) expect(html).toContain(`rel="${rel}"`);
+    const icons = [...html.matchAll(/<link rel="icon" href="([^"]+)"[^>]*>/g)].map((m) => m[1]);
+    expect(icons.length).toBeGreaterThanOrEqual(3);
+    for (const href of [
+      ...icons,
+      '/favicon.ico',
+      '/apple-touch-icon.png',
+      '/apple-icon.png',
+      '/icons/icon-48.png',
+      '/icons/icon-512.png',
+    ]) {
+      const res = await request.get(href);
+      expect(res.status(), href).toBe(200);
+      expect(res.headers()['content-type'], href).toMatch(/image\//);
+    }
+    for (const url of ['/manifest.webmanifest', '/site.webmanifest']) {
+      const res = await request.get(url);
+      expect(res.status(), url).toBe(200);
+      const m = await res.json();
+      expect(m.icons.map((i: { sizes: string }) => i.sizes)).toEqual(
+        expect.arrayContaining(['48x48', '96x96', '192x192', '512x512']),
+      );
+      expect(m.name).toBe('Casetas Maderik');
+    }
+    const ld = [...html.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)].map((m) => m[1]).join('');
+    expect(ld).toContain('/brand/logo-512.png');
+    expect(ld).not.toContain('logo-stacked.svg');
   });
 
   test('llms.txt con los datos de contacto', async ({ request }) => {

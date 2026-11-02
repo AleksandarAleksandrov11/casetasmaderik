@@ -41,8 +41,10 @@ export function organizationNode(): Organization {
     logo: {
       '@type': 'ImageObject',
       '@id': IDS.logo,
-      url: absoluteUrl('/brand/logo-stacked.svg'),
-      contentUrl: absoluteUrl('/brand/logo-stacked.svg'),
+      url: absoluteUrl('/brand/logo-512.png'),
+      contentUrl: absoluteUrl('/brand/logo-512.png'),
+      width: '512',
+      height: '512',
       caption: site.name,
     },
     image: { '@id': IDS.logo },
