@@ -25,7 +25,7 @@ export const site = {
   // Toda la España peninsular: sin lista de provincias concretas (el mapa destaca las peninsulares)
   serviceArea: { label: 'España peninsular', phrase: 'toda la España peninsular', regions: [] as string[] },
   // Espacios de no separación (\u00A0): el horario y la cifra con su unidad no se parten entre líneas
-  hours: 'Lunes a viernes, de\u00A09:00\u00A0a\u00A019:00',
+  hours: 'Lunes a viernes, de\u00A09:00\u00A0a\u00A022:00',
   responseTime: 'menos de 24\u00A0horas laborables',
   social: {
     instagram: 'https://www.instagram.com/casetasmaderik/',

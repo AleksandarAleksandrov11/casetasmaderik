@@ -28,7 +28,7 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 
 /**
  * El horario se parte por la coma: si no cabe en una línea salta ahí
- * ("Lunes a viernes," / "de 9:00 a 19:00") y nunca dentro del tramo horario.
+ * ("Lunes a viernes," / "de 9:00 a 22:00") y nunca dentro del tramo horario.
  */
 function Hours({ text }: { text: string }) {
   return (
