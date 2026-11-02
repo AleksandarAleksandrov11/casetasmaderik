@@ -28,7 +28,7 @@ export const IDS = {
 const areaServed = () =>
   site.serviceArea.regions.length > 0
     ? site.serviceArea.regions.map((name) => ({ '@type': 'AdministrativeArea' as const, name }))
-    : { '@type': 'Country' as const, name: site.serviceArea.label };
+    : { '@type': 'Country' as const, name: 'España' };
 
 export function organizationNode(): Organization {
   return {
@@ -166,9 +166,9 @@ export function serviceNode(): Service {
   };
 }
 
-/** Preparado para cuando haya domicilio (site.features.localBusiness). */
+/** Negocio local con el domicilio social (site.features.localBusiness). */
 export function localBusinessNode(): LocalBusiness | null {
-  if (!site.features.localBusiness || !site.address) return null;
+  if (!site.features.localBusiness) return null;
   return {
     '@type': 'LocalBusiness',
     '@id': IDS.localBusiness,

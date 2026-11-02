@@ -1,5 +1,5 @@
 /**
- * Reseñas reales de clientes. PENDIENTE: el cliente no ha facilitado ninguna.
+ * Reseñas reales de clientes. Vacío mientras no haya reseñas reales: no se inventa ninguna.
  * No se inventan reseñas: el bloque solo se muestra con site.features.reviews
  * activado y al menos una reseña aquí.
  */

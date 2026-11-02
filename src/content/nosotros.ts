@@ -67,7 +67,7 @@ export const nosotrosSeason = {
 export const nosotrosArea = {
   label: 'Zona de servicio',
   title: 'Dónde trabajamos',
-  text: 'Montamos casetas en toda España. Elige la provincia de tu evento y te preparamos el presupuesto con transporte y montaje.',
+  text: 'Montamos casetas en toda la España peninsular. Elige la provincia de tu evento y te preparamos el presupuesto con transporte y montaje.',
 };
 
 export const nosotrosCta = {

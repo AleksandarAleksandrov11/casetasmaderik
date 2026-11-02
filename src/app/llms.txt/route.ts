@@ -10,7 +10,7 @@ export function GET() {
   const uniqueFaqs = faqs.filter((f) => (seen.has(f.q) ? false : (seen.add(f.q), true)));
   const body = `# ${site.name}
 
-> Alquiler de casetas de madera para mercados navideños, ferias, bazares, festivales gastronómicos, eventos corporativos y eventos privados en ${site.serviceArea.label}. Incluye transporte, montaje y recogida.
+> Alquiler de casetas de madera para mercados navideños, ferias, bazares, festivales gastronómicos, eventos corporativos y eventos privados en ${site.serviceArea.phrase}. Incluye transporte, montaje y recogida.
 
 ## Empresa
 - Nombre comercial: ${site.name}

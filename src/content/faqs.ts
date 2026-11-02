@@ -4,19 +4,17 @@ export type Faq = { q: string; a: string };
 
 // Medidas y cifras con su unidad llevan espacios de no separación (\u00A0) para no partirse entre líneas
 
-const zona = site.serviceArea.regions.length > 0 ? site.serviceArea.regions.join(', ') : site.serviceArea.label;
+const zona = site.serviceArea.regions.length > 0 ? site.serviceArea.regions.join(', ') : site.serviceArea.phrase;
 const respuesta = site.responseTime.charAt(0).toUpperCase() + site.responseTime.slice(1);
 
 export const homeFaqs: Faq[] = [
   {
     q: '¿Qué incluye el alquiler?',
-    // PENDIENTE: confirmar qué incluye el alquiler
-    a: 'La caseta, el transporte hasta tu recinto, el montaje y la recogida al terminar. Te detallamos todo en el presupuesto.',
+    a: 'Incluye la caseta, el transporte hasta tu recinto, el montaje y la recogida al terminar. Para cualquier otro detalle, consúltanos y te lo explicamos en el presupuesto.',
   },
   {
     q: '¿Con cuánta antelación debo reservar?',
-    // PENDIENTE: confirmar antelación recomendada
-    a: 'Cuanto antes, mejor. Para Navidad y temporada de ferias recomendamos reservar con 4 a 6\u00A0semanas, porque la disponibilidad se agota.',
+    a: 'Cuanto antes, mejor, sobre todo para Navidad y temporada de ferias, porque la disponibilidad se agota. Consúltanos tu fecha y te confirmamos la disponibilidad.',
   },
   {
     q: '¿Cuánto cuesta alquilar una caseta de madera?',
@@ -28,8 +26,7 @@ export const homeFaqs: Faq[] = [
   },
   {
     q: '¿Dónde trabajáis?',
-    // PENDIENTE: zona de servicio real
-    a: `${zona}. Si tu evento está en otra ubicación, consúltanos.`,
+    a: `Trabajamos en ${zona}. Si tu evento está en otra ubicación, consúltanos.`,
   },
 ];
 
@@ -44,23 +41,19 @@ export const casetasFaqs: Faq[] = [
   },
   {
     q: '¿Cuántas personas caben dentro?',
-    // PENDIENTE: confirmar capacidad
     a: 'Está pensada para que dos personas atiendan con comodidad.',
   },
   {
     q: '¿Tiene luz y enchufes?',
-    // PENDIENTE: confirmar qué ofrecen en electricidad e iluminación
-    a: 'Si necesitas luz o enchufes, indícalo en tu solicitud y te proponemos la mejor opción para tu recinto.',
+    a: 'Consúltanos qué necesitas de luz o enchufes e indícalo en tu solicitud: te proponemos la mejor opción para tu recinto.',
   },
   {
     q: '¿Se pueden unir varias casetas?',
-    // PENDIENTE: confirmar
     a: 'Sí, se pueden colocar en línea o en grupo para formar un mercado. Te ayudamos con la distribución.',
   },
   {
     q: '¿Qué espacio necesito?',
-    // PENDIENTE: confirmar espacio mínimo
-    a: 'Un suelo firme y nivelado de al menos 3,20\u00A0×\u00A02,30\u00A0m por caseta, con margen para abrir las ventanas.',
+    a: 'Un suelo firme y nivelado, con margen alrededor para abrir las ventanas y los mostradores. Consúltanos y te confirmamos el espacio exacto para tu recinto en el presupuesto.',
   },
   {
     q: '¿Cuánto se tarda en montar?',
@@ -68,14 +61,12 @@ export const casetasFaqs: Faq[] = [
   },
   {
     q: '¿Puedo personalizarla con mi marca?',
-    // PENDIENTE: confirmar opciones de rotulación
     a: 'Consúltanos las opciones de rotulación o decoración para tu evento.',
   },
 ];
 
 export const contactoFaqs: Faq[] = [
   { q: '¿El presupuesto tiene coste?', a: 'No. Es gratuito y sin compromiso.' },
-  // PENDIENTE: confirmar tiempo de respuesta
   { q: '¿Cuánto tardáis en responder?', a: `${respuesta}.` },
   {
     q: '¿Qué datos necesitáis?',

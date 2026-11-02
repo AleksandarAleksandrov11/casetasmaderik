@@ -13,12 +13,14 @@ import {
   breadcrumbNode,
   faqNode,
   graph,
+  localBusinessNode,
   organizationNode,
   productNode,
   serviceNode,
   webPageNode,
   websiteNode,
 } from '@/lib/schema';
+import { site } from '@/content/site';
 import { absoluteUrl, pageMetadata } from '@/lib/seo';
 
 const pages = [
@@ -177,5 +179,38 @@ describe('redirecciones de vercel.json', () => {
 
   it('las páginas nuevas no se redirigen', () => {
     for (const p of ['/', '/casetas', '/nosotros', '/contacto']) expect(resolve(p)).toBeNull();
+  });
+});
+
+describe('datos del negocio', () => {
+  it('el domicilio es Puerto Neveros, 9, 28935 Móstoles y sale en LocalBusiness', () => {
+    const node = JSON.parse(JSON.stringify(localBusinessNode())) as {
+      address: Record<string, string>;
+      areaServed: unknown;
+    };
+    expect(node.address).toMatchObject({
+      streetAddress: 'Puerto Neveros, 9',
+      postalCode: '28935',
+      addressLocality: 'Móstoles',
+      addressRegion: 'Madrid',
+      addressCountry: 'ES',
+    });
+    expect(JSON.stringify(node.areaServed)).toContain('España');
+  });
+
+  it('los textos legales llevan el domicilio y ya no hablan de datos registrales ni de pendientes', () => {
+    const text = JSON.stringify([avisoLegal, politicaPrivacidad]);
+    expect(text).toContain('Puerto Neveros, 9, 28935 Móstoles (Madrid)');
+    expect(text).not.toMatch(/registrales|Pendiente de publicar/i);
+  });
+
+  it('la zona de servicio es la España peninsular: el mapa excluye islas, Ceuta y Melilla', async () => {
+    const { PROVINCIAS, PROVINCIAS_PENINSULA } = await import('@/lib/quote-data');
+    expect(site.serviceArea.phrase).toBe('toda la España peninsular');
+    for (const p of ['Illes Balears', 'Las Palmas', 'Santa Cruz de Tenerife', 'Ceuta', 'Melilla']) {
+      expect(PROVINCIAS_PENINSULA).not.toContain(p);
+    }
+    expect(PROVINCIAS_PENINSULA).toContain('Madrid');
+    expect(PROVINCIAS_PENINSULA.length).toBe(PROVINCIAS.length - 5);
   });
 });

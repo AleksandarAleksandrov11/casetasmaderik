@@ -4,7 +4,7 @@ Web de **Casetas Maderik** (alquiler de casetas de madera para ferias, mercados 
 
 - Producción: https://www.casetasmaderik.com
 - Brief completo: [`brief/PROMPT.md`](brief/PROMPT.md)
-- Pendientes del cliente: [`PENDIENTES.md`](PENDIENTES.md)
+- Datos confirmados y opciones que se activan después: [`PENDIENTES.md`](PENDIENTES.md)
 - Informe de QA: [`QA-REPORT.md`](QA-REPORT.md)
 - Google Sheets y Apps Script: [`apps-script/README.md`](apps-script/README.md)
 

@@ -1,7 +1,6 @@
 /**
  * Datos de negocio de Casetas Maderik. Toda la web (UI, metadatos, JSON-LD,
- * legales, llms.txt y Apps Script) sale de aquí. Los datos marcados con
- * PENDIENTE están en PENDIENTES.md.
+ * legales, llms.txt y Apps Script) sale de aquí.
  */
 export const site = {
   name: 'Casetas Maderik',
@@ -10,35 +9,35 @@ export const site = {
   url: 'https://www.casetasmaderik.com',
   locale: 'es_ES',
   language: 'es-ES',
-  email: 'info@casetasmaderik.com', // PENDIENTE: confirmar que el buzón existe y recibe correo
+  email: 'info@casetasmaderik.com',
   phone: { display: '+34 656 32 41 23', e164: '+34656324123' },
   whatsapp: {
-    number: '34656324123', // PENDIENTE: confirmar que es el mismo número
+    number: '34656324123',
     message: 'Hola, quiero pedir presupuesto para alquilar casetas de madera.',
   },
-  address: null as null | {
-    street: string;
-    postalCode: string;
-    locality: string;
-    region: string;
-    country: string;
-  }, // PENDIENTE: domicilio social (obligatorio en el aviso legal)
-  registry: null as null | string, // PENDIENTE: datos registrales de la asociación
-  serviceArea: { label: 'España', regions: [] as string[] }, // PENDIENTE: provincias o ciudades
+  address: {
+    street: 'Puerto Neveros, 9',
+    postalCode: '28935',
+    locality: 'Móstoles',
+    region: 'Madrid',
+    country: 'ES',
+  },
+  // Toda la España peninsular: sin lista de provincias concretas (el mapa destaca las peninsulares)
+  serviceArea: { label: 'España peninsular', phrase: 'toda la España peninsular', regions: [] as string[] },
   // Espacios de no separación (\u00A0): el horario y la cifra con su unidad no se parten entre líneas
-  hours: 'Lunes a viernes, de\u00A09:00\u00A0a\u00A019:00', // PENDIENTE: horario real
-  responseTime: 'menos de 24\u00A0horas laborables', // PENDIENTE: tiempo de respuesta real
+  hours: 'Lunes a viernes, de\u00A09:00\u00A0a\u00A019:00',
+  responseTime: 'menos de 24\u00A0horas laborables',
   social: {
-    instagram: 'https://www.instagram.com/casetasmaderik/', // PENDIENTE: confirmar URL
+    instagram: 'https://www.instagram.com/casetasmaderik/',
   } as Record<string, string>,
   googleSiteVerification: 'l2LKSlg4IhbfzGAdQjzdPHE0UjYSLac48nWuEMNIhek',
   privacyPolicyVersion: '2026-10',
   legalUpdated: '20 de octubre de 2026',
   features: {
-    reviews: false, // PENDIENTE: activar cuando haya reseñas reales
+    reviews: false, // Se activa cuando haya reseñas reales en src/content/reviews.ts
     metaPixel: false, // Solo se carga si además existe NEXT_PUBLIC_META_PIXEL_ID
-    localBusiness: false, // Se activa cuando haya domicilio
-    techSheet: false, // PENDIENTE: ficha técnica en PDF
+    localBusiness: true,
+    techSheet: false, // Se activa cuando exista la ficha técnica en PDF
   },
 } as const;
 
@@ -88,4 +87,4 @@ export const emailHref = `mailto:${site.email}`;
 export const serviceAreaText =
   site.serviceArea.regions.length > 0
     ? `Trabajamos en ${site.serviceArea.regions.join(', ')}`
-    : `Trabajamos en ${site.serviceArea.label}`;
+    : `Trabajamos en ${site.serviceArea.phrase}`;

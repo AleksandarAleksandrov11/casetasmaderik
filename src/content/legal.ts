@@ -3,8 +3,7 @@ import { emailHref, phoneHref, site } from './site';
 
 /**
  * Textos legales (LSSI-CE, RGPD y LOPDGDD). Todos los datos del titular salen
- * de site.ts. PENDIENTE: revisión legal profesional, domicilio social y datos
- * registrales de la asociación.
+ * de site.ts.
  */
 
 /** Enlace dentro del texto: ruta interna (/...), mailto:, tel: o web externa (https://...). */
@@ -42,11 +41,7 @@ export const legalCta = {
   image: { src: '/images/real/caseta-madera-cerrada-plaza.webp', alt: 'Caseta de madera cerrada en una plaza' },
 };
 
-const domicilio = site.address
-  ? `${site.address.street}, ${site.address.postalCode} ${site.address.locality} (${site.address.region})`
-  : 'Pendiente de publicar'; // PENDIENTE: domicilio social
-
-const registro = site.registry ?? 'Pendiente de publicar'; // PENDIENTE: datos registrales
+const domicilio = `${site.address.street}, ${site.address.postalCode} ${site.address.locality} (${site.address.region})`;
 
 // Nombres que nunca se parten entre dos líneas (espacio de no separación)
 const titular = site.legalName.replaceAll(' ', '\u00a0');
@@ -82,7 +77,6 @@ export const avisoLegal: LegalPage = {
           `Titular: ${titular}`,
           `NIF: ${site.taxId}`,
           `Domicilio social: ${domicilio}`,
-          `Datos registrales: ${registro}`,
           ['Email: ', email],
           ['Teléfono: ', telefono],
           `Nombre comercial: ${marca}`,

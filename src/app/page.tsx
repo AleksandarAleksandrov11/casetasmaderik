@@ -12,7 +12,16 @@ import { homeFaqIntro, homeMeta, seasonCta } from '@/content/home';
 import { homeFaqs } from '@/content/faqs';
 import { getSeason } from '@/lib/season';
 import { pageMetadata } from '@/lib/seo';
-import { faqNode, graph, organizationNode, productNode, serviceNode, webPageNode, websiteNode } from '@/lib/schema';
+import {
+  faqNode,
+  graph,
+  localBusinessNode,
+  organizationNode,
+  productNode,
+  serviceNode,
+  webPageNode,
+  websiteNode,
+} from '@/lib/schema';
 
 // El CTA de temporada cambia solo: la página se regenera a diario
 export const revalidate = 86400;
@@ -27,6 +36,7 @@ export default function HomePage() {
       <JsonLd
         data={graph([
           organizationNode(),
+          localBusinessNode(),
           websiteNode(),
           webPageNode({ path: '/', name: homeMeta.title, description: homeMeta.description }),
           serviceNode(),

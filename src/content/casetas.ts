@@ -61,7 +61,6 @@ export const casetasSpecs = {
     { id: 'acceso', term: 'Acceso', value: 'Puerta lateral' },
     { id: 'cubierta', term: 'Cubierta', value: 'Impermeabilizada' },
     { id: 'formato', term: 'Formato', value: 'Plegable' },
-    // PENDIENTE: confirmar que el montaje lo hace siempre su equipo
     { id: 'montaje', term: 'Montaje', value: 'Lo hace nuestro equipo' },
   ],
   plansTitle: 'Planos acotados',

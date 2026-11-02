@@ -80,6 +80,10 @@ export const PROVINCIAS = [
 ] as const;
 
 export const FUERA_DE_ESPANA = 'Fuera de España';
+
+/** Provincias de la España peninsular: todas menos las islas y las ciudades autónomas. */
+const NO_PENINSULARES = ['Illes Balears', 'Las Palmas', 'Santa Cruz de Tenerife', 'Ceuta', 'Melilla'];
+export const PROVINCIAS_PENINSULA = PROVINCIAS.filter((p) => !NO_PENINSULARES.includes(p));
 export const PROVINCIA_OPTIONS = [...PROVINCIAS, FUERA_DE_ESPANA] as const;
 
 export type Provincia = (typeof PROVINCIAS)[number];
