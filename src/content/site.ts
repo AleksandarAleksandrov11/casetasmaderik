@@ -7,7 +7,7 @@ export const site = {
   name: 'Casetas Maderik',
   legalName: 'AJE ZENTIO',
   taxId: 'G75277475',
-  url: 'https://casetasmaderik.com',
+  url: 'https://www.casetasmaderik.com',
   locale: 'es_ES',
   language: 'es-ES',
   email: 'info@casetasmaderik.com', // PENDIENTE: confirmar que el buzón existe y recibe correo

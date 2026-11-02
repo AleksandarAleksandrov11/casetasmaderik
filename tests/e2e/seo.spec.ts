@@ -16,7 +16,7 @@ test.describe('SEO en el HTML servido', () => {
       expect(desc.length).toBeGreaterThanOrEqual(140);
       expect(desc.length).toBeLessThanOrEqual(160);
       const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
-      expect(canonical).toBe(`https://casetasmaderik.com${path === '/' ? '' : path}`);
+      expect(canonical).toBe(`https://www.casetasmaderik.com${path === '/' ? '' : path}`);
       expect(html).toContain('<html lang="es"');
       expect(html).toContain('name="google-site-verification" content="l2LKSlg4IhbfzGAdQjzdPHE0UjYSLac48nWuEMNIhek"');
       expect(html.match(/<h1[\s>]/g)?.length).toBe(1);
@@ -61,13 +61,13 @@ test.describe('SEO en el HTML servido', () => {
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(locs.sort()).toEqual(
       [
-        'https://casetasmaderik.com',
-        'https://casetasmaderik.com/casetas',
-        'https://casetasmaderik.com/contacto',
-        'https://casetasmaderik.com/nosotros',
-        'https://casetasmaderik.com/aviso-legal',
-        'https://casetasmaderik.com/politica-de-privacidad',
-        'https://casetasmaderik.com/politica-de-cookies',
+        'https://www.casetasmaderik.com',
+        'https://www.casetasmaderik.com/casetas',
+        'https://www.casetasmaderik.com/contacto',
+        'https://www.casetasmaderik.com/nosotros',
+        'https://www.casetasmaderik.com/aviso-legal',
+        'https://www.casetasmaderik.com/politica-de-privacidad',
+        'https://www.casetasmaderik.com/politica-de-cookies',
       ].sort(),
     );
     expect(xml).toContain('<lastmod>');
@@ -77,7 +77,7 @@ test.describe('SEO en el HTML servido', () => {
     const txt = await (await request.get('/robots.txt')).text();
     expect(txt).toMatch(/Allow: \//);
     expect(txt).toMatch(/Disallow: \/api\//);
-    expect(txt).toContain('Sitemap: https://casetasmaderik.com/sitemap.xml');
+    expect(txt).toContain('Sitemap: https://www.casetasmaderik.com/sitemap.xml');
   });
 
   test('iconos: favicon de 48 px, PNG de 48 y 96, apple-touch-icon y manifiesto', async ({ request }) => {

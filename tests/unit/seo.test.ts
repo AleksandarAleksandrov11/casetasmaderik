@@ -51,10 +51,10 @@ describe('metadatos', () => {
     for (const p of pages) {
       const meta = pageMetadata({ title: p.title, description: p.description, path: p.path });
       const canonical = String(meta.alternates?.canonical);
-      expect(canonical.startsWith('https://casetasmaderik.com')).toBe(true);
+      expect(canonical.startsWith('https://www.casetasmaderik.com')).toBe(true);
       expect(canonical.endsWith('/')).toBe(false);
     }
-    expect(absoluteUrl('/')).toBe('https://casetasmaderik.com');
+    expect(absoluteUrl('/')).toBe('https://www.casetasmaderik.com');
   });
 
   it('las legales se indexan como el resto de páginas', () => {
@@ -66,7 +66,7 @@ describe('metadatos', () => {
     const org = JSON.parse(JSON.stringify(organizationNode())) as {
       logo: { url: string; width: number; height: number };
     };
-    expect(org.logo.url).toBe('https://casetasmaderik.com/brand/logo-512.png');
+    expect(org.logo.url).toBe('https://www.casetasmaderik.com/brand/logo-512.png');
     expect(org.logo.width).toBe(org.logo.height);
     expect(Number(org.logo.width)).toBeGreaterThanOrEqual(112);
   });
