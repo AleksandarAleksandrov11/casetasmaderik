@@ -68,6 +68,7 @@ export function websiteNode(): WebSite {
     '@id': IDS.website,
     url: site.url,
     name: site.name,
+    alternateName: 'Maderik',
     inLanguage: site.language,
     publisher: { '@id': IDS.organization },
   };

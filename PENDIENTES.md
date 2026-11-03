@@ -15,3 +15,9 @@ Cosas opcionales que se activan solas cuando existan, sin tocar código salvo el
 - Reseñas reales: `site.features.reviews` y `src/content/reviews.ts`.
 - Google Analytics y Meta Pixel: variables `NEXT_PUBLIC_GA_ID` y `NEXT_PUBLIC_META_PIXEL_ID` en Vercel (y `site.features.metaPixel`).
 - Ficha técnica en PDF: `site.features.techSheet`.
+
+## Indexación
+
+- **Se indexan:** `/`, `/casetas`, `/nosotros` y `/contacto` (son las 4 URLs del sitemap).
+- **No se indexan (`noindex, follow`):** aviso legal, política de privacidad y política de cookies. Siguen accesibles y enlazadas desde el pie, y `robots.txt` no las bloquea para que Google pueda leer el `noindex`.
+- Si alguna legal ya aparece en Google, se retira sola cuando Google vuelve a rastrearla. Para acelerarlo: Search Console > _Eliminaciones_ > _Nueva solicitud_ > _Eliminar temporalmente la URL_.

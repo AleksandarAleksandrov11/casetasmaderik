@@ -59,9 +59,11 @@ describe('metadatos', () => {
     expect(absoluteUrl('/')).toBe('https://www.casetasmaderik.com');
   });
 
-  it('las legales se indexan como el resto de páginas', () => {
-    const meta = pageMetadata({ ...avisoLegal, title: avisoLegal.metaTitle });
-    expect(meta.robots).toMatchObject({ index: true, follow: true });
+  it('las legales no se indexan y las demás sí', () => {
+    const legal = pageMetadata({ ...avisoLegal, title: avisoLegal.metaTitle, noindex: true });
+    expect(legal.robots).toMatchObject({ index: false, follow: true });
+    const home = pageMetadata({ title: homeMeta.title, description: homeMeta.description, path: '/' });
+    expect(home.robots).toMatchObject({ index: true, follow: true });
   });
 
   it('el logo de Organization es un PNG cuadrado (Google no admite SVG)', () => {

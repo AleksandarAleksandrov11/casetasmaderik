@@ -7,6 +7,7 @@ export const metadata: Metadata = pageMetadata({
   title: avisoLegal.metaTitle,
   description: avisoLegal.description,
   path: avisoLegal.path,
+  noindex: true,
 });
 
 export default function Page() {

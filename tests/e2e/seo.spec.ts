@@ -21,8 +21,8 @@ test.describe('SEO en el HTML servido', () => {
       expect(html).toContain('name="google-site-verification" content="l2LKSlg4IhbfzGAdQjzdPHE0UjYSLac48nWuEMNIhek"');
       expect(html.match(/<h1[\s>]/g)?.length).toBe(1);
       const robots = html.match(/<meta name="robots" content="([^"]+)"/)?.[1] ?? '';
-      expect(robots).not.toContain('noindex');
-      expect(robots).toContain('index');
+      if (LEGAL.includes(path)) expect(robots).toContain('noindex');
+      else expect(robots).not.toContain('noindex');
       // JSON-LD válido
       const blocks = [...html.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)].map((m) =>
         JSON.parse(m[1]),
@@ -56,7 +56,7 @@ test.describe('SEO en el HTML servido', () => {
     expect(descs.size).toBe(PAGES.length + LEGAL.length);
   });
 
-  test('sitemap con todas las páginas (4 principales y 3 legales)', async ({ request }) => {
+  test('sitemap solo con las 4 páginas indexables (sin las legales)', async ({ request }) => {
     const xml = await (await request.get('/sitemap.xml')).text();
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(locs.sort()).toEqual(
@@ -65,9 +65,6 @@ test.describe('SEO en el HTML servido', () => {
         'https://www.casetasmaderik.com/casetas',
         'https://www.casetasmaderik.com/contacto',
         'https://www.casetasmaderik.com/nosotros',
-        'https://www.casetasmaderik.com/aviso-legal',
-        'https://www.casetasmaderik.com/politica-de-privacidad',
-        'https://www.casetasmaderik.com/politica-de-cookies',
       ].sort(),
     );
     expect(xml).toContain('<lastmod>');
@@ -78,6 +75,8 @@ test.describe('SEO en el HTML servido', () => {
     expect(txt).toMatch(/Allow: \//);
     expect(txt).toMatch(/Disallow: \/api\//);
     expect(txt).toContain('Sitemap: https://www.casetasmaderik.com/sitemap.xml');
+    // Las legales llevan noindex: no se bloquean en robots.txt, o Google no llegaría a ver el noindex
+    for (const p of LEGAL) expect(txt).not.toContain(`Disallow: ${p}`);
   });
 
   test('iconos: favicon de 48 px, PNG de 48 y 96, apple-touch-icon y manifiesto', async ({ request }) => {
@@ -114,6 +113,10 @@ test.describe('SEO en el HTML servido', () => {
   test('llms.txt con los datos de contacto', async ({ request }) => {
     const txt = await (await request.get('/llms.txt')).text();
     expect(txt).toContain('info@casetasmaderik.com');
+    expect(txt).toContain('Puerto Neveros, 9, 28935 Móstoles');
+    for (const p of ['', '/casetas', '/nosotros', '/contacto'])
+      expect(txt).toContain(`(https://www.casetasmaderik.com${p})`);
+    expect(txt).toContain('## Optional');
     expect(txt).toContain('+34 656 32 41 23');
     expect(txt).toContain('2,90 × 2,00 × 2,47 m');
   });

@@ -16,6 +16,8 @@ export function GET() {
 - Nombre comercial: ${site.name}
 - Titular: ${site.legalName} (NIF ${site.taxId})
 - Web: ${site.url}
+- Domicilio: ${site.address.street}, ${site.address.postalCode} ${site.address.locality} (${site.address.region})
+- Sitemap: ${site.url}/sitemap.xml
 - Email: ${site.email}
 - Teléfono y WhatsApp: ${site.phone.display}
 - Horario: ${site.hours}
@@ -40,6 +42,11 @@ export function GET() {
 - [Casetas](${site.url}/casetas): medidas, planos, montaje y preguntas frecuentes.
 - [Nosotros](${site.url}/nosotros): cómo trabajamos y dónde.
 - [Contacto](${site.url}/contacto): formulario de presupuesto.
+
+## Optional
+- [Aviso legal](${site.url}/aviso-legal)
+- [Política de privacidad](${site.url}/politica-de-privacidad)
+- [Política de cookies](${site.url}/politica-de-cookies)
 
 ## Preguntas frecuentes
 ${uniqueFaqs.map((f) => `### ${f.q}\n${f.a}`).join('\n\n')}
