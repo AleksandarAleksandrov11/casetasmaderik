@@ -122,6 +122,8 @@ type CtaFinalProps = {
   note?: string;
   /** Ubicación para la medición de clics (cta-temporada, cta-dudas...). */
   place?: string;
+  /** Destino de "Pedir presupuesto" (p. ej. el formulario con los kits ya puestos). */
+  presupuestoHref?: string;
 };
 
 /**
@@ -137,6 +139,7 @@ export function CtaFinal({
   actions = ['presupuesto', 'llamar', 'whatsapp'],
   note = ctaResponseNote,
   place = 'cta-final',
+  presupuestoHref,
 }: CtaFinalProps) {
   const lead = noOrphans(text);
   return (
@@ -150,7 +153,7 @@ export function CtaFinal({
             text={text}
             textNode={actions.includes('email') ? lead : withEmailLink(lead, place)}
           />
-          <CtaActions actions={actions} place={place} />
+          <CtaActions actions={actions} place={place} presupuestoHref={presupuestoHref} />
           <CtaNote>{note}</CtaNote>
         </div>
       </div>

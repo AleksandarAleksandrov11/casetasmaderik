@@ -99,6 +99,7 @@ describe('POST /api/presupuesto: reenvío a Apps Script', () => {
       tipoEvento: 'Mercado navideño',
       fechaFin: body.fechaFin,
       casetas: 4,
+      kits: 0,
       consentimiento: true,
       website: '',
     });
@@ -108,6 +109,32 @@ describe('POST /api/presupuesto: reenvío a Apps Script', () => {
     }
     expect(sent).not.toHaveProperty('startedAt');
     expect(sent).not.toHaveProperty('unDia');
+  });
+
+  it('reenvía los kits de mesa y bancos: solo kits, solo casetas o las dos cosas', async () => {
+    for (const [casetas, kits] of [
+      [0, 12],
+      [3, 0],
+      [3, 12],
+    ]) {
+      const fetchMock = upstreamOk(9);
+      vi.stubGlobal('fetch', fetchMock);
+      const res = await handleLeadRequest(request(validBody({ casetas, kits })), { env: prodEnv });
+      expect(res.status).toBe(200);
+      const sent = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+      expect(sent).toMatchObject({ casetas, kits });
+    }
+  });
+
+  it('una petición sin kits (formulario anterior) se acepta con 0 kits', async () => {
+    const fetchMock = upstreamOk(8);
+    vi.stubGlobal('fetch', fetchMock);
+    const legacy: Record<string, unknown> = validBody();
+    delete legacy.kits;
+    const res = await handleLeadRequest(request(legacy), { env: prodEnv });
+    expect(res.status).toBe(200);
+    const sent = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(sent).toMatchObject({ casetas: 4, kits: 0 });
   });
 
   it('con "un solo día" la fecha de fin es la de inicio', async () => {
@@ -281,6 +308,22 @@ describe('POST /api/presupuesto: antispam y validación', () => {
     );
   });
 
+  it('ni casetas ni kits: 400 sin llamar a Apps Script', async () => {
+    const fetchMock = upstreamOk(1);
+    vi.stubGlobal('fetch', fetchMock);
+    for (const body of [validBody({ casetas: 0, kits: 0 }), validBody({ casetas: 0 })]) {
+      const res = await handleLeadRequest(request(body), { env: prodEnv });
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.code).toBe('validation');
+      expect(data.fields.casetas).toBe('Indica cuántas casetas o kits necesitas.');
+    }
+    const tooMany = await handleLeadRequest(request(validBody({ kits: 501 })), { env: prodEnv });
+    expect(tooMany.status).toBe(400);
+    expect(Object.keys((await tooMany.json()).fields)).toContain('kits');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('fechas fuera de rango: 400', async () => {
     const today = todayMadrid();
     const res = await handleLeadRequest(
@@ -366,5 +409,6 @@ describe('payload y logs', () => {
     expect(masked.email).toBe('l***@example.com');
     expect(masked.nombre).toBe('L***');
     expect(masked.telefono).toBe('***56');
+    expect(masked).toMatchObject({ casetas: 4, kits: 0 });
   });
 });

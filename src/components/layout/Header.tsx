@@ -160,13 +160,13 @@ export function Header({ logo }: { logo: ReactNode }) {
                     <Link
                       href={item.href}
                       aria-current={active ? 'page' : undefined}
-                      className="group/nav relative inline-flex min-h-[44px] items-center px-3 text-[0.9375rem] font-medium"
+                      className="group/nav relative inline-flex min-h-[44px] items-center px-2.5 text-[0.9375rem] font-medium whitespace-nowrap xl:px-3"
                     >
                       {item.label}
                       <span
                         aria-hidden="true"
                         className={[
-                          'absolute inset-x-3 bottom-[9px] h-px origin-left bg-current transition-transform duration-500 ease-brand',
+                          'absolute inset-x-2.5 bottom-[9px] h-px origin-left bg-current transition-transform duration-500 ease-brand xl:inset-x-3',
                           active ? 'scale-x-100' : 'scale-x-0 group-hover/nav:scale-x-100',
                         ].join(' ')}
                       />

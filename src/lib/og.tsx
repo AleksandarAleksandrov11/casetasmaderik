@@ -15,22 +15,37 @@ const fontMedium = readFile(join(root, 'src/assets/fonts/outfit-500.woff'));
 
 const ISO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="5.5 0.5 89 78.5"><g fill="none" stroke="#98603E" stroke-width="5" stroke-miterlimit="10"><path d="M10 79V30L50 5.5L90 30V79"/><path d="M10 50L50 14L90 50"/><path d="M25.5 79V39.5H74.5V79"/></g></svg>`;
 
-async function sideImage(): Promise<{ src: string; poster: boolean }> {
+async function photoPng(source: string | Buffer): Promise<string> {
+  // Satori no lee WebP: la foto se pasa a PNG
+  const { default: sharp } = await import('sharp');
+  const photo = await sharp(source).png().toBuffer();
+  return `data:image/png;base64,${photo.toString('base64')}`;
+}
+
+async function sideImage(photo?: Promise<Buffer>): Promise<{ src: string; poster: boolean }> {
+  if (photo) return { src: await photoPng(await photo), poster: false };
   const poster = join(root, 'public/images/posters/og-base.png');
   if (existsSync(poster)) {
     const data = await readFile(poster);
     return { src: `data:image/png;base64,${data.toString('base64')}`, poster: true };
   }
-  // Satori no lee WebP: la foto se pasa a PNG
-  const { default: sharp } = await import('sharp');
-  const photo = await sharp(join(root, 'public/images/real/caseta-madera-alquiler-feria-abierta.webp'))
-    .png()
-    .toBuffer();
-  return { src: `data:image/png;base64,${photo.toString('base64')}`, poster: false };
+  return {
+    src: await photoPng(join(root, 'public/images/real/caseta-madera-alquiler-feria-abierta.webp')),
+    poster: false,
+  };
 }
 
-export async function renderOg({ title, eyebrow = 'Casetas Maderik' }: { title: string; eyebrow?: string }) {
-  const [regular, medium, img] = await Promise.all([fontRegular, fontMedium, sideImage()]);
+export async function renderOg({
+  title,
+  eyebrow = 'Casetas Maderik',
+  photo,
+}: {
+  title: string;
+  eyebrow?: string;
+  /** Foto propia de la página (el archivo ya leído) en lugar del render de la caseta. */
+  photo?: Promise<Buffer>;
+}) {
+  const [regular, medium, img] = await Promise.all([fontRegular, fontMedium, sideImage(photo)]);
   return new ImageResponse(
     <div
       style={{

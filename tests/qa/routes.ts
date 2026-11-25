@@ -2,6 +2,7 @@
 export const ROUTES = [
   { path: '/', name: 'inicio' },
   { path: '/casetas', name: 'casetas' },
+  { path: '/mesas-y-bancos', name: 'mesas' },
   { path: '/nosotros', name: 'nosotros' },
   { path: '/contacto', name: 'contacto' },
   { path: '/aviso-legal', name: 'aviso-legal' },

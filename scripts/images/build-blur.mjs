@@ -7,7 +7,7 @@ import sharp from 'sharp';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 // Los posters del 3D no usan next/image: no necesitan placeholder
-const dirs = ['public/images/real', 'public/images/stock'];
+const dirs = ['public/images/real', 'public/images/mesas', 'public/images/stock'];
 const entries = [];
 for (const dir of dirs) {
   let files = [];

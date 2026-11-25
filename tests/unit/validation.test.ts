@@ -3,7 +3,9 @@ import {
   EMPTY_DRAFT,
   EVENT_TYPES,
   PROVINCIA_OPTIONS,
+  NOTHING_CHOSEN,
   addDays,
+  countFromParam,
   daysInclusive,
   draftToLeadRequest,
   eventFromSlug,
@@ -19,7 +21,14 @@ import {
   validateStep,
   type QuoteDraft,
 } from '@/lib/validation';
-import { casetasLabel, daysLabel, firstName, formatDateRange } from '@/components/form/format';
+import {
+  casetasLabel,
+  daysLabel,
+  firstName,
+  formatDateRange,
+  kitsLabel,
+  quantityLabel,
+} from '@/components/form/format';
 import { sanitizeValues } from '@/components/form/storage';
 import { STAGE, STALL_BOX, computeLayout, computeStage } from '@/components/form/lineup-geometry';
 
@@ -138,9 +147,10 @@ describe('validación por pasos del borrador', () => {
     expect(validateStep(1, { ...base, fechaFin: '2020-01-01', unDia: true }, TODAY)).toEqual({});
   });
 
-  it('paso 3: número de casetas entre 1 y 200', () => {
-    expect(validateStep(2, { ...validDraft, casetas: '' }, TODAY).casetas).toBe('Indica cuántas casetas necesitas.');
-    expect(validateStep(2, { ...validDraft, casetas: '0' }, TODAY).casetas).toBe('Mínimo 1 caseta.');
+  it('paso 3: número de casetas entre 0 y 200', () => {
+    expect(validateStep(2, { ...validDraft, casetas: '' }, TODAY).casetas).toBe(NOTHING_CHOSEN);
+    expect(validateStep(2, { ...validDraft, casetas: '0' }, TODAY).casetas).toBe(NOTHING_CHOSEN);
+    expect(validateStep(2, { ...validDraft, casetas: '-1' }, TODAY).casetas).toBe('Indica un número de 0 o más.');
     expect(validateStep(2, { ...validDraft, casetas: '201' }, TODAY).casetas).toBe(
       'Para más de 200 casetas, llámanos.',
     );
@@ -149,6 +159,31 @@ describe('validación por pasos del borrador', () => {
     expect(validateStep(2, { ...validDraft, comentarios: 'x'.repeat(1001) }, TODAY).comentarios).toBe(
       'Máximo 1000 caracteres.',
     );
+  });
+
+  it('paso 3: kits de 0 a 500 y al menos una caseta o un kit', () => {
+    expect(NOTHING_CHOSEN).toBe('Indica cuántas casetas o kits necesitas.');
+    expect(validateStep(2, { ...validDraft, casetas: '0', kits: '10' }, TODAY)).toEqual({});
+    expect(validateStep(2, { ...validDraft, casetas: '', kits: '1' }, TODAY)).toEqual({});
+    expect(validateStep(2, { ...validDraft, casetas: '4', kits: '10' }, TODAY)).toEqual({});
+    expect(validateStep(2, { ...validDraft, casetas: '4', kits: '' }, TODAY)).toEqual({});
+    expect(validateStep(2, { ...validDraft, casetas: '0', kits: '0' }, TODAY)).toEqual({ casetas: NOTHING_CHOSEN });
+    expect(validateStep(2, { ...validDraft, kits: '501' }, TODAY).kits).toBe('Para más de 500 kits, llámanos.');
+    expect(validateStep(2, { ...validDraft, kits: '500' }, TODAY)).toEqual({});
+    expect(validateStep(2, { ...validDraft, kits: '1.5' }, TODAY).kits).toBe('Indica un número entero.');
+    expect(validateStep(2, { ...validDraft, kits: '-2' }, TODAY).kits).toBe('Indica un número de 0 o más.');
+    expect(stepOfField('kits')).toBe(2);
+    expect(EMPTY_DRAFT.kits).toBe('0');
+  });
+
+  it('cantidades de la URL: enteros de 0 a max, el resto se ignora', () => {
+    expect(countFromParam('7', 200)).toBe(7);
+    expect(countFromParam('0', 200)).toBe(0);
+    expect(countFromParam('9999', 500)).toBe(500);
+    expect(countFromParam('abc', 200)).toBeNull();
+    expect(countFromParam('-3', 200)).toBeNull();
+    expect(countFromParam('', 200)).toBeNull();
+    expect(countFromParam(null, 200)).toBeNull();
   });
 
   it('paso 4: contacto y privacidad', () => {
@@ -189,6 +224,7 @@ describe('petición a la API', () => {
     );
     expect(body).toMatchObject({
       casetas: 4,
+      kits: 0,
       email: 'lucia@example.com',
       localidad: 'Madrid centro',
       consentimiento: true,
@@ -200,6 +236,37 @@ describe('petición a la API', () => {
       fechaFin: addDays(todayMadrid(), 12),
     });
     expect(parsed.success).toBe(true);
+  });
+
+  const future = { fechaInicio: addDays(todayMadrid(), 10), fechaFin: addDays(todayMadrid(), 12) };
+
+  it('solo kits, solo casetas o las dos cosas pasan la validación del servidor', () => {
+    for (const [casetas, kits] of [
+      ['0', '10'],
+      ['4', '0'],
+      ['4', '10'],
+    ]) {
+      const body = draftToLeadRequest({ ...validDraft, casetas, kits }, ctx);
+      expect(body).toMatchObject({ casetas: Number(casetas), kits: Number(kits) });
+      const parsed = leadRequestSchema.safeParse({ ...body, ...future });
+      expect(parsed.success).toBe(true);
+      expect(parsed.data?.kits).toBe(Number(kits));
+    }
+  });
+
+  it('el servidor rechaza 0 casetas y 0 kits, y una petición sin kits cuenta como 0 kits', () => {
+    const body = { ...draftToLeadRequest(validDraft, ctx), ...future };
+    const none = leadRequestSchema.safeParse({ ...body, casetas: 0, kits: 0 });
+    expect(none.success).toBe(false);
+    expect(none.error?.issues.find((i) => i.path[0] === 'casetas')?.message).toBe(NOTHING_CHOSEN);
+    const legacy: Record<string, unknown> = { ...body };
+    delete legacy.kits;
+    const old = leadRequestSchema.safeParse(legacy);
+    expect(old.success).toBe(true);
+    expect(old.data?.kits).toBe(0);
+    expect(leadRequestSchema.safeParse({ ...legacy, casetas: 0 }).success).toBe(false);
+    expect(leadRequestSchema.safeParse({ ...body, kits: 501 }).success).toBe(false);
+    expect(leadRequestSchema.safeParse({ ...body, kits: 2.5 }).success).toBe(false);
   });
 
   it('con un solo día no envía fecha de fin', () => {
@@ -239,9 +306,19 @@ describe('formatos del resumen', () => {
   it('singular y plural', () => {
     expect(casetasLabel(1)).toBe('1 caseta');
     expect(casetasLabel(4)).toBe('4 casetas');
+    expect(kitsLabel(1)).toBe('1 kit de mesa y bancos');
+    expect(kitsLabel(10)).toBe('10 kits de mesa y bancos');
     expect(daysLabel(1)).toBe('1 día');
     expect(daysLabel(13)).toBe('13 días');
     expect(firstName('  Lucía Martín ')).toBe('Lucía');
+  });
+
+  it('cantidades del resumen: sin las que son 0', () => {
+    expect(quantityLabel(4, 0)).toBe('4 casetas');
+    expect(quantityLabel(0, 10)).toBe('10 kits de mesa y bancos');
+    expect(quantityLabel(1, 1)).toBe('1 caseta y 1 kit de mesa y bancos');
+    expect(quantityLabel(0, 0)).toBe('');
+    expect(quantityLabel(Number.NaN, 3)).toBe('3 kits de mesa y bancos');
   });
 });
 
@@ -264,6 +341,13 @@ describe('borrador en sessionStorage', () => {
     expect(values.casetas).toBe(EMPTY_DRAFT.casetas);
     expect('extra' in values).toBe(false);
     expect(sanitizeValues({ tipoEvento: 'Boda' }).tipoEvento).toBe('');
+  });
+
+  it('un borrador anterior sin kits se restaura con 0 kits, y uno nuevo conserva sus kits', () => {
+    const old = sanitizeValues({ tipoEvento: 'Feria o bazar', casetas: '6' });
+    expect(old.casetas).toBe('6');
+    expect(old.kits).toBe('0');
+    expect(sanitizeValues({ casetas: '0', kits: '12' })).toMatchObject({ casetas: '0', kits: '12' });
   });
 });
 

@@ -56,9 +56,29 @@ export const product = {
   image: '/images/real/caseta-madera-alquiler-feria-abierta.webp',
 } as const;
 
+/** Segundo producto: kit plegable de una mesa y dos bancos. Solo datos confirmados. */
+export const kit = {
+  name: 'Kit de mesa y dos bancos plegables',
+  shortName: 'Kit de mesa y dos bancos',
+  /** Largo de mesa y bancos, en metros. */
+  length: 2.2,
+  /** Personas sentadas por kit. */
+  people: 8,
+  material: 'Madera de abeto con barniz para exterior',
+  legs: 'Patas de acero plegables',
+  foldable: true,
+  image: '/images/mesas/kit-mesa-dos-bancos-madera-abeto.webp',
+} as const;
+
+/** Kits necesarios para un número de personas sentadas (uno por cada 8). */
+export function kitsFor(people: number): number {
+  return people > 0 ? Math.ceil(people / kit.people) : 0;
+}
+
 export const nav = [
   { href: '/', label: 'Inicio' },
   { href: '/casetas', label: 'Casetas' },
+  { href: '/mesas-y-bancos', label: 'Mesas y bancos' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/contacto', label: 'Contacto' },
 ] as const;

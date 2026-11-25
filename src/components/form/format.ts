@@ -32,6 +32,19 @@ export function casetasLabel(n: number): string {
   return n === 1 ? '1 caseta' : `${n.toLocaleString('es-ES')} casetas`;
 }
 
+export function kitsLabel(n: number): string {
+  return n === 1 ? '1 kit de mesa y bancos' : `${n.toLocaleString('es-ES')} kits de mesa y bancos`;
+}
+
+/** Lo que se pide, sin las cantidades a 0: "4 casetas", "10 kits de mesa y bancos" o las dos con "y". */
+export function quantityLabel(casetas: number, kits: number): string {
+  const parts = [
+    Number.isFinite(casetas) && casetas > 0 ? casetasLabel(casetas) : '',
+    Number.isFinite(kits) && kits > 0 ? kitsLabel(kits) : '',
+  ].filter(Boolean);
+  return parts.join(' y ');
+}
+
 export function daysLabel(n: number): string {
   return n === 1 ? '1 día' : `${n.toLocaleString('es-ES')} días`;
 }

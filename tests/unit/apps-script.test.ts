@@ -29,6 +29,9 @@ class FakeRange {
     this.sheet.set(this.row, this.col, v);
     return this;
   }
+  getValue(): Cell {
+    return this.sheet.get(this.row, this.col);
+  }
   setFormula(v: string) {
     this.sheet.set(this.row, this.col, v);
     return this;
@@ -87,7 +90,7 @@ class FakeSheet {
     return last;
   }
   row(r: number): Cell[] {
-    return Array.from({ length: 14 }, (_, i) => this.get(r, i + 1));
+    return Array.from({ length: 15 }, (_, i) => this.get(r, i + 1));
   }
   getRange(...args: (string | number)[]) {
     if (typeof args[0] === 'string') return new FakeRange(this, ...a1(args[0]));
@@ -191,6 +194,7 @@ const lead = (over: Record<string, unknown> = {}) => ({
   localidad: 'Alcalá de Henares',
   provincia: 'Madrid',
   casetas: 4,
+  kits: 0,
   comentarios: 'Con luz',
   nombre: 'Lucía',
   telefono: '+34 600 000 000',
@@ -231,6 +235,7 @@ describe('Apps Script', () => {
       'Provincia',
       'Casetas',
       'Comentarios',
+      'Kits mesa y bancos',
     ]);
     const cont = s.sheets.get('Contador')!;
     expect(cont.get(1, 1)).toBe('Total de leads');
@@ -270,11 +275,38 @@ describe('Apps Script', () => {
       'Madrid',
       4,
       'Con luz',
+      '',
     ]);
     expect(s.post(lead({ id: 'lead-2' }))).toEqual({ ok: true, numero: 2 });
     const cont = s.sheets.get('Contador')!;
     expect(cont.get(6, 2)).toBe(2);
     expect(String(cont.get(6, 1))).toMatch(/^\d{4}-\d{2}$/);
+  });
+
+  it('guarda los kits de mesa y bancos en la última columna, con o sin casetas', () => {
+    s.post(lead({ id: 'k1', casetas: 0, kits: 12 }));
+    s.post(lead({ id: 'k2', casetas: 3, kits: 5 }));
+    s.post(lead({ id: 'k3', kits: undefined }));
+    const sol = s.sheets.get('Solicitudes')!;
+    expect(sol.row(2).slice(12)).toEqual(['', 'Con luz', 12]);
+    expect(sol.row(3).slice(12)).toEqual([3, 'Con luz', 5]);
+    expect(sol.row(4).slice(12)).toEqual([4, 'Con luz', '']);
+  });
+
+  it('en una hoja anterior de 14 columnas añade la cabecera de los kits sin tocar el resto', () => {
+    const s2 = load();
+    s2.call('configurar');
+    const sol = s2.sheets.get('Solicitudes')!;
+    sol.cells.delete('1,15');
+    expect(sol.row(1)[14]).toBe('');
+    sol.set(1, 13, 'Casetas (renombrada)');
+    sol.appendRow([1, new Date(), '10:00', 'Antigua', "'+34 600 000 001", 'a@example.com', '', 'Feria o bazar']);
+    expect(s2.post(lead({ id: 'nuevo', kits: 7 }))).toEqual({ ok: true, numero: 2 });
+    expect(sol.get(1, 15)).toBe('Kits mesa y bancos');
+    expect(sol.get(1, 13)).toBe('Casetas (renombrada)');
+    expect(sol.get(1, 1)).toBe('Nº');
+    expect(sol.row(3)[14]).toBe(7);
+    expect(sol.row(2)[3]).toBe('Antigua');
   });
 
   it('un reintento con el mismo id no duplica la fila', () => {
@@ -301,12 +333,24 @@ describe('Apps Script', () => {
     expect(m.subject).toBe('Nuevo lead nº 1: Lucía (Mercado navideño)');
     expect(m.body).toContain("Teléfono: '+34 600 000 000");
     expect(m.body).toContain('Lugar: Alcalá de Henares (Madrid)');
+    expect(m.body).toContain('Casetas: 4');
+    expect(m.body).not.toContain('Kits mesa y bancos');
     expect(m.body).toContain('docs.google.com/spreadsheets');
     s.post(lead());
     s.post(lead({ website: 'spam' }));
     s.post(lead({ secret: 'otro', id: 'z' }));
     expect(s.mails).toHaveLength(1);
     expect(CODE).not.toMatch(/info@casetasmaderik|zentiocompany/i);
+  });
+
+  it('el email incluye los kits de mesa y bancos y omite las casetas si son 0', () => {
+    s.post(lead({ id: 'k1', casetas: 3, kits: 10 }));
+    s.post(lead({ id: 'k2', casetas: 0, kits: 6 }));
+    expect(s.mails).toHaveLength(2);
+    expect(s.mails[0].body).toContain('Casetas: 3\nKits mesa y bancos: 10\nComentarios: Con luz');
+    expect(s.mails[1].body).toContain('Kits mesa y bancos: 6');
+    expect(s.mails[1].body).not.toContain('Casetas:');
+    expect(s.mails.every((m) => m.to === 'aaswebmarketing@gmail.com')).toBe(true);
   });
 
   it('si el email falla, el lead se guarda igualmente', () => {

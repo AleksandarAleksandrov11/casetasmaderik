@@ -18,6 +18,7 @@ module.exports = {
       url: [
         '/',
         '/casetas',
+        '/mesas-y-bancos',
         '/nosotros',
         '/contacto',
         '/aviso-legal',

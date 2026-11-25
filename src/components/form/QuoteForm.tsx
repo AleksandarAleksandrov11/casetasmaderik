@@ -14,6 +14,7 @@ import {
   LIMITS,
   STEP_COUNT,
   STEP_FIELDS,
+  countFromParam,
   draftToLeadRequest,
   eventFromSlug,
   provinciaFromParam,
@@ -78,12 +79,6 @@ const draftResolver: Resolver<QuoteDraft> = async (values, _context, options) =>
   return Object.keys(errors).length > 0 ? { values: {}, errors } : { values, errors: {} };
 };
 
-function parseCasetas(value: string | null): number | null {
-  if (!value || !/^\d{1,4}$/.test(value)) return null;
-  const n = Number(value);
-  return Math.min(Math.max(n, LIMITS.casetasMin), LIMITS.casetasMax);
-}
-
 const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 
 async function postLead(body: unknown): Promise<{ status: number; data: LeadResponse | null }> {
@@ -125,7 +120,7 @@ function provinciaFromUrl() {
 
 /**
  * Formulario de presupuesto en cuatro pasos. Sin props: lee ?evento=<slug>,
- * ?provincia=<nombre> y ?casetas=<n> de la URL al montarse, guarda el borrador en sessionStorage y
+ * ?provincia=<nombre>, ?casetas=<n> y ?kits=<n> de la URL al montarse, guarda el borrador en sessionStorage y
  * envía la solicitud a /api/presupuesto con un id estable para los reintentos.
  */
 export function QuoteForm() {
@@ -166,18 +161,24 @@ export function QuoteForm() {
     saveDraft({ id: meta.current.id, startedAt: meta.current.startedAt, step: atStep, values });
   }, []);
 
-  // Restaurar el borrador y aplicar la precarga por URL (?evento=, ?provincia= y ?casetas=): la URL manda
+  // Restaurar el borrador y aplicar la precarga por URL (?evento=, ?provincia=, ?casetas= y ?kits=): la URL manda
   useEffect(() => {
     let cancelled = false;
     const stored = loadDraft();
     const params = new URLSearchParams(window.location.search);
     const evento = eventFromSlug(params.get('evento'));
     const provincia = provinciaFromParam(params.get('provincia'));
-    const casetas = parseCasetas(params.get('casetas'));
+    const kits = countFromParam(params.get('kits'), LIMITS.kitsMax);
+    let casetas = countFromParam(params.get('casetas'), LIMITS.casetasMax);
+    // ?casetas=0 solo vale junto a kits; sin ellos sería una solicitud vacía
+    if (casetas === 0 && !kits) casetas = 1;
     const values: QuoteDraft = { ...(stored?.values ?? EMPTY_DRAFT) };
     if (evento) values.tipoEvento = evento;
     if (provincia) values.provincia = provincia;
-    if (casetas) values.casetas = String(casetas);
+    if (casetas !== null) values.casetas = String(casetas);
+    if (kits !== null) values.kits = String(kits);
+    // Desde la página de mesas y bancos (?kits= sin ?casetas=) no se cuela una caseta por defecto
+    if (kits && casetas === null) values.casetas = '0';
     meta.current = { id: stored?.id ?? createId(), startedAt: stored?.startedAt ?? Date.now() };
     reset(values);
     persist(values, 0);
@@ -304,7 +305,11 @@ export function QuoteForm() {
       const { status: code, data } = await postLead(body);
       if (data?.ok) {
         clearDraft();
-        trackEvent('lead_submit', { tipo_evento: values.tipoEvento, casetas: Number(values.casetas) });
+        trackEvent('lead_submit', {
+          tipo_evento: values.tipoEvento,
+          casetas: Number(values.casetas),
+          kits: Number(values.kits),
+        });
         pendingFocus.current = true;
         setResult({ numero: data.numero, nombre: firstName(values.nombre) });
         setStatus('success');

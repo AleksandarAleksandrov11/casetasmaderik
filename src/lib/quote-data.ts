@@ -111,8 +111,12 @@ export function provinciaFromParam(value: string | null | undefined): Provincia 
 }
 
 export const LIMITS = {
-  casetasMin: 1,
+  casetasMin: 0,
   casetasMax: 200,
+  kitsMin: 0,
+  kitsMax: 500,
+  /** Personas sentadas por kit (una mesa y dos bancos de 220 cm). */
+  personasPorKit: 8,
   maxRangeDays: 365,
   nombreMax: 100,
   localidadMax: 100,
@@ -181,7 +185,7 @@ export function isValidPhone(value: string): boolean {
 export const STEP_FIELDS = [
   ['tipoEvento', 'tipoEventoOtro'],
   ['fechaInicio', 'fechaFin', 'unDia', 'localidad', 'provincia'],
-  ['casetas', 'comentarios'],
+  ['casetas', 'kits', 'comentarios'],
   ['nombre', 'telefono', 'email', 'empresa', 'consentimiento'],
 ] as const;
 
@@ -208,6 +212,8 @@ export type LeadPayload = {
   localidad: string;
   provincia: string;
   casetas: number;
+  /** Kits de mesa y dos bancos. */
+  kits: number;
   comentarios?: string;
   nombre: string;
   telefono: string;
@@ -246,6 +252,7 @@ export type QuoteDraft = {
   localidad: string;
   provincia: string;
   casetas: string;
+  kits: string;
   comentarios: string;
   nombre: string;
   telefono: string;
@@ -267,6 +274,7 @@ export const EMPTY_DRAFT: QuoteDraft = {
   localidad: '',
   provincia: '',
   casetas: '1',
+  kits: '0',
   comentarios: '',
   nombre: '',
   telefono: '',
@@ -286,6 +294,15 @@ export type LeadContext = {
 
 const collapse = (value: string) => value.trim().replace(/\s+/g, ' ');
 
+/**
+ * Cantidad de ?casetas= o ?kits= en la URL: un entero de 0 a `max` (los
+ * mayores se recortan a `max`). Cualquier otra cosa da null y se ignora.
+ */
+export function countFromParam(value: string | null | undefined, max: number): number | null {
+  if (!value || !/^\d{1,4}$/.test(value)) return null;
+  return Math.min(Number(value), max);
+}
+
 /** Convierte el borrador validado en el cuerpo que se envía a la API. */
 export function draftToLeadRequest(draft: QuoteDraft, ctx: LeadContext): LeadRequestBody {
   return {
@@ -298,6 +315,7 @@ export function draftToLeadRequest(draft: QuoteDraft, ctx: LeadContext): LeadReq
     localidad: collapse(draft.localidad),
     provincia: draft.provincia as (typeof PROVINCIA_OPTIONS)[number],
     casetas: Number(draft.casetas),
+    kits: Number(draft.kits),
     comentarios: optionalText(draft.comentarios)?.trim(),
     nombre: collapse(draft.nombre),
     telefono: collapse(draft.telefono),

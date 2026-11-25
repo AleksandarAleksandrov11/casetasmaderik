@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { HomeHero } from '@/components/sections/home/HomeHero';
 import { HomeCaseta } from '@/components/sections/home/HomeCaseta';
+import { HomeMesas } from '@/components/sections/home/HomeMesas';
 import { HomeEvents } from '@/components/sections/home/HomeEvents';
 import { HomeProcess } from '@/components/sections/home/HomeProcess';
 import { HomeGuide } from '@/components/sections/home/HomeGuide';
@@ -46,6 +47,7 @@ export default function HomePage() {
       />
       <HomeHero />
       <HomeCaseta />
+      <HomeMesas />
       <HomeEvents />
       <HomeProcess />
       <HomeGuide />

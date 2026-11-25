@@ -27,6 +27,8 @@ function collectErrors(page: Page): string[] {
   page.on('console', (m: ConsoleMessage) => {
     if (m.type() !== 'error' && m.type() !== 'warning') return;
     if (m.text().startsWith('Failed to load resource')) return;
+    // Notas de rendimiento del driver de WebGL por software (SwiftShader), no errores de la página
+    if (/GL Driver Message \(OpenGL, Performance/.test(m.text())) return;
     errors.push(`${m.type()}: ${m.text()}`);
   });
   page.on('response', (r) => {
@@ -145,6 +147,32 @@ test.describe('3D de la caseta', () => {
     expect(errors, errors.join('\n')).toEqual([]);
   });
 
+  test('el kit de mesa y bancos de /mesas-y-bancos: 3D, plegado y medidas @3d', async ({ page }) => {
+    test.setTimeout(150_000);
+    const errors = collectErrors(page);
+    await skipIntro(page);
+    await page.goto('/mesas-y-bancos?debug3d');
+    const ic = page.locator('.viewer .ic--kit');
+    await expect(ic).toHaveAttribute('data-mode', '3d');
+    await expect(ic).toHaveAttribute('data-live', '', { timeout: 120_000 });
+    await expect(ic.locator('.ic__visual canvas')).toHaveCount(1);
+    for (const name of ['Plegar', 'Medidas']) {
+      const b = ic.getByRole('button', { name, exact: true });
+      await expect(b).toHaveAttribute('aria-pressed', 'false');
+      await b.click();
+      await expect(b).toHaveAttribute('aria-pressed', 'true');
+    }
+    // La cota del largo es texto con la fuente de la web
+    await expect(ic.locator('.caseta-dim-label')).toHaveText('2,20 m');
+    await ic.locator('.ic__stage').focus();
+    await page.keyboard.press('ArrowLeft');
+    await expect(ic.locator('.ic__hint')).toHaveAttribute('data-hidden', '');
+    await waitIdle(page);
+    const stats = await page.evaluate(() => window.__caseta3d ?? null);
+    expect(stats!.calls, 'llamadas de dibujo por frame').toBeLessThan(70);
+    expect(errors, errors.join('\n')).toEqual([]);
+  });
+
   test('sin WebGL: fotogramas que se giran y se abren, sin three', async ({ playwright, baseURL }) => {
     test.setTimeout(90_000);
     const browser = await playwright.chromium.launch({
@@ -185,6 +213,19 @@ test.describe('3D de la caseta', () => {
     await expect
       .poll(async () => assembly.locator('.assembly__frame[data-on]').getAttribute('src'))
       .toMatch(/montaje-00\.webp$/);
+    await expect(page.locator('canvas')).toHaveCount(0);
+
+    // Kit de mesa y bancos: fotogramas que se giran y se pliegan
+    await page.goto(`${baseURL}/mesas-y-bancos`, { waitUntil: 'load' });
+    const kit = page.locator('.viewer .ic--kit');
+    await expect(kit).toHaveAttribute('data-mode', 'frames');
+    await expect(kit.locator('.ic__frame[data-on]')).toHaveAttribute('src', /\/kit-360\/0-00\.webp$/);
+    await drag(page, '.viewer .ic--kit .ic__stage', -260);
+    await expect.poll(async () => kit.locator('.ic__frame[data-on]').getAttribute('src')).not.toMatch(/0-00\.webp$/);
+    await kit.getByRole('button', { name: 'Plegar', exact: true }).click();
+    await expect.poll(async () => kit.locator('.ic__frame[data-on]').getAttribute('src')).toMatch(/\/1-\d\d\.webp$/);
+    await kit.getByRole('button', { name: 'Medidas', exact: true }).click();
+    await expect(kit.locator('.ic__dims')).toHaveText('2,20 m');
     await expect(page.locator('canvas')).toHaveCount(0);
     expect(errors, errors.join('\n')).toEqual([]);
     await browser.close();

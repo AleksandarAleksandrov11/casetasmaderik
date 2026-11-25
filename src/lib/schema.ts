@@ -12,7 +12,7 @@ import type {
   WebPage,
   WebSite,
 } from 'schema-dts';
-import { product, site } from '@/content/site';
+import { kit, product, site } from '@/content/site';
 import type { Faq } from '@/content/faqs';
 import { absoluteUrl } from './seo';
 
@@ -21,6 +21,8 @@ export const IDS = {
   website: `${site.url}/#website`,
   service: `${site.url}/#service`,
   product: `${site.url}/casetas#product`,
+  kit: `${site.url}/mesas-y-bancos#product`,
+  kitService: `${site.url}/mesas-y-bancos#service`,
   localBusiness: `${site.url}/#localbusiness`,
   logo: `${site.url}/#logo`,
 } as const;
@@ -158,6 +160,53 @@ export function serviceNode(): Service {
         {
           '@type': 'Offer',
           itemOffered: { '@id': IDS.product },
+          availability: 'https://schema.org/InStock',
+          businessFunction: { '@id': 'http://purl.org/goodrelations/v1#LeaseOut' },
+          seller: { '@id': IDS.organization },
+        },
+      ],
+    },
+  };
+}
+
+/** Kit de una mesa y dos bancos plegables: solo datos confirmados (largo y personas). */
+export function kitProductNode(): Product {
+  return {
+    '@type': 'Product',
+    '@id': IDS.kit,
+    name: kit.name,
+    description:
+      'Kit plegable de una mesa y dos bancos de madera de abeto con barniz para exterior y patas de acero. 2,20 m de largo, para 8 personas sentadas. Se monta sin herramientas.',
+    image: absoluteUrl(kit.image),
+    material: kit.material,
+    brand: { '@type': 'Brand', name: site.name },
+    depth: { '@type': 'QuantitativeValue', value: kit.length, unitCode: 'MTR', unitText: 'm' },
+    additionalProperty: [
+      { '@type': 'PropertyValue', name: 'Incluye', value: 'Una mesa y dos bancos' },
+      { '@type': 'PropertyValue', name: 'Personas sentadas por kit', value: kit.people },
+      { '@type': 'PropertyValue', name: 'Formato', value: 'Plegable, sin herramientas' },
+    ],
+  };
+}
+
+export function kitServiceNode(): Service {
+  return {
+    '@type': 'Service',
+    '@id': IDS.kitService,
+    name: 'Alquiler de mesas y bancos para eventos',
+    serviceType: 'Alquiler de mesas y bancos plegables',
+    description:
+      'Alquiler de kits de mesa y dos bancos plegables de madera para ferias, festivales, mercados y eventos. Un kit por cada 8 personas sentadas.',
+    provider: { '@id': IDS.organization },
+    areaServed: areaServed(),
+    url: absoluteUrl('/mesas-y-bancos'),
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Mesas y bancos en alquiler',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: { '@id': IDS.kit },
           availability: 'https://schema.org/InStock',
           businessFunction: { '@id': 'http://purl.org/goodrelations/v1#LeaseOut' },
           seller: { '@id': IDS.organization },

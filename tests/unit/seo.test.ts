@@ -5,14 +5,17 @@ import { join } from 'node:path';
 import { pathToRegexp } from 'next/dist/compiled/path-to-regexp';
 import { homeMeta } from '@/content/home';
 import { casetasMeta } from '@/content/casetas';
+import { mesasMeta } from '@/content/mesas';
 import { nosotrosMeta } from '@/content/nosotros';
 import { contactoMeta } from '@/content/contacto';
 import { avisoLegal, politicaCookies, politicaPrivacidad } from '@/content/legal';
-import { casetasFaqs, contactoFaqs, homeFaqs } from '@/content/faqs';
+import { casetasFaqs, contactoFaqs, homeFaqs, mesasFaqs } from '@/content/faqs';
 import {
   breadcrumbNode,
   faqNode,
   graph,
+  kitProductNode,
+  kitServiceNode,
   localBusinessNode,
   organizationNode,
   productNode,
@@ -26,6 +29,7 @@ import { absoluteUrl, pageMetadata } from '@/lib/seo';
 const pages = [
   { path: '/', ...homeMeta },
   { path: '/casetas', ...casetasMeta },
+  { path: '/mesas-y-bancos', ...mesasMeta },
   { path: '/nosotros', ...nosotrosMeta },
   { path: '/contacto', ...contactoMeta },
   { path: avisoLegal.path, title: avisoLegal.metaTitle, description: avisoLegal.description },
@@ -107,6 +111,7 @@ describe('JSON-LD', () => {
   it.each([
     ['/', homeFaqs],
     ['/casetas', casetasFaqs],
+    ['/mesas-y-bancos', mesasFaqs],
     ['/contacto', contactoFaqs],
   ] as const)('FAQPage de %s con todas las preguntas', (path, faqs) => {
     const node = roundTrip(faqNode(path, faqs)) as { mainEntity: { name: string; acceptedAnswer: { text: string } }[] };
@@ -180,7 +185,7 @@ describe('redirecciones de vercel.json', () => {
   });
 
   it('las páginas nuevas no se redirigen', () => {
-    for (const p of ['/', '/casetas', '/nosotros', '/contacto']) expect(resolve(p)).toBeNull();
+    for (const p of ['/', '/casetas', '/mesas-y-bancos', '/nosotros', '/contacto']) expect(resolve(p)).toBeNull();
   });
 });
 
@@ -214,5 +219,32 @@ describe('datos del negocio', () => {
     }
     expect(PROVINCIAS_PENINSULA).toContain('Madrid');
     expect(PROVINCIAS_PENINSULA.length).toBe(PROVINCIAS.length - 5);
+  });
+});
+
+describe('kit de mesa y dos bancos', () => {
+  it('un kit por cada 8 personas sentadas, como en las fotos del cliente', async () => {
+    const { kitsFor } = await import('@/content/site');
+    expect(kitsFor(80)).toBe(10);
+    expect(kitsFor(200)).toBe(25);
+    expect(kitsFor(400)).toBe(50);
+    expect(kitsFor(81)).toBe(11);
+    expect(kitsFor(0)).toBe(0);
+  });
+
+  it('Product y Service del kit con solo los datos confirmados', () => {
+    const p = JSON.parse(JSON.stringify(kitProductNode())) as Record<string, unknown>;
+    expect(p['@id']).toBe('https://www.casetasmaderik.com/mesas-y-bancos#product');
+    expect(p.image).toBe('https://www.casetasmaderik.com/images/mesas/kit-mesa-dos-bancos-madera-abeto.webp');
+    expect(JSON.stringify(p)).toContain('2,20 m');
+    expect(JSON.stringify(p.additionalProperty)).toContain('"value":8');
+    expect(p).not.toHaveProperty('height');
+    const s = JSON.parse(JSON.stringify(kitServiceNode())) as Record<string, unknown>;
+    expect(JSON.stringify(s.hasOfferCatalog)).toContain('/mesas-y-bancos#product');
+  });
+
+  it('la página está en el menú', async () => {
+    const { nav } = await import('@/content/site');
+    expect(nav.map((n) => n.href)).toContain('/mesas-y-bancos');
   });
 });

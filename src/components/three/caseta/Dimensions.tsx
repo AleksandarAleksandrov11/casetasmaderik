@@ -9,7 +9,7 @@ import { easeOut, segment, type CasetaState } from '../state';
 
 type V3 = [number, number, number];
 
-interface DimDef {
+export interface DimDef {
   id: string;
   label: string;
   from: V3;
@@ -94,6 +94,8 @@ export const DIMENSIONS: DimDef[] = [
 export interface DimensionsProps {
   stateRef: RefObject<CasetaState>;
   color?: string;
+  /** Cotas a dibujar (por defecto, las de la caseta). */
+  defs?: DimDef[];
 }
 
 const _v = new THREE.Vector3();
@@ -105,7 +107,7 @@ const _b = new THREE.Vector3();
  * final. Las etiquetas son texto HTML con la fuente de la web, colocado por
  * proyección en cada frame (sin raíces de React adicionales).
  */
-export function Dimensions({ stateRef, color = '#F3EDE4' }: DimensionsProps) {
+export function Dimensions({ stateRef, color = '#F3EDE4', defs = DIMENSIONS }: DimensionsProps) {
   const gl = useThree((s) => s.gl);
   const labels = useRef<HTMLSpanElement[]>([]);
 
@@ -115,7 +117,7 @@ export function Dimensions({ stateRef, color = '#F3EDE4' }: DimensionsProps) {
     const layer = document.createElement('div');
     layer.className = 'caseta-dims';
     layer.setAttribute('aria-hidden', 'true');
-    labels.current = DIMENSIONS.map((d) => {
+    labels.current = defs.map((d) => {
       const s = document.createElement('span');
       s.className = 'caseta-dim-label';
       s.textContent = d.label;
@@ -127,12 +129,12 @@ export function Dimensions({ stateRef, color = '#F3EDE4' }: DimensionsProps) {
       layer.remove();
       labels.current = [];
     };
-  }, [gl]);
+  }, [gl, defs]);
 
   useFrame((state) => {
     const v = stateRef.current?.dims ?? 0;
     const { width, height } = state.size;
-    DIMENSIONS.forEach((d, i) => {
+    defs.forEach((d, i) => {
       const el = labels.current[i];
       if (!el) return;
       const t = segment(v, d.range[0], d.range[1]);
@@ -167,7 +169,7 @@ export function Dimensions({ stateRef, color = '#F3EDE4' }: DimensionsProps) {
 
   return (
     <group name="dimensions">
-      {DIMENSIONS.map((d) => (
+      {defs.map((d) => (
         <Dimension key={d.id} def={d} stateRef={stateRef} color={color} />
       ))}
     </group>

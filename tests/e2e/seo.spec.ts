@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const PAGES = ['/', '/casetas', '/nosotros', '/contacto'];
+const PAGES = ['/', '/casetas', '/mesas-y-bancos', '/nosotros', '/contacto'];
 const LEGAL = ['/aviso-legal', '/politica-de-privacidad', '/politica-de-cookies'];
 
 test.describe('SEO en el HTML servido', () => {
@@ -56,13 +56,14 @@ test.describe('SEO en el HTML servido', () => {
     expect(descs.size).toBe(PAGES.length + LEGAL.length);
   });
 
-  test('sitemap solo con las 4 páginas indexables (sin las legales)', async ({ request }) => {
+  test('sitemap solo con las 5 páginas indexables (sin las legales)', async ({ request }) => {
     const xml = await (await request.get('/sitemap.xml')).text();
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(locs.sort()).toEqual(
       [
         'https://www.casetasmaderik.com',
         'https://www.casetasmaderik.com/casetas',
+        'https://www.casetasmaderik.com/mesas-y-bancos',
         'https://www.casetasmaderik.com/contacto',
         'https://www.casetasmaderik.com/nosotros',
       ].sort(),
@@ -114,11 +115,12 @@ test.describe('SEO en el HTML servido', () => {
     const txt = await (await request.get('/llms.txt')).text();
     expect(txt).toContain('info@casetasmaderik.com');
     expect(txt).toContain('Puerto Neveros, 9, 28935 Móstoles');
-    for (const p of ['', '/casetas', '/nosotros', '/contacto'])
+    for (const p of ['', '/casetas', '/mesas-y-bancos', '/nosotros', '/contacto'])
       expect(txt).toContain(`(https://www.casetasmaderik.com${p})`);
     expect(txt).toContain('## Optional');
     expect(txt).toContain('+34 656 32 41 23');
     expect(txt).toContain('2,90 × 2,00 × 2,47 m');
+    expect(txt).toContain('Largo: 2,20 m. Capacidad: 8 personas sentadas por kit.');
   });
 
   test('la 404 responde 404 y no se indexa', async ({ request }) => {

@@ -104,16 +104,36 @@ export const stepWhenWhereSchema = z
   .object(stepWhenWhereShape)
   .superRefine((v, ctx) => checkDates(v, ctx, todayMadrid()));
 
-export const casetasSchema = z.coerce
-  .number('Indica cuántas casetas necesitas.')
-  .int('Indica un número entero.')
-  .min(LIMITS.casetasMin, 'Mínimo 1 caseta.')
-  .max(LIMITS.casetasMax, 'Para más de 200 casetas, llámanos.');
+export const NOTHING_CHOSEN = 'Indica cuántas casetas o kits necesitas.';
 
-export const stepQuantitySchema = z.object({
-  casetas: casetasSchema,
-  comentarios: z.string().trim().max(LIMITS.comentariosMax, 'Máximo 1000 caracteres.').optional(),
-});
+/** Un campo vacío cuenta como 0: basta con indicar casetas o kits. */
+const countSchema = (max: number, tooMany: string) =>
+  z.coerce
+    .number('Indica un número.')
+    .int('Indica un número entero.')
+    .min(0, 'Indica un número de 0 o más.')
+    .max(max, tooMany);
+
+export const casetasSchema = countSchema(LIMITS.casetasMax, 'Para más de 200 casetas, llámanos.');
+export const kitsSchema = countSchema(LIMITS.kitsMax, 'Para más de 500 kits, llámanos.');
+
+type Quantities = { casetas: unknown; kits?: unknown };
+
+/** Casetas y kits pueden ser 0, pero no los dos a la vez. El error va en casetas, el primer campo del paso. */
+export function checkQuantities(v: Quantities, ctx: z.RefinementCtx): void {
+  if (typeof v.casetas !== 'number' || (v.kits !== undefined && typeof v.kits !== 'number')) return;
+  if (v.casetas + (v.kits ?? 0) < 1) {
+    ctx.addIssue({ code: 'custom', path: ['casetas'], message: NOTHING_CHOSEN });
+  }
+}
+
+export const stepQuantitySchema = z
+  .object({
+    casetas: casetasSchema,
+    kits: kitsSchema,
+    comentarios: z.string().trim().max(LIMITS.comentariosMax, 'Máximo 1000 caracteres.').optional(),
+  })
+  .superRefine(checkQuantities, ALWAYS_REFINE);
 
 export const stepContactSchema = z.object({
   nombre: requiredText(LIMITS.nombreMax, 'Indica tu nombre.', 'Máximo 100 caracteres.').refine(
@@ -142,6 +162,7 @@ export const quoteFormSchema = z
     tipoEventoOtro: z.string().trim().max(LIMITS.otroMax, 'Máximo 80 caracteres.').optional(),
     ...stepWhenWhereShape,
     casetas: casetasSchema,
+    kits: kitsSchema,
     comentarios: z.string().trim().max(LIMITS.comentariosMax, 'Máximo 1000 caracteres.').optional(),
     ...stepContactSchema.shape,
   })
@@ -150,6 +171,7 @@ export const quoteFormSchema = z
       ctx.addIssue({ code: 'custom', path: ['tipoEventoOtro'], message: 'Cuéntanos qué evento es.' });
     }
     checkDates(v, ctx, todayMadrid());
+    checkQuantities(v, ctx);
   }, ALWAYS_REFINE);
 
 export type QuoteFormInput = z.input<typeof quoteFormSchema>;
@@ -178,6 +200,8 @@ export const leadRequestSchema = z
     localidad: requiredText(LIMITS.localidadMax, 'Indica la localidad.', 'Máximo 100 caracteres.'),
     provincia: z.enum(PROVINCIA_OPTIONS, 'Elige una provincia.'),
     casetas: z.number().int().min(LIMITS.casetasMin).max(LIMITS.casetasMax),
+    /** Kits de mesa y dos bancos. Sin el campo (clientes anteriores) son 0. */
+    kits: z.number().int().min(LIMITS.kitsMin).max(LIMITS.kitsMax).default(0),
     comentarios: shortOptional(LIMITS.comentariosMax),
     nombre: requiredText(LIMITS.nombreMax, 'Indica tu nombre.', 'Máximo 100 caracteres.'),
     telefono: z.string().trim().refine(isValidPhone, 'Indica un teléfono válido.'),
@@ -196,6 +220,7 @@ export const leadRequestSchema = z
     }
     // Un día de margen por diferencias de zona horaria del navegador
     checkDates(v, ctx, todayMadrid(), 1);
+    checkQuantities(v, ctx);
   }, ALWAYS_REFINE);
 
 export type LeadRequest = z.output<typeof leadRequestSchema>;
@@ -250,7 +275,8 @@ export function validateStep(step: number, draft: QuoteDraft, today: string = to
   } else if (step === 2) {
     collect(
       stepQuantitySchema.safeParse({
-        casetas: optionalText(draft.casetas),
+        casetas: draft.casetas.trim(),
+        kits: draft.kits.trim(),
         comentarios: draft.comentarios,
       }),
     );

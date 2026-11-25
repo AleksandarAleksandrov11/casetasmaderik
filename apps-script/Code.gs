@@ -22,6 +22,7 @@ const COLUMNAS = [
   'Provincia',
   'Casetas',
   'Comentarios',
+  'Kits mesa y bancos',
 ];
 
 function configurar() {
@@ -86,6 +87,7 @@ function guardar_(d) {
     const libro = libro_();
     const hoja = libro.getSheetByName(CONFIG.hojaSolicitudes);
     if (!hoja) return { ok: false, error: 'not_configured' };
+    completarCabecera_(hoja);
     const numero = Math.max(hoja.getLastRow(), 1);
     const ahora = new Date();
     const dia = Utilities.formatDate(ahora, CONFIG.zonaHoraria, 'yyyy-MM-dd').split('-').map(Number);
@@ -105,6 +107,7 @@ function guardar_(d) {
       texto_(d.provincia),
       Number(d.casetas) || '',
       texto_(d.comentarios),
+      Number(d.kits) || '',
     ];
     hoja.appendRow(fila);
     sumarMes_(libro, ahora);
@@ -113,6 +116,15 @@ function guardar_(d) {
     return { ok: true, numero: numero };
   } finally {
     bloqueo.releaseLock();
+  }
+}
+
+function completarCabecera_(hoja) {
+  const actual = hoja.getRange(1, 1, 1, COLUMNAS.length).getValues()[0];
+  for (let i = 0; i < COLUMNAS.length; i++) {
+    if (actual[i] === '' || actual[i] === null || actual[i] === undefined) {
+      hoja.getRange(1, i + 1).setValue(COLUMNAS[i]).setFontWeight('bold').setBackground('#F3EDE4');
+    }
   }
 }
 
@@ -145,6 +157,7 @@ function avisar_(numero, fila, url) {
       ['Fechas', fila[8] + (fila[9] && fila[9] !== fila[8] ? ' al ' + fila[9] : '')],
       ['Lugar', fila[10] + (fila[11] ? ' (' + fila[11] + ')' : '')],
       ['Casetas', fila[12]],
+      ['Kits mesa y bancos', fila[14]],
       ['Comentarios', fila[13]],
     ].filter(function (c) {
       return c[1] !== '' && c[1] !== undefined;

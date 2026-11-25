@@ -139,6 +139,7 @@ test.describe('Formulario de presupuesto', () => {
       localidad: 'Sevilla',
       provincia: 'Sevilla',
       casetas: 10,
+      kits: 0,
       comentarios: 'Necesitamos electricidad.',
       nombre: 'Lucía Martín Ortega',
       email: 'lucia@example.com',
@@ -208,7 +209,17 @@ test.describe('Formulario de presupuesto', () => {
     await stepLabel(page, 3);
     await page.getByLabel('Número de casetas', { exact: true }).fill('');
     await next(page).click();
-    await expect(form(page).getByText('Indica cuántas casetas necesitas.')).toBeVisible();
+    await expect(form(page).getByText('Indica cuántas casetas o kits necesitas.')).toBeVisible();
+    await expect(page.getByLabel('Número de casetas', { exact: true })).toBeFocused();
+    await expect(page.getByLabel('Kits de mesa y dos bancos', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+    // Con un kit ya hay algo que presupuestar: el aviso desaparece de los dos campos
+    await page.getByRole('button', { name: 'Añadir un kit' }).click();
+    await expect(form(page).getByText('Indica cuántas casetas o kits necesitas.')).toBeHidden();
+    await expect(page.getByLabel('Kits de mesa y dos bancos', { exact: true })).not.toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    await page.getByRole('button', { name: 'Quitar un kit' }).click();
     await page.getByLabel('Número de casetas', { exact: true }).fill('250');
     await expect(form(page).getByText('Para más de 200 casetas, llámanos.')).toBeVisible();
     await page.getByLabel('Número de casetas', { exact: true }).fill('12');
@@ -301,6 +312,124 @@ test.describe('Formulario de presupuesto', () => {
     await next(page).click();
     await stepLabel(page, 3);
     await expect(page.getByLabel('Número de casetas', { exact: true })).toHaveValue('7');
+  });
+
+  test('solo kits: sin casetas, con las personas estimadas, el resumen y el envío', async ({ page }) => {
+    await open(page);
+    await pickEvent(page, 'Evento privado');
+    await stepLabel(page, 2);
+    await fillWhenWhere(page, { oneDay: true, city: 'Toledo', province: 'Toledo' });
+    await next(page).click();
+    await stepLabel(page, 3);
+    await expect(form(page).getByRole('heading', { name: '¿Qué necesitas para tu evento?' })).toBeVisible();
+    const casetas = page.getByLabel('Número de casetas', { exact: true });
+    const kits = page.getByLabel('Kits de mesa y dos bancos', { exact: true });
+    await expect(casetas).toHaveValue('1');
+    await expect(kits).toHaveValue('0');
+    await expect(page.getByRole('button', { name: 'Quitar un kit' })).toHaveAttribute('aria-disabled', 'true');
+    await expect(kits).toHaveAttribute('aria-describedby', /-kits-hint/);
+    await expect(form(page).getByText('Un kit por cada 8 personas sentadas.')).toBeVisible();
+
+    // Las casetas bajan a 0 y ahí se queda el botón de quitar
+    await page.getByRole('button', { name: 'Quitar una caseta' }).click();
+    await expect(casetas).toHaveValue('0');
+    await expect(page.getByRole('button', { name: 'Quitar una caseta' })).toHaveAttribute('aria-disabled', 'true');
+    // aria-disabled deja el botón enfocable: un clic más no baja de 0
+    await page.getByRole('button', { name: 'Quitar una caseta' }).click({ force: true });
+    await expect(casetas).toHaveValue('0');
+
+    // Ni casetas ni kits: no avanza
+    await next(page).click();
+    await expect(form(page).getByText('Indica cuántas casetas o kits necesitas.')).toBeVisible();
+    await stepLabel(page, 3);
+
+    await page.getByRole('button', { name: 'Añadir un kit' }).click();
+    await expect(kits).toHaveValue('1');
+    await expect(form(page).getByText('Para unas 8 personas')).toBeVisible();
+    await kits.fill('10');
+    await expect(form(page).getByText('Para unas 80 personas')).toBeVisible();
+    await kits.fill('501');
+    await expect(form(page).getByText('Para más de 500 kits, llámanos.')).toBeVisible();
+    await kits.fill('10');
+    await expect(form(page).getByText('Para más de 500 kits, llámanos.')).toBeHidden();
+    await next(page).click();
+
+    await stepLabel(page, 4);
+    const summary = form(page).getByText('Tu solicitud', { exact: true }).locator('..');
+    await expect(summary).toContainText('10 kits de mesa y bancos');
+    await expect(summary).not.toContainText('caseta');
+    await fillContact(page);
+    const [request] = await Promise.all([page.waitForRequest(isLeadPost), send(page).click()]);
+    expect(request.postDataJSON()).toMatchObject({ casetas: 0, kits: 10, tipoEvento: 'Evento privado' });
+    await expect(page.getByRole('heading', { name: 'Solicitud enviada' })).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('casetas y kits a la vez: el resumen y el envío llevan las dos cantidades', async ({ page }) => {
+    await open(page, '?casetas=4&kits=12');
+    await pickEvent(page, 'Feria o bazar');
+    await stepLabel(page, 2);
+    await fillWhenWhere(page);
+    await next(page).click();
+    await stepLabel(page, 3);
+    await expect(page.getByLabel('Número de casetas', { exact: true })).toHaveValue('4');
+    await expect(page.getByLabel('Kits de mesa y dos bancos', { exact: true })).toHaveValue('12');
+    await expect(form(page).getByText('Para unas 96 personas')).toBeVisible();
+    await next(page).click();
+    await stepLabel(page, 4);
+    await expect(form(page).getByText('Tu solicitud', { exact: true }).locator('..')).toContainText(
+      '4 casetas y 12 kits de mesa y bancos',
+    );
+    await page.getByRole('button', { name: /Cambiar lo que necesitas/ }).click();
+    await stepLabel(page, 3);
+    await next(page).click();
+    await stepLabel(page, 4);
+    await fillContact(page);
+    const [request] = await Promise.all([page.waitForRequest(isLeadPost), send(page).click()]);
+    expect(request.postDataJSON()).toMatchObject({ casetas: 4, kits: 12 });
+    await expect(page.getByRole('heading', { name: 'Solicitud enviada' })).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('precarga por URL: ?kits= sin ?casetas= empieza con 0 casetas', async ({ page }) => {
+    await open(page, '?kits=10');
+    await pickEvent(page, 'Evento corporativo');
+    await stepLabel(page, 2);
+    await fillWhenWhere(page);
+    await next(page).click();
+    await stepLabel(page, 3);
+    await expect(page.getByLabel('Número de casetas', { exact: true })).toHaveValue('0');
+    await expect(page.getByLabel('Kits de mesa y dos bancos', { exact: true })).toHaveValue('10');
+    await expect(form(page).getByText('Para unas 80 personas')).toBeVisible();
+    await next(page).click();
+    await stepLabel(page, 4);
+    await expect(form(page).getByText('Tu solicitud', { exact: true }).locator('..')).not.toContainText('caseta');
+  });
+
+  test('la API rechaza una solicitud sin casetas ni kits', async ({ page }) => {
+    await open(page);
+    const today = new Date();
+    const res = await page.request.post('/api/presupuesto', {
+      headers: { 'x-forwarded-for': '198.18.250.7' },
+      data: {
+        id: '3f1c2b7e-8a4d-4c1e-9f2a-5b6c7d8e9f01',
+        tipoEvento: 'Feria o bazar',
+        fechaInicio: inDays(30),
+        unDia: true,
+        localidad: 'Madrid',
+        provincia: 'Madrid',
+        casetas: 0,
+        kits: 0,
+        nombre: 'Prueba Kits',
+        telefono: '600123456',
+        email: 'prueba@example.com',
+        consentimiento: true,
+        startedAt: today.getTime() - 60_000,
+        sentAt: today.getTime(),
+        website: '',
+      },
+    });
+    expect(res.status()).toBe(400);
+    const data = await res.json();
+    expect(data.fields.casetas).toBe('Indica cuántas casetas o kits necesitas.');
   });
 
   test('precarga por URL: ?provincia= la deja elegida en el paso 2, con aviso y sin saltarse pasos', async ({

@@ -4,7 +4,7 @@ Cada vez que alguien pide presupuesto en la web, la solicitud se guarda como una
 
 ## Qué vas a tener
 
-- Pestaña **Solicitudes**: una fila por solicitud con Nº, Fecha, Hora, Nombre, Teléfono, Email, Empresa, Tipo de evento, Fecha de inicio, Fecha de fin, Localidad, Provincia, Casetas y Comentarios. Solo los datos del formulario.
+- Pestaña **Solicitudes**: una fila por solicitud con Nº, Fecha, Hora, Nombre, Teléfono, Email, Empresa, Tipo de evento, Fecha de inicio, Fecha de fin, Localidad, Provincia, Casetas, Comentarios y Kits mesa y bancos. Solo los datos del formulario. Si tu hoja ya tenía las 14 primeras columnas, la cabecera de la nueva (Kits mesa y bancos) se añade sola con la primera solicitud.
 - Pestaña **Contador**: total de leads, leads de hoy y del mes en curso (se actualizan solos), y debajo una tabla con los leads de cada mes.
 
 ## Paso 1. Crear la hoja y pegar el código

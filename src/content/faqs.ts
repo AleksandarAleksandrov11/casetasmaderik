@@ -77,3 +77,38 @@ export const contactoFaqs: Faq[] = [
     a: 'Si hay disponibilidad, sí. Para fechas cercanas, llámanos directamente.',
   },
 ];
+
+export const mesasFaqs: Faq[] = [
+  {
+    q: '¿Qué incluye cada kit?',
+    a: 'Una mesa y dos bancos plegables de 2,20\u00A0m de largo, de madera de abeto con barniz para exterior y patas de acero.',
+  },
+  {
+    q: '¿Cuántas personas se sientan en un kit?',
+    a: '8\u00A0personas por kit: cuatro en cada banco.',
+  },
+  {
+    q: '¿Cuántos kits necesito para mi evento?',
+    a: 'Uno por cada 8\u00A0personas sentadas: para 80\u00A0personas, 10\u00A0kits; para 200, 25\u00A0kits, y para 400, 50\u00A0kits. Si no lo tienes claro, te lo calculamos gratis.',
+  },
+  {
+    q: '¿Se pueden usar al aire libre?',
+    a: 'Sí. La madera de abeto lleva barniz para exterior y las patas son de acero.',
+  },
+  {
+    q: '¿Hace falta herramienta para montarlos?',
+    a: 'No. Las patas se despliegan y se pliegan a mano, sin herramientas.',
+  },
+  {
+    q: '¿Puedo alquilarlos junto con las casetas?',
+    a: 'Sí. En el formulario puedes pedir casetas, kits de mesa y bancos o las dos cosas en el mismo presupuesto.',
+  },
+  {
+    q: '¿Incluye transporte y montaje? ¿Cuánto cuesta?',
+    a: 'Depende del número de kits, los días y la ubicación. Consúltanos y te lo detallamos todo en el presupuesto, sin compromiso.',
+  },
+  {
+    q: '¿Dónde trabajáis?',
+    a: `Trabajamos en ${zona}. Si tu evento está en otra ubicación, consúltanos.`,
+  },
+];

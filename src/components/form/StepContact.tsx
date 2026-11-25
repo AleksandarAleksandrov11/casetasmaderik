@@ -4,7 +4,7 @@ import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { LIMITS, type QuoteDraft } from '@/lib/quote-data';
 import { FORM_COPY, STEPS } from './copy';
 import { CheckboxMark, Field, FieldError, checkboxClass, describedBy, inputClass } from './fields';
-import { casetasLabel, formatDateRange } from './format';
+import { formatDateRange, quantityLabel } from './format';
 import { StepLegend } from './StepHeader';
 
 type Part = { step: number; text: string; label: string };
@@ -12,20 +12,19 @@ type Part = { step: number; text: string; label: string };
 /** Resumen en una línea; cada dato vuelve a su paso para editarlo. */
 function Summary({ onEdit }: { onEdit: (step: number) => void }) {
   const { control } = useFormContext<QuoteDraft>();
-  const [tipoEvento, tipoEventoOtro, fechaInicio, fechaFin, unDia, localidad, casetas] = useWatch({
+  const [tipoEvento, tipoEventoOtro, fechaInicio, fechaFin, unDia, localidad, casetas, kits] = useWatch({
     control,
-    name: ['tipoEvento', 'tipoEventoOtro', 'fechaInicio', 'fechaFin', 'unDia', 'localidad', 'casetas'],
+    name: ['tipoEvento', 'tipoEventoOtro', 'fechaInicio', 'fechaFin', 'unDia', 'localidad', 'casetas', 'kits'],
   });
   const evento = tipoEvento === 'Otro' ? tipoEventoOtro.trim() || 'Otro' : tipoEvento;
-  const n = Number(casetas);
   const fechas = formatDateRange(fechaInicio, unDia ? undefined : fechaFin);
-  const cantidad = Number.isFinite(n) && n > 0 ? casetasLabel(n) : '';
+  const cantidad = quantityLabel(Number(casetas), Number(kits));
   // El nombre accesible contiene siempre el texto visible (WCAG 2.5.3)
   const parts: Part[] = [
     { step: 0, text: evento, label: `Cambiar el tipo de evento: ${evento}` },
     { step: 1, text: fechas, label: `Cambiar las fechas: ${fechas}` },
     { step: 1, text: localidad.trim(), label: `Cambiar el lugar: ${localidad.trim()}` },
-    { step: 2, text: cantidad, label: `Cambiar el número de casetas: ${cantidad}` },
+    { step: 2, text: cantidad, label: `Cambiar lo que necesitas: ${cantidad}` },
   ].filter((p) => p.text);
 
   return (

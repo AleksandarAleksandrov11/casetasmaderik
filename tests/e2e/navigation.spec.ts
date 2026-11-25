@@ -167,9 +167,10 @@ test('menú móvil tras bajar: se abre con todos los enlaces a la vista, Inicio 
       };
     }),
   );
-  expect(rows.map((r) => r.text)).toEqual(['Inicio', 'Casetas', 'Nosotros', 'Contacto']);
+  const links = ['Inicio', 'Casetas', 'Mesas y bancos', 'Nosotros', 'Contacto'];
+  expect(rows.map((r) => r.text)).toEqual(links);
   for (const r of rows) expect(r, r.text).toMatchObject({ scroll: 0, inside: true });
-  for (const name of ['Inicio', 'Casetas', 'Nosotros', 'Contacto']) {
+  for (const name of links) {
     await expect(dialog.getByRole('link', { name, exact: true })).toBeInViewport();
   }
   // El fondo no se mueve con el menú abierto y vuelve a su sitio al cerrar
@@ -234,7 +235,7 @@ test('lightbox de la galería: teclado, contador y Esc', async ({ page }) => {
 
 test.describe('sin JavaScript', () => {
   test.use({ javaScriptEnabled: false });
-  for (const path of ['/', '/casetas', '/nosotros', '/contacto']) {
+  for (const path of ['/', '/casetas', '/mesas-y-bancos', '/nosotros', '/contacto']) {
     test(`${path} se lee entera y los contactos funcionan`, async ({ page }) => {
       await page.goto(path);
       await expect(page.locator('h1')).toBeVisible();
@@ -270,4 +271,22 @@ test.describe('movimiento reducido', () => {
       expect(hidden).toBe(0);
     });
   }
+});
+
+test('calculadora de kits: personas a kits y enlace al formulario con los kits puestos', async ({ page }) => {
+  await page.goto('/mesas-y-bancos');
+  const calc = page.locator('section', { has: page.getByRole('heading', { name: '¿Cuántos kits necesito?' }) });
+  const input = calc.getByLabel('Personas sentadas');
+  await expect(input).toHaveValue('80');
+  await expect(calc.locator('output')).toHaveText('10 kits');
+  await calc.getByRole('button', { name: '200 personas' }).click();
+  await expect(calc.locator('output')).toHaveText('25 kits');
+  await input.fill('81');
+  await expect(calc.locator('output')).toHaveText('11 kits');
+  await expect(calc.getByText('88 plazas sentadas')).toBeVisible();
+  await calc.getByRole('button', { name: 'Diez personas más' }).click();
+  await expect(input).toHaveValue('91');
+  await expect(calc.locator('output')).toHaveText('12 kits');
+  await calc.getByRole('link', { name: 'Pedir presupuesto' }).click();
+  await expect(page).toHaveURL(/\/contacto\?kits=12$/);
 });
