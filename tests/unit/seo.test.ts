@@ -89,7 +89,7 @@ describe('JSON-LD', () => {
       expect(org[key], key).toBeTruthy();
     }
     expect(org.taxID).toBe('G75277475');
-    expect(org.telephone).toBe('+34656324123');
+    expect(org.telephone).toBe('+34682795753');
   });
 
   it('Product con medidas en metros y sin precio', () => {

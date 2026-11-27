@@ -30,8 +30,8 @@
 | NIF | G75277475 |
 | Dominio | https://casetasmaderik.es |
 | Email | info@casetasmaderik.es |
-| Teléfono | +34 656 32 41 23 (`tel:+34656324123`) |
-| WhatsApp | Mismo número, `https://wa.me/34656324123` (PENDIENTE confirmar) |
+| Teléfono | +34 682 79 57 53 (`tel:+34682795753`) |
+| WhatsApp | Mismo número, `https://wa.me/34682795753` (PENDIENTE confirmar) |
 | Instagram | @casetasmaderik (PENDIENTE confirmar URL) |
 | Domicilio social | PENDIENTE (obligatorio para el aviso legal) |
 | Zona de servicio | PENDIENTE. Provisional: "España", configurable |
@@ -161,9 +161,9 @@ export const site = {
   taxId: 'G75277475',
   url: 'https://casetasmaderik.es',
   email: 'info@casetasmaderik.es',
-  phone: { display: '+34 656 32 41 23', e164: '+34656324123' },
+  phone: { display: '+34 682 79 57 53', e164: '+34682795753' },
   whatsapp: {
-    number: '34656324123', // PENDIENTE: confirmar que es el mismo número
+    number: '34682795753', // PENDIENTE: confirmar que es el mismo número
     message: 'Hola, quiero pedir presupuesto para alquilar casetas de madera.',
   },
   address: null, // PENDIENTE: domicilio social
@@ -851,7 +851,7 @@ Repite el ciclo completo (automático más visual) hasta que esté limpio, con u
 1. Domicilio social de AJE ZENTIO y datos registrales de la asociación (obligatorio en el aviso legal).
 2. Zona de servicio (provincias o ciudades) para SEO local y el mapa de Nosotros.
 3. Horario de atención.
-4. Confirmar que el WhatsApp es el +34 656 32 41 23.
+4. Confirmar que el WhatsApp es el +34 682 79 57 53.
 5. URLs reales de redes sociales.
 6. Confirmar que info@casetasmaderik.es existe y recibe correo.
 7. Tiempo de respuesta real (provisional: menos de 24 horas laborables).

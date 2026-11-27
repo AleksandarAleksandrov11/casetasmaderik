@@ -171,7 +171,7 @@ test.describe('Formulario de presupuesto', () => {
     await expect(page.getByRole('heading', { name: 'Solicitud enviada' })).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Tu número de solicitud es el 42.')).toBeVisible();
     const whatsapp = page.locator('#formulario').getByRole('link', { name: 'Escribir por WhatsApp' });
-    await expect(whatsapp).toHaveAttribute('href', /wa\.me\/34656324123\?text=.*solicitud%2042/);
+    await expect(whatsapp).toHaveAttribute('href', /wa\.me\/34682795753\?text=.*solicitud%2042/);
     await expect(page.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '/');
   });
 
@@ -528,7 +528,7 @@ test.describe('Formulario de presupuesto', () => {
         timeout: 15_000,
       },
     );
-    await expect(alert.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', /wa\.me\/34656324123/);
+    await expect(alert.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', /wa\.me\/34682795753/);
     await expect(page.getByLabel('Nombre y apellidos')).toHaveValue('Pedro Gómez');
     await expect(page.getByLabel(/He leído y acepto/)).toBeChecked();
 
@@ -674,8 +674,8 @@ test.describe('Formulario sin JavaScript', () => {
     const noscript = await page.locator('noscript').evaluateAll((els) => els.map((el) => el.innerHTML).join('\n'));
     expect(noscript).toContain('Para usar el formulario necesitas JavaScript.');
     expect(noscript).toContain('href="mailto:info@casetasmaderik.com"');
-    expect(noscript).toContain('href="tel:+34656324123"');
-    expect(noscript).toMatch(/href="https:\/\/wa\.me\/34656324123/);
+    expect(noscript).toContain('href="tel:+34682795753"');
+    expect(noscript).toMatch(/href="https:\/\/wa\.me\/34682795753/);
   });
 });
 

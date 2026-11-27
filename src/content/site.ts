@@ -10,9 +10,9 @@ export const site = {
   locale: 'es_ES',
   language: 'es-ES',
   email: 'info@casetasmaderik.com',
-  phone: { display: '+34 656 32 41 23', e164: '+34656324123' },
+  phone: { display: '+34 682 79 57 53', e164: '+34682795753' },
   whatsapp: {
-    number: '34656324123',
+    number: '34682795753',
     message: 'Hola, quiero pedir presupuesto para alquilar casetas de madera.',
   },
   address: {

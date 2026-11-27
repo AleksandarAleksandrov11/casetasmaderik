@@ -118,7 +118,7 @@ test.describe('SEO en el HTML servido', () => {
     for (const p of ['', '/casetas', '/mesas-y-bancos', '/nosotros', '/contacto'])
       expect(txt).toContain(`(https://www.casetasmaderik.com${p})`);
     expect(txt).toContain('## Optional');
-    expect(txt).toContain('+34 656 32 41 23');
+    expect(txt).toContain('+34 682 79 57 53');
     expect(txt).toContain('2,90 × 2,00 × 2,47 m');
     expect(txt).toContain('Largo: 2,20 m. Capacidad: 8 personas sentadas por kit.');
   });

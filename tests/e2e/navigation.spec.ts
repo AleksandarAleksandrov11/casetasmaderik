@@ -203,7 +203,7 @@ test('botón de WhatsApp: aparece tras el hero y se oculta en /contacto', async 
   await page.goto('/casetas');
   await scrollDown();
   await expect(wa).toHaveClass(/opacity-100/);
-  await expect(wa).toHaveAttribute('href', /^https:\/\/wa\.me\/34656324123\?text=/);
+  await expect(wa).toHaveAttribute('href', /^https:\/\/wa\.me\/34682795753\?text=/);
   await expect(wa).toHaveAttribute('aria-label', 'Escribir por WhatsApp');
   await page.goto('/contacto');
   await scrollDown();
@@ -247,9 +247,9 @@ test.describe('sin JavaScript', () => {
           }).length,
       );
       expect(hidden).toBe(0);
-      await expect(page.locator('a[href^="tel:+34656324123"]').first()).toBeAttached();
+      await expect(page.locator('a[href^="tel:+34682795753"]').first()).toBeAttached();
       await expect(page.locator('a[href^="mailto:info@casetasmaderik.com"]').first()).toBeAttached();
-      await expect(page.locator('a[href^="https://wa.me/34656324123"]').first()).toBeAttached();
+      await expect(page.locator('a[href^="https://wa.me/34682795753"]').first()).toBeAttached();
     });
   }
 });
